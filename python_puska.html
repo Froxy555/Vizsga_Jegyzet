@@ -1,0 +1,1739 @@
+﻿<!DOCTYPE html>
+<html lang="hu" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Emelt Informatika Puska</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #0a0f1e; }
+        .glass {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        pre[class*="language-"] { margin: 0 !important; border-radius: 0 !important; font-size: 0.8rem !important; }
+        code[class*="language-"] { font-size: 0.8rem !important; }
+        .nav-link {
+            display: block; padding: 5px 12px; border-radius: 7px;
+            font-size: 0.78rem; font-weight: 600; color: #94a3b8;
+            transition: all 0.2s; border-left: 3px solid transparent;
+        }
+        .nav-link:hover { background: rgba(99,102,241,0.15); color: #e2e8f0; border-left-color: #6366f1; }
+        .badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 30px; height: 30px; border-radius: 7px;
+            font-size: 0.82rem; font-weight: 800; margin-right: 10px; flex-shrink: 0;
+        }
+        .keret { border-radius: 0.75rem; overflow: hidden; border: 1px solid #374151; }
+        .fejlec { padding: 6px 14px; font-size: 0.72rem; font-weight: 700; color: white; }
+        
+        /* Vissza a főoldalra gomb CSS */
+        #back-to-home-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+        }
+        #back-to-home-btn:hover {
+            transform: scale(1.1);
+            background: rgba(30, 41, 59, 1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Chatbot CSS */
+        #ai-chat-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #059669); /* Greenish for Python */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        #ai-chat-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(16, 185, 129, 0.6);
+        }
+        #ai-chat-header {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        #ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+
+        #ai-chat-messages::-webkit-scrollbar { width: 6px; }
+        #ai-chat-messages::-webkit-scrollbar-track { background: transparent; }
+        #ai-chat-messages::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+        #ai-chat-messages::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+
+        .ai-msg, .user-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .ai-msg p:not(:last-child) { margin-bottom: 0.5rem; }
+        .ai-msg ul { list-style-type: disc; margin-left: 1.2rem; margin-bottom: 0.5rem; }
+        .ai-msg ol { list-style-type: decimal; margin-left: 1.2rem; margin-bottom: 0.5rem; }
+        .ai-msg li { margin-bottom: 0.2rem; }
+        .ai-msg strong { font-weight: 700; color: #e2e8f0; }
+        .ai-msg code { background: rgba(0,0,0,0.3); padding: 0.1rem 0.3rem; border-radius: 4px; font-family: monospace; color: #fde047; font-size: 0.9em; }
+        .ai-msg pre { background: rgba(0,0,0,0.5); padding: 0.75rem; border-radius: 6px; overflow-x: auto; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .ai-msg pre code { background: transparent; padding: 0; color: #e2e8f0; font-size: 0.9em; }
+        .ai-msg a { color: #60a5fa; text-decoration: underline; }
+
+        .ai-msg {
+            background: rgba(255, 255, 255, 0.1);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        .user-msg {
+            background: #10b981;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        #ai-chat-input-container {
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 8px;
+        }
+        #ai-chat-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        #ai-chat-input:focus {
+            border-color: #10b981;
+        }
+        #ai-chat-send {
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        #ai-chat-send:hover {
+            background: #059669;
+        }
+        .typing-indicator {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #ccc;
+            animation: typing 1.4s infinite ease-in-out both;
+            margin: 0 2px;
+        }
+        .typing-indicator:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.5); }
+        }
+    </style>
+</head>
+<body class="text-gray-200 antialiased">
+<div class="flex min-h-screen">
+
+    <!-- SIDEBAR -->
+    <aside class="hidden lg:flex flex-col w-64 shrink-0 glass border-r border-gray-800 sticky top-0 h-screen overflow-y-auto py-6 px-3 z-10">
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-3">TARTALOM</p>
+        <nav class="space-y-0.5">
+            <a href="#sec-alapok"   class="nav-link">1. Python alapok</a>
+            <a href="#sec-fajl"     class="nav-link">2. Fájlkezelés</a>
+            <a href="#sec-feldarab" class="nav-link">3. Szöveg feldolgozás</a>
+            <a href="#sec-ciklusok" class="nav-link">4. Ciklusok & feltételek</a>
+            <a href="#sec-lista"    class="nav-link">5. Lista műveletek</a>
+            <a href="#sec-dict"     class="nav-link">6. Dictionary (szótár)</a>
+            <a href="#sec-set"      class="nav-link">7. Set (halmaz)</a>
+            <a href="#sec-fuggv"    class="nav-link">8. Függvények</a>
+            <a href="#sec-matrix"   class="nav-link">9. Mátrix (2D lista)</a>
+            <a href="#sec-kereses"  class="nav-link">10. Keresés / max-min</a>
+            <a href="#sec-rendez"   class="nav-link">11. Rendezés</a>
+            <a href="#sec-szoveg"   class="nav-link">12. Szöveg műveletek</a>
+            <a href="#sec-szam"     class="nav-link">13. Számítások</a>
+            <a href="#sec-fkiiras"  class="nav-link">14. Fájlba írás</a>
+            <a href="#sec-tipusf"   class="nav-link">15. Típusfeladatok</a>
+            <a href="#sec-tippek"   class="nav-link">16. Tippek & buktatók</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full">
+
+        <!-- HEADER -->
+        <header class="text-center mb-10 mt-2">
+            <h1 class="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-green-400 to-cyan-400 pb-2 mb-2">
+                Python Puska
+            </h1>
+            <p class="text-gray-400 text-sm">Emelt Informatika Érettségi • Típusfeladatok • Minták a valós feladatokból</p>
+        </header>
+
+        <div class="space-y-10">
+
+        <!-- ===== 1. ALAPOK ===== -->
+        <section id="sec-alapok" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-yellow-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-yellow-600">1</span> Python alapok — amit mindig tudni kell
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-yellow-800/60">Adattípusok és konverzió</div>
+                    <pre><code class="language-python">x = 5          # int (egész szám)
+y = 3.14       # float (tizedes szám)
+s = "szoveg"   # str (szöveg)
+b = True       # bool (igaz/hamis)
+
+# Konverzió (típusváltás):
+int("42")      # → 42
+float("3.14")  # → 3.14
+str(42)        # → "42"
+int(3.9)       # → 3  (NEM kerekít, levágja!)
+round(3.9)     # → 4  (kerekít)</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-yellow-800/60">Input / Output</div>
+                    <pre><code class="language-python"># Bekérés (mindig STR-t ad vissza!)
+nev = input("Neve: ")
+kor = int(input("Kora: "))   # convert!
+szam = float(input("Szám: "))
+
+# Kiírás
+print("Hello")
+print("Kor:", kor)
+print(f"Szia {nev}, {kor} éves vagy.")  # f-string
+
+# Formázás
+print(f"{3.14159:.2f}")     # → 3.14  (2 tizedes)
+print(f"{42:05d}")          # → 00042 (5 jegyű, nullákkal)
+print(f"{0.756*100:.1f}%") # → 75.6%</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-yellow-800/60">Operátorok</div>
+                    <pre><code class="language-python"># Aritmetikai:
+5 + 2   # 7
+5 - 2   # 3
+5 * 2   # 10
+5 / 2   # 2.5   (float osztás)
+5 // 2  # 2     (egész osztás)
+5 % 2   # 1     (maradék)
+5 ** 2  # 25    (hatványozás)
+
+# Összehasonlítás:
+==  !=  <  >  <=  >=
+
+# Logikai:
+and   or   not
+
+# Tagság:
+"a" in "alma"    # True
+x in lista       # True ha x eleme</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-yellow-800/60">Konstansok indexként (jó szokás!)</div>
+                    <pre><code class="language-python"># A konyvek.py-ból: oszlopokat névvel jelölni
+EV       = 0
+NEGYEDEV = 1
+EREDET   = 2
+LEIRAS   = 3
+PLDSZAM  = 4
+
+# Így olvasható marad a kód:
+if kiadas[EREDET] == "kf":
+    print(kiadas[LEIRAS])
+
+# Szám helyett neve van — sokkal érthetőbb!</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 2. FÁJLKEZELÉS ===== -->
+        <section id="sec-fajl" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-green-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-green-700">2</span> Fájlkezelés — beolvasás
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-green-800/60">Módszer 1: for sor in fajl (LEGJOBB)</div>
+                    <pre><code class="language-python"># with open → automatikusan zárja a fájlt!
+adatok = []
+with open("adatok.txt", encoding="utf-8") as f:
+    for sor in f:
+        sor = sor.strip()      # sortörés levágása
+        if sor == "": continue # üres sor átugrása
+        reszek = sor.split(";")
+        adatok.append(reszek)
+
+# Vagy rövidebben (konyvek.py stílusa):
+be = open("kiadas.txt", encoding="utf-8")
+for sor in be:
+    sor = sor.strip()
+    if sor != "":
+        ...
+be.close()  # ne felejts el zárni!</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-green-800/60">Módszer 2: readlines() — az összes sor egyszerre</div>
+                    <pre><code class="language-python"># banyato.py, park.py stílusa:
+with open("adatok.txt") as f:
+    sorok = f.readlines()
+
+# sorok[0] = első sor (string, \n-nel a végén!)
+elso = int(sorok[0].strip())  # pl. darabszám
+
+# A többi sor feldolgozása:
+for sor in sorok[1:]:         # sorok[1:] = 2. sortól
+    reszek = sor.strip().split()
+    ...
+
+# Egy konkrét sor olvasása:
+sor = sorok[5].strip()        # 6. sor (0-tól indexel)</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-green-800/60">Módszer 3: readline() — soronként</div>
+                    <pre><code class="language-python"># sebesseg.py stílusa:
+with open("ut.txt") as bemenet:
+    hossz = int(bemenet.readline().strip()) # 1. sor
+    for sor in bemenet:  # maradék sorok
+        határ = sor.strip().split()
+        ...
+
+# readline() = egy sort olvas és lép tovább
+# for sor in f = maradék sorokon megy végig</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-green-800/60">Elválasztók — split variációk</div>
+                    <pre><code class="language-python">sor = "alma;korte;szilva"
+sor.split(";")     # ["alma", "korte", "szilva"]
+
+sor = "alma korte szilva"
+sor.split()        # ["alma", "korte", "szilva"]
+                   # (szóközre + tabra + több szóközre)
+
+sor = "5:3;Deep Purple:Bad Attitude"
+reszek = sor.split(";")  # ["5:3", "Deep Purple:Bad Attitude"]
+ido = reszek[0].split(":") # ["5", "3"]
+
+# Tab elválasztó:
+sor.split("\t")    # tabulátorra bont</code></pre>
+                </div>
+            </div>
+
+            <div class="bg-green-900/30 border border-green-700/50 rounded-xl p-4">
+                <p class="text-green-300 font-bold text-sm mb-2">📋 Beolvasás + azonnali típuskonverzió (leggyakoribb minta):</p>
+                <pre><code class="language-python"># Komplex beolvasás — egy sorban minden mező más típus:
+# Pl. "2022;3;ma;Pippi Hosszúharisnya;45000"
+adatok = []
+with open("kiadas.txt", encoding="utf-8") as f:
+    for sor in f:
+        sor = sor.strip()
+        if sor == "": continue
+        s = sor.split(";")
+        # [int, int, str, str, int]
+        adatok.append([int(s[0]), int(s[1]), s[2], s[3], int(s[4])])</code></pre>
+            </div>
+        </section>
+
+        <!-- ===== 3. SZÖVEG FELDOLGOZÁS ===== -->
+        <section id="sec-feldarab" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-cyan-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-cyan-700">3</span> Szöveg feldolgozás
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-cyan-800/60">String metódusok</div>
+                    <pre><code class="language-python">s = "  Hello Világ  "
+
+s.strip()       # "Hello Világ"   (szóköz levágás)
+s.lower()       # "  hello világ  "
+s.upper()       # "  HELLO VILÁG  "
+s.replace("á","a")  # ékezet csere
+
+# Keresés:
+"alma" in s          # True/False
+s.find("Világ")      # index, vagy -1 ha nem találja
+s.startswith("He")   # True/False
+s.endswith("ág")     # True/False
+
+# Darabolás:
+s.split()            # szóközre bont
+s.split(";")         # pontosvesszőre bont
+s[0]        # első karakter
+s[-1]       # utolsó karakter
+s[2:5]      # 2-4. karakter (slicing)
+len(s)      # hossz</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-cyan-800/60">Idő mint szöveg kezelése (belepteto.py)</div>
+                    <pre><code class="language-python"># idő: "08:45" formában van tárolva
+ido = "08:45"
+
+# Összehasonlítás szövegként is működik!
+"07:50" < "08:15"    # True  ← MŰKÖDIK!
+"08:30" <= "10:00"   # True
+
+# Szöveg → percek (számoláshoz):
+ora  = int(ido[:2])   # "08" → 8
+perc = int(ido[3:])   # "45" → 45
+percben = ora * 60 + perc   # 525
+
+# Vagy split-tel:
+reszek = ido.split(":")
+ora   = int(reszek[0])
+perc  = int(reszek[1])</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-cyan-800/60">f-string formázás</div>
+                    <pre><code class="language-python">nev = "Péter"
+kor = 25
+atlag = 4.3333
+
+# Alap f-string:
+print(f"Séjia {nev}!")
+
+# Tizedes formázás:
+print(f"{atlag:.2f}")    # → 4.33
+print(f"{atlag:.0f}")    # → 4
+
+# Százalék:
+arany = 0.756
+print(f"{arany*100:.2f}%")  # → 75.60%
+
+# Nullával töltés:
+szam = 7
+print(f"{szam:02d}")    # → 07
+
+# Régi módszer (format):
+print("{0} éves".format(kor))
+print("{nev} éves".format(nev=nev))</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-cyan-800/60">Szöveg join — lista → szöveg</div>
+                    <pre><code class="language-python"># Lista elemeit összefűzi
+elemek = ["alma", "korte", "szilva"]
+
+", ".join(elemek)   # "alma, korte, szilva"
+" ".join(elemek)    # "alma korte szilva"
+"".join(elemek)     # "almakorteszilva"
+
+# kraterek.py-ból:
+nincsk = ["Tycho", "Copernicus"]
+print(", ".join(nincsk), end=".\n")
+# → "Tycho, Copernicus."
+
+# Számokat előbb str-ré kell alakítani!
+szamok = [1, 2, 3]
+", ".join(str(x) for x in szamok)</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 4. CIKLUSOK ===== -->
+        <section id="sec-ciklusok" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-violet-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-violet-700">4</span> Ciklusok & feltételek
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">for ciklus variációk</div>
+                    <pre><code class="language-python"># Listán végig:
+for elem in adatok:
+    print(elem)
+
+# Indexekkel:
+for i in range(len(adatok)):
+    print(i, adatok[i])
+
+# Tartomány:
+for i in range(10):       # 0..9
+for i in range(2, 8):     # 2..7
+for i in range(0, 10, 2): # 0,2,4,6,8
+
+# Lista bejárása visszafelé (hátulról előre):
+for elem in reversed(adatok):
+    print(elem)
+
+# Visszafelé indexekkel (utolsó elemtől a 0-ig):
+for i in range(len(adatok)-1, -1, -1):
+    print(i, adatok[i])
+
+# enumerate = index + érték egyszerre:
+for i, elem in enumerate(adatok):
+    print(i, elem)
+
+# Több lista egyszerre (zip):
+for nev, kor in zip(nevek, korok):
+    print(nev, kor)</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">while ciklus — kereséshez</div>
+                    <pre><code class="language-python"># Keresés while-lal (kraterek.py, konyvek.py):
+i = 0
+while i < len(adatok) and adatok[i][0] != keresett:
+    i += 1
+# Ha i < len(adatok): találtunk
+# Ha i == len(adatok): nem találtunk
+
+# Feltétel ÖSSZETÉTELRE:
+while not (kiadas[EREDET]=="kf" and kiadas[PLDSZAM]>=40000):
+    ki += 1
+
+# Ciklusból kilépés:
+for elem in adatok:
+    if elem == keresett:
+        talalat = True
+        break        # azonnal kilép
+
+# Átugrás:
+for elem in adatok:
+    if elem == "":
+        continue     # következő iteráció</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">if / elif / else</div>
+                    <pre><code class="language-python">x = 75
+
+if x >= 90:
+    print("Jeles")
+elif x >= 75:
+    print("Jó")
+elif x >= 50:
+    print("Közepes")
+else:
+    print("Elégtelen")
+
+# Egysoros if (ternary):
+szoveg = "pozitív" if x > 0 else "negatív"
+
+# Összetett feltétel:
+if x > 0 and x < 100:
+    print("1-99 között van")
+
+if not (x == 0):
+    print("nem nulla")</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">range() — tartomány</div>
+                    <pre><code class="language-python">range(5)         # [0, 1, 2, 3, 4]
+range(1, 6)      # [1, 2, 3, 4, 5]
+range(0, 10, 2)  # [0, 2, 4, 6, 8]
+
+# Évek bejárása (konyvek.py):
+for ev in range(2020, 2024):  # 2020,21,22,23
+    evind = ev - 2020          # 0, 1, 2, 3
+
+# Lista feltöltése range-gel:
+lista = list(range(10))  # [0..9]
+
+# Bejárás indexxel és értékkel:
+for i in range(len(adatok)):
+    adatok[i] = adatok[i] * 2  # módosítás</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 5. LISTA ===== -->
+        <section id="sec-lista" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-orange-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-orange-600">5</span> Lista műveletek
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-orange-800/60">Lista létrehozás és módosítás</div>
+                    <pre><code class="language-python">lista = []            # üres lista
+lista = [1, 2, 3]     # feltöltött lista
+
+lista.append(4)       # végére hozzáad
+lista.insert(0, 0)    # adott helyre szúr
+lista.remove(2)       # első 2-t törli
+del lista[0]          # index szerint töröl
+lista.pop()           # utolsót törli ÉS visszaadja
+lista.pop(0)          # adott indexűt törli
+
+# Indexelés:
+lista[0]    # első elem
+lista[-1]   # utolsó elem
+lista[1:3]  # 1. és 2. elem (slicing)
+lista[2:]   # 2.-tól a végig
+
+len(lista)  # elemszám
+sum(lista)  # összeg (számokra)
+min(lista)  # legkisebb
+max(lista)  # legnagyobb</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-orange-800/60">Lista létrehozás gyorsan</div>
+                    <pre><code class="language-python"># List comprehension (lista kifejezés):
+negyzetek = [x**2 for x in range(10)]
+# [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+# Feltétellel:
+parosak = [x for x in range(20) if x % 2 == 0]
+
+# Szöveg → számok:
+szamok = [int(x) for x in "1 2 3".split()]
+
+# Kezdeti értékkel feltöltött lista (konyvek.py):
+darab = [[0, 0], [0, 0], [0, 0], [0, 0]]
+# vagy:
+darab = [[0, 0] for _ in range(4)]
+
+# Hány elem felel meg feltételnek:
+db = sum(1 for x in lista if x > 5)
+# vagy:
+db = len([x for x in lista if x > 5])</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-orange-800/60">Lista rendezés</div>
+                    <pre><code class="language-python">lista = [3, 1, 4, 1, 5, 9]
+
+lista.sort()               # helyben rendez (növekvő)
+lista.sort(reverse=True)   # csökkenő
+
+# NEM módosítja az eredetit:
+uj = sorted(lista)
+uj = sorted(lista, reverse=True)
+
+# Összetett lista — kulcs szerint:
+adatok = [["Péter", 25], ["Anna", 20]]
+adatok.sort(key=lambda x: x[1])  # kor szerint
+
+# Keresés listában:
+if x in lista:        # benne van-e?
+lista.index(x)        # hol van? (IndexError ha nincs)
+lista.count(x)        # hányszor szerepel</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-orange-800/60">Tuple — nem módosítható lista</div>
+                    <pre><code class="language-python"># Tuple: zárójelekkel, nem módosítható
+pont = (3, 5)
+x, y = pont           # kibontás (unpacking)
+
+# Adatok tárolásánál használják:
+# ellenorzes.py:
+adatok.append((rendszam, ora1, perc1, mp1, ...))
+
+# Kibontás for-ban:
+for rendszam, ora1, perc1, mp1, ezred1 in adatok:
+    ...
+
+# Vagy indexeléssel:
+adatok[0][0]  # első rekord, első mező</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 6. DICT ===== -->
+        <section id="sec-dict" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-blue-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-blue-700">6</span> Dictionary (szótár) — kulcs → érték
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-blue-800/60">Alap műveletek</div>
+                    <pre><code class="language-python">d = {}                    # üres dict
+d = {"alma": 3, "korte": 5}
+
+d["alma"]                 # 3
+d["szilva"] = 7           # hozzáad / felülír
+del d["alma"]             # töröl
+
+# Biztonságos lekérdezés:
+d.get("alma", 0)          # 0 ha nem létezik
+
+# Benne van-e a kulcs?
+"alma" in d               # True/False
+
+# Bejárás:
+for kulcs in d:           # csak kulcsok
+for kulcs, ertek in d.items():  # mindkettő
+for ertek in d.values():  # csak értékek
+for kulcs in d.keys():    # csak kulcsok
+
+len(d)   # elemek száma</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-blue-800/60">Csoportosítás dictionary-vel (konyvek.py minta)</div>
+                    <pre><code class="language-python"># Feladat: könyvenként összegyűjtjük a példányszámokat
+konyv_peldanyok = dict()
+
+for kiadas in kiadasok:
+    cim = kiadas[LEIRAS]
+    db  = kiadas[PLDSZAM]
+
+    if cim in konyv_peldanyok:
+        # Már van → hozzáadjuk a listához
+        konyv_peldanyok[cim].append(db)
+    else:
+        # Első alkalom → új lista
+        konyv_peldanyok[cim] = [db]
+
+# Eredmény: {"Pippi": [30000, 45000], "Misi": [20000]}
+
+# Bejárás:
+for cim, peldanyok in konyv_peldanyok.items():
+    print(cim, sum(peldanyok))</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-blue-800/60">Számlálás dictionary-vel</div>
+                    <pre><code class="language-python"># Hányszor fordul elő minden előadó?
+szamlalo = {}
+
+for z in zenek:
+    eloado = z[0]
+    if eloado in szamlalo:
+        szamlalo[eloado] += 1
+    else:
+        szamlalo[eloado] = 1
+
+# Kiírás érték szerint rendezve:
+for eloado, db in szamlalo.items():
+    print(f"{eloado}: {db} zene")
+
+# Összegzés mezőre:
+ossz = {}
+for z in zenek:
+    nev = z[0]
+    if nev not in ossz:
+        ossz[nev] = 0
+    ossz[nev] += z[1]   # összegzés</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-blue-800/60">2D számlálás — év × típus (konyvek.py 5. feladat)</div>
+                    <pre><code class="language-python"># 2D lista: [ [magyar_db, kulf_db], ... ] évenként
+darab = [[0, 0] for _ in range(4)]  # 4 év
+
+for kiadas in kiadasok:
+    evind = kiadas[EV] - 2020   # 0,1,2,3
+    if kiadas[EREDET] == "ma":
+        nyind = 0               # magyar
+    else:
+        nyind = 1               # külföldi
+    darab[evind][nyind] += kiadas[PLDSZAM]
+
+# Kiírás:
+for ev in range(2020, 2024):
+    evind = ev - 2020
+    print(ev, darab[evind][0], darab[evind][1])</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 7. SET ===== -->
+        <section id="sec-set" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-pink-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-pink-700">7</span> Set (halmaz) — egyedi elemek
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-pink-800/60">Set alapok</div>
+                    <pre><code class="language-python">halmaz = set()              # üres halmaz
+halmaz = {1, 2, 3}         # feltöltött
+
+halmaz.add("alma")          # hozzáad (nincs duplikáció!)
+halmaz.remove("alma")       # töröl (hibát dob ha nincs)
+halmaz.discard("alma")      # töröl (NEM dob hibát)
+
+"alma" in halmaz            # tagság vizsgálat
+len(halmaz)                 # elemszám
+
+# Lista → set (duplikátumok eltávolítása):
+lista = [1, 2, 2, 3, 3, 3]
+egyedi = set(lista)         # {1, 2, 3}
+egyedi_lista = list(set(lista))</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-pink-800/60">Set mikor hasznos? (belepteto.py, park.py)</div>
+                    <pre><code class="language-python"># belepteto.py — könyvtárban kölcsönzők egyedi száma:
+kolcsonzok = set()
+for esemeny in esemenyek:
+    if esemeny[2] == '4':
+        kolcsonzok.add(esemeny[0])  # tanulóId
+print(len(kolcsonzok))  # hány EGYEDI tanuló
+
+# park.py — milyen színek kerülnek egy ágyásba:
+szinek = set()
+for i in range(len(adatok)):
+    if benne:
+        szinek.add(szin)    # duplikáció nem lesz
+print(' '.join(szinek))     # pl. "piros kék sárga"
+
+# Halmaz műveletek:
+A & B   # metszet
+A | B   # unió
+A - B   # különbség (A-ban van, B-ben nincs)</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 8. FÜGGVÉNYEK ===== -->
+        <section id="sec-fuggv" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-emerald-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-emerald-700">8</span> Függvények
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-emerald-800/60">Függvény felépítése</div>
+                    <pre><code class="language-python">def nev(parameter1, parameter2):
+    # törzs
+    return eredmeny
+
+# Hívás:
+x = nev(5, 10)
+
+# Alapértelmezett paraméter:
+def koszon(nev, udvozlet="Szia"):
+    print(f"{udvozlet} {nev}!")
+
+koszon("Péter")           # Szia Péter!
+koszon("Péter", "Helló")  # Helló Péter!
+
+# Több visszatérési érték:
+def minmax(lista):
+    return min(lista), max(lista)
+
+a, b = minmax([3,1,4,1,5])  # a=1, b=5</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-emerald-800/60">Tipikus feladatstruktúra (konyvek.py minta)</div>
+                    <pre><code class="language-python"># 1. Beolvasó függvény (visszaad egy listát)
+def feladat1():
+    adatok = []
+    with open("adatok.txt", encoding="utf-8") as f:
+        for sor in f:
+            sor = sor.strip()
+            if sor != "":
+                s = sor.split(";")
+                adatok.append([int(s[0]), s[1], s[2]])
+    return adatok
+
+# 2. Feldolgozó függvények (kapnak listát)
+def feladat2(adatok):
+    print("2. feladat:")
+    ...
+
+def feladat3(adatok):
+    print("3. feladat:")
+    ...
+
+# Főprogram:
+adatok = feladat1()
+feladat2(adatok)
+feladat3(adatok)</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-emerald-800/60">Segédfüggvény (kraterek.py minta)</div>
+                    <pre><code class="language-python">from math import sqrt
+
+# Távolság függvény — újrafelhasználható!
+def tavolsag(x1, y1, x2, y2):
+    return sqrt((x2-x1)**2 + (y2-y1)**2)
+
+# Hívás:
+tav = tavolsag(0, 0, 3, 4)  # → 5.0
+
+# Más import-ok:
+import math
+math.sqrt(25)     # 5.0
+math.pi           # 3.14159...
+math.floor(3.9)   # 3  (lefelé kerekít)
+math.ceil(3.1)    # 4  (felfelé kerekít)
+abs(-5)           # 5  (abszolút érték)</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-emerald-800/60">Lambda — névtelen függvény</div>
+                    <pre><code class="language-python"># Rendezéshez kulcsként:
+adatok.sort(key=lambda x: x[1])  # 2. mező szerint
+
+# Saját összehasonlítóval:
+adatok.sort(key=lambda x: (x[0], x[1]))  # több szempont
+
+# rgb.py — ciklusban definiált függvény:
+def hatar(sor, elteres):
+    for i in range(len(sor)-1):
+        if abs(sor[i][2] - sor[i+1][2]) > elteres:
+            return True
+    return False
+
+# Hívás:
+if hatar(kepsor, 10):
+    print("határ van")</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 9. MÁTRIX ===== -->
+        <section id="sec-matrix" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-red-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-red-700">9</span> Mátrix — 2D lista (bányató, RGB feladatok)
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-red-800/60">Mátrix beolvasása (banyato.py)</div>
+                    <pre><code class="language-python"># Fájl: első sor=sorok, második=oszlopok, többi=adatok
+with open("melyseg.txt") as f:
+    sorok = f.readlines()
+
+sordb    = int(sorok[0])
+oszlopdb = int(sorok[1])
+matrix = []
+
+for sor in sorok[2:]:             # 3. sortól
+    szamok = []
+    for x in sor.split():         # szóközre bont
+        szamok.append(int(x))
+    matrix.append(szamok)
+
+# Elérés:
+matrix[i][j]    # i. sor, j. oszlop</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-red-800/60">Mátrix bejárása (kettős ciklus)</div>
+                    <pre><code class="language-python"># Minden cellán végig:
+for i in range(sordb):
+    for j in range(oszlopdb):
+        ertek = matrix[i][j]
+        if ertek != 0:
+            # feldolgozás
+
+# Szomszédok ellenőrzése (partvonal, banyato.py):
+for i in range(sordb):
+    for j in range(oszlopdb):
+        if matrix[i][j] != 0:
+            # Felső szomszéd:
+            if i == 0 or matrix[i-1][j] == 0:
+                partvonal += 1
+            # Alsó szomszéd:
+            if i == sordb-1 or matrix[i+1][j] == 0:
+                partvonal += 1
+            # Bal szomszéd:
+            if j == 0 or matrix[i][j-1] == 0:
+                partvonal += 1
+            # Jobb szomszéd:
+            if j == oszlopdb-1 or matrix[i][j+1] == 0:
+                partvonal += 1</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-red-800/60">RGB kép feldolgozása (rgb.py)</div>
+                    <pre><code class="language-python"># Sor: "255 0 128 200 100 50 ..." → RGB hármasok
+kep = []
+with open("kep.txt") as f:
+    for sor in f:
+        adatsor = sor.strip().split(" ")
+        kepsor = []
+        keppont = []
+        for ertek in adatsor:
+            keppont.append(int(ertek))
+            if len(keppont) == 3:     # 3 elem = 1 pixel
+                kepsor.append(keppont)
+                keppont = []
+        kep.append(kepsor)
+
+# Elérés:
+kep[sor][oszlop]         # pixellista [R, G, B]
+kep[sor][oszlop][0]      # R érték
+sum(kep[sor][oszlop])    # R+G+B összeg (fényerő)
+
+# Legvilágosabb/legsötétebb:
+for kepsor in kep:
+    for pixel in kepsor:
+        if sum(pixel) > 600:  # világos
+            szamlalo += 1</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-red-800/60">enumerate — index + érték egyszerre (rgb.py)</div>
+                    <pre><code class="language-python"># rgb.py — melyik SORBAN van a felhő:
+felhosorok = []
+for index, kepsor in enumerate(kep):
+    if hatar(kepsor, 10):
+        felhosorok.append(index + 1)  # 1-től számoz
+
+print(f"Legfelső sor: {felhosorok[0]}")
+print(f"Legalsó sor: {felhosorok[-1]}")
+
+# enumerate nélkül ugyanez:
+for i in range(len(kep)):
+    kepsor = kep[i]
+    if hatar(kepsor, 10):
+        felhosorok.append(i + 1)</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 10. KERESÉS ===== -->
+        <section id="sec-kereses" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-lime-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-lime-700">10</span> Keresés, maximum, minimum meghatározása
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-lime-800/60">Maximum meghatározása (konyvek.py, kraterek.py)</div>
+                    <pre><code class="language-python"># 1. módszer: változóval (ajánlott érettségin)
+legnagyobb = 0      # vagy adatok[0][MEZO]
+alkalom = 0
+for elem in adatok:
+    ertek = elem[MEZO]
+    if ertek > legnagyobb:
+        legnagyobb = ertek
+        alkalom = 1
+    elif ertek == legnagyobb:
+        alkalom += 1
+print(f"Max: {legnagyobb}, előfordult: {alkalom}x")
+
+# 2. módszer: max() beépített függvény
+legnagyobb = max(adatok, key=lambda x: x[MEZO])
+
+# Maximum indexének megkeresése (kraterek.py):
+maxind = 0
+maxsugar = 0
+for i in range(len(kraterek)):
+    if kraterek[i][2] > maxsugar:
+        maxsugar = kraterek[i][2]
+        maxind = i
+print(kraterek[maxind][3], maxsugar)</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-lime-800/60">Sorszám-keresés while-lal (kraterek / konyvek)</div>
+                    <pre><code class="language-python"># Keresés: nevet kér, megkeresi a kiválasztott rekordot
+knev = input("Kráter neve: ")
+i = 0
+while i < len(kraterek) and kraterek[i][3] != knev:
+    i += 1
+
+if i < len(kraterek):
+    print("Megtalálva:", kraterek[i])
+else:
+    print("Nincs ilyen nevű kráter.")
+
+# Konyvek.py — feltétel kombinációra keresés:
+ki = 0
+while not (kiadasok[ki][EREDET] == "kf"
+           and kiadasok[ki][PLDSZAM] >= 40000):
+    ki += 1
+print(kiadasok[ki][LEIRAS])</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-lime-800/60">Szűrés — feltételnek megfelelők listázása</div>
+                    <pre><code class="language-python"># Hány db felel meg?
+szamlalo = 0
+for elem in adatok:
+    if elem[MEZO] > hatar:
+        szamlalo += 1
+print(f"Darab: {szamlalo}")
+
+# Listázás:
+for elem in adatok:
+    if elem[MEZO] > hatar:
+        print(elem)
+
+# Első találat megőrzése (park.py):
+elso = ""
+for i in range(len(adatok)):
+    if benne:
+        if elso == "":     # csak az első!
+            elso = szin
+        felajanlas += 1</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-lime-800/60">Előző / következő keresése (sebesseg.py)</div>
+                    <pre><code class="language-python"># Az adott elem ELŐTTI és UTÁNI elem megtalálása:
+i = 0
+# Megkeressük az elemet:
+while határok[i][1] != keresett:
+    i += 1
+kezdet = határok[i][0]
+
+# Utána: tovább keressük a végét:
+while határok[i][1] != "]":
+    i += 1
+veg = határok[i][0]
+
+# A következő (az i-vel tovább haladunk):
+while i < len(határok) and len(határok[i][1]) <= 3:
+    i += 1
+if i < len(határok):
+    kovetkezo = határok[i][1]</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 11. RENDEZÉS ===== -->
+        <section id="sec-rendez" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-amber-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-amber-600">11</span> Rendezés
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-amber-800/60">Beépített rendezés</div>
+                    <pre><code class="language-python"># Egyszerű lista:
+l = [3, 1, 4, 1, 5]
+l.sort()                  # helyben: [1,1,3,4,5]
+l.sort(reverse=True)      # csökkenő
+
+# Összetett lista — mező szerint:
+adatok.sort(key=lambda x: x[0])      # 1. mező
+adatok.sort(key=lambda x: x[1])      # 2. mező
+adatok.sort(key=lambda x: x[1], reverse=True)
+
+# Több kulcs:
+adatok.sort(key=lambda x: (x[1], x[0]))
+
+# Ábécésorrendbe (kis/nagybetű érzékeny!):
+nevek.sort()
+nevek.sort(key=lambda x: x.lower())  # érzéketlen</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-amber-800/60">Kézi rendezés (buborék/kiválasztásos)</div>
+                    <pre><code class="language-python"># Kiválasztásos rendezés (érettségin elfogadott):
+for i in range(len(lista) - 1):
+    for j in range(i + 1, len(lista)):
+        if lista[i] > lista[j]:
+            lista[i], lista[j] = lista[j], lista[i]
+
+# Buborékrendezés:
+for i in range(len(lista) - 1):
+    for j in range(len(lista) - i - 1):
+        if lista[j] > lista[j+1]:
+            lista[j], lista[j+1] = lista[j+1], lista[j]
+
+# Csere Pythonban (nem kell temp változó!):
+a, b = b, a</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 12. SZÖVEG ===== -->
+        <section id="sec-szoveg" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-teal-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-teal-700">12</span> Szöveg összehasonlítás & speciális esetek
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-teal-800/60">Időpont összehasonlítás szövegként</div>
+                    <pre><code class="language-python"># "HH:MM" formájú időpontok
+# lexikografikusan összehasonlíthatók!
+
+"07:50" < "08:15"     # True  ← működik!
+"08:30" <= "10:00"    # True
+
+# belepteto.py — késők szűrése:
+if esemeny[2] == '1' and '07:50' < esemeny[1] <= '08:15':
+    kesok.append(esemeny)
+
+# Időtartam kiszámítása:
+erkezes = "08:30"  # HH:MM
+erk_percben = int(erkezes[:2]) * 60 + int(erkezes[3:])
+tav_percben = int(tavozas[:2]) * 60 + int(tavozas[3:])
+eltelt = tav_percben - erk_percben
+ora  = eltelt // 60
+perc = eltelt % 60</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-teal-800/60">Szöveg tartalmaz-e valamit</div>
+                    <pre><code class="language-python"># in operátor — részleges egyezés:
+"alma" in "almafa"       # True
+"Anna" in "Nagy Anna"   # True
+
+# konyvek.py — szerző neve szerepel-e a leírásban:
+if szerzo in kiadas[LEIRAS]:
+    kiadtak += 1
+
+# Pontosan egyezik-e:
+if nev == "Péter":
+    ...
+
+# Szöveg hossza:
+len("alma")     # 4
+len(határ[1]) > 3   # 3-nál hosszabb szöveg (sebesseg.py)
+len(határ[1]) == 2  # pontosan 2 karakteres</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 13. SZÁMÍTÁSOK ===== -->
+        <section id="sec-szam" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-indigo-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-indigo-700">13</span> Számítások — tipikus feladatok
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-indigo-800/60">Átlag, arány, százalék</div>
+                    <pre><code class="language-python"># Átlag:
+atlag = sum(lista) / len(lista)
+
+# Feltételes átlag:
+ossz = 0
+db = 0
+for elem in adatok:
+    if elem[MEZO] > 0:
+        ossz += elem[MEZO]
+        db += 1
+atlag = ossz / db if db > 0 else 0
+
+# Arány / százalék:
+arany = szamlalo / len(adatok)          # 0.0 - 1.0
+szazalek = arany * 100                  # 0 - 100
+print(f"{szazalek:.2f}%")
+
+# ellenorzes.py:
+print(f"A járművek {(gyorshajto/len(adatok))*100:.2f}%-a")</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-indigo-800/60">Sebesség / idő számítás (ellenorzes.py)</div>
+                    <pre><code class="language-python"># Időpont → másodperc:
+def ido_mp(ora, perc, mp, ezred):
+    return ora*3600 + perc*60 + mp + ezred/1000
+
+belepes = ido_mp(ora1, perc1, mp1, ezred1)
+kimenes = ido_mp(ora2, perc2, mp2, ezred2)
+eltelt = kimenes - belepes            # másodperc
+
+# Sebesség (10 km-es szakasz):
+eltelt_ora = eltelt / 3600
+atlagseb = 10 / eltelt_ora            # km/h
+
+# Bányató — átlagmélység:
+terulet = 0
+melyseg_ossz = 0
+for i in range(sordb):
+    for j in range(oszlopdb):
+        if matrix[i][j] != 0:
+            terulet += 1
+            melyseg_ossz += matrix[i][j]
+atlag = melyseg_ossz / terulet / 10  # dm → m</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-indigo-800/60">Geometria (kraterek.py)</div>
+                    <pre><code class="language-python">from math import sqrt, pi
+
+# Távolság (Pitagorasz):
+def tavolsag(x1, y1, x2, y2):
+    return sqrt((x2-x1)**2 + (y2-y1)**2)
+
+# Körök kapcsolata:
+tav = tavolsag(x1, y1, x2, y2)
+r1, r2 = sugaruk
+
+# Nincs közös részük ha:
+if tav > r1 + r2:
+    print("nincs közös rész")
+
+# Az egyik benne van a másikban ha:
+if tav < abs(r1 - r2):
+    print("benne van")
+
+# Terület:
+terulet = r**2 * pi
+print(round(terulet, 2))</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-indigo-800/60">Körös indexelés (park.py)</div>
+                    <pre><code class="language-python"># park.py — körbeérő virágágyás
+# Ha kezdet <= veg: egyszerű intervallum
+# Ha kezdet > veg: körbeér!
+
+def benne_van(sorszam, kezdet, veg, osszes):
+    if kezdet <= veg:
+        return kezdet <= sorszam <= veg
+    else:  # körbeér
+        return sorszam >= kezdet or sorszam <= veg
+
+# Park.py:
+if kezdet <= veg:
+    benne = kezdet <= sorszam <= veg
+else:
+    benne = sorszam >= kezdet or sorszam <= veg</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 14. FÁJLBA ÍRÁS ===== -->
+        <section id="sec-fkiiras" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-rose-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-rose-700">14</span> Fájlba írás
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-rose-800/60">Szöveges fájlba írás</div>
+                    <pre><code class="language-python"># Alapmódszer:
+with open("eredmeny.txt", "w", encoding="utf-8") as f:
+    f.write("első sor\n")
+    f.write(f"Van adat: {ertek}\n")
+
+# print() file= paraméterrel (konyvek.py stílus):
+with open("tabla.html", "wt", encoding="utf-8") as ki:
+    print("<table>", file=ki)
+    print("<tr><td>adat</td></tr>", file=ki)
+    print("</table>", file=ki)
+
+# ellenorzes.py — feltételes írás:
+with open("buntetes.txt", "w") as f:
+    for adat in adatok:
+        if sebesseg > 104:
+            f.write(f"{rendszam} {sebesseg:.0f} 30000 Ft\n")
+
+# Hozzáfűzés (a meglévőhöz):
+with open("naplo.txt", "a") as f:
+    f.write("Új sor\n")</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-rose-800/60">HTML fájl generálása (konyvek.py 5. feladat)</div>
+                    <pre><code class="language-python">with open("tabla.html", "wt", encoding="utf-8") as ki:
+    print("<table>", file=ki)
+    # Fejléc:
+    print("<tr><th>Év</th><th>Magyar</th><th>Külföldi</th></tr>",
+          file=ki)
+    # Sorok:
+    for ev in range(2020, 2024):
+        evind = ev - 2020
+        print(f"<tr><td>{ev}</td><td>{darab[evind][0]}</td>"
+              f"<td>{darab[evind][1]}</td></tr>",
+              file=ki)
+    print("</table>", file=ki)
+
+# banyato.py — diagramtxt:
+with open("diagram.txt", "w") as f:
+    for i in range(sordb):
+        prefix = f"0{i}" if i < 10 else str(i)
+        csillagok = "*" * round(matrix[i][szelveny-1] / 10)
+        f.write(prefix + csillagok + "\n")</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 15. TÍPUSFELADATOK ===== -->
+        <section id="sec-tipusf" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-violet-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-violet-700">15</span> Tipikus feladattípusok — kész minták
+            </h2>
+
+            <div class="space-y-4">
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">🏆 Legtöbb / legnagyobb meghatározása + hányszor</div>
+                    <pre><code class="language-python"># Feladat: melyik könyvből adták ki a legtöbb példányt ÉS hányszor fordult elő ez az érték?
+# konyvek.py 3. feladat
+legnagyobb = 0
+alkalom = 0
+for kiadas in kiadasok:
+    if kiadas[PLDSZAM] > legnagyobb:
+        legnagyobb = kiadas[PLDSZAM]
+        alkalom = 1
+    elif kiadas[PLDSZAM] == legnagyobb:
+        alkalom += 1
+print(f"Legnagyobb: {legnagyobb}, előfordul: {alkalom}x")</code></pre>
+                </div>
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">🔍 Keresés névvel — megtalálás vagy "nincs ilyen"</div>
+                    <pre><code class="language-python"># Feladat: bekér egy nevet, megkeresi, kiírja az adatait
+# kraterek.py 3. feladat
+knev = input("Kráter neve: ")
+i = 0
+while i < len(kraterek) and kraterek[i][3] != knev:
+    i += 1
+if i < len(kraterek):
+    print(f"{knev}: X={kraterek[i][0]} Y={kraterek[i][1]} R={kraterek[i][2]}")
+else:
+    print("Nincs ilyen nevű kráter.")</code></pre>
+                </div>
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">📊 Csoportosítás előadónként / típusonként</div>
+                    <pre><code class="language-python"># Feladat: előadónként összesített zenehossz (Dictionary-vel)
+ossz = {}
+for z in zenek:
+    nev = z[ELOADO]
+    if nev not in ossz:
+        ossz[nev] = 0
+    ossz[nev] += z[HOSSZ_MP]
+
+for nev, mp in ossz.items():
+    print(f"{nev}: {mp//60}:{mp%60:02d}")</code></pre>
+                </div>
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">⏱️ Időtartam → más egységbe (sebesség, park)</div>
+                    <pre><code class="language-python"># mp → óra:perc:mp szöveg:
+def mp_to_ido(mp):
+    ora  = mp // 3600
+    perc = (mp % 3600) // 60
+    mas  = mp % 60
+    return f"{ora:02d}:{perc:02d}:{mas:02d}"
+
+# Perc:mp → másodperc:
+def percmp_to_mp(perc, mp):
+    return perc * 60 + mp
+
+# Időszakasz terjedelmét vizsgáljuk:
+if percben_van(adat, kezdet_perc, veg_perc):
+    bent += 1</code></pre>
+                </div>
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">📁 Feltétel szerint fájlba írás (ellenorzes.py)</div>
+                    <pre><code class="language-python"># Feladat: gyorshajtókat fájlba írni, bírság szerint kategorizálva
+with open("buntetes.txt", "w") as f:
+    for adat in adatok:
+        seb = szamit_sebesseget(adat)
+        if 104 < seb < 121:
+            f.write(f"{adat[0]} {seb:.0f}\t30000 Ft\n")
+        elif 121 <= seb < 136:
+            f.write(f"{adat[0]} {seb:.0f}\t45000 Ft\n")
+        elif 136 <= seb < 151:
+            f.write(f"{adat[0]} {seb:.0f}\t60000 Ft\n")
+        elif seb >= 151:
+            f.write(f"{adat[0]} {seb:.0f}\t200000 Ft\n")</code></pre>
+                </div>
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">🔵 Mátrix szomszédok vizsgálata (banyato.py)</div>
+                    <pre><code class="language-python"># Feladat: tó partvonalának hossza → hány vízzel szomszédos szárazföld/víz határ van?
+partvonal = 0
+for i in range(sordb):
+    for j in range(oszlopdb):
+        if matrix[i][j] != 0:       # vízben vagyunk
+            # Minden irányt vizsgálunk:
+            if i == 0 or matrix[i-1][j] == 0:
+                partvonal += 1      # felső szél vagy száraz
+            if i == sordb-1 or matrix[i+1][j] == 0:
+                partvonal += 1
+            if j == 0 or matrix[i][j-1] == 0:
+                partvonal += 1
+            if j == oszlopdb-1 or matrix[i][j+1] == 0:
+                partvonal += 1</code></pre>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ===== 16. TIPPEK ===== -->
+        <section id="sec-tippek" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-orange-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-orange-600">16</span> Tippek &amp; leggyakoribb hibák
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-red-700/50">
+                    <p class="text-red-300 font-semibold text-sm mb-2">❌ input() mindig szöveget ad!</p>
+                    <pre class="text-xs"><code class="language-python">x = input("Szám: ")      # "5" ← string!
+x = int(input("Szám: ")) # 5  ← int ✓</code></pre>
+                </div>
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-red-700/50">
+                    <p class="text-red-300 font-semibold text-sm mb-2">❌ strip() nélkül sorvége marad</p>
+                    <pre class="text-xs"><code class="language-python">sor = "alma\n"
+sor.strip()    # "alma" ← kötelező!</code></pre>
+                </div>
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-yellow-700/50">
+                    <p class="text-yellow-300 font-semibold text-sm mb-2">⚠️ 0-tól indexel Python!</p>
+                    <pre class="text-xs"><code class="language-python">lista = ["a", "b", "c"]
+lista[0]   # "a" (első!)
+lista[-1]  # "c" (utolsó!)
+lista[1:]  # ["b", "c"] (2.-tól)</code></pre>
+                </div>
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-yellow-700/50">
+                    <p class="text-yellow-300 font-semibold text-sm mb-2">⚠️ int() nem kerekít, levágja!</p>
+                    <pre class="text-xs"><code class="language-python">int(3.9)    # 3  ← NEM 4!
+round(3.9)  # 4  ← kerekít</code></pre>
+                </div>
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-green-700/50">
+                    <p class="text-green-300 font-semibold text-sm mb-2">✅ with open → automatikus zárás</p>
+                    <pre class="text-xs"><code class="language-python">with open("f.txt") as f:
+    ...  # f automatikusan záródik</code></pre>
+                </div>
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-green-700/50">
+                    <p class="text-green-300 font-semibold text-sm mb-2">✅ Több értéket ad vissza / bont ki</p>
+                    <pre class="text-xs"><code class="language-python">def minmax(l): return min(l), max(l)
+a, b = minmax([3,1,4])  # a=1, b=4</code></pre>
+                </div>
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-blue-700/50">
+                    <p class="text-blue-300 font-semibold text-sm mb-2">💡 Egész osztás / maradék</p>
+                    <pre class="text-xs"><code class="language-python">725 // 60   # 12  (perc)
+725 % 60    # 5   (mp)
+# 725 mp = 12:05</code></pre>
+                </div>
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-blue-700/50">
+                    <p class="text-blue-300 font-semibold text-sm mb-2">💡 Feltételek logikája</p>
+                    <pre class="text-xs"><code class="language-python">1 < x < 10      # Python-ban ÉRVÉNYES!
+# ekvivalens: x > 1 and x < 10</code></pre>
+                </div>
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-purple-700/50">
+                    <p class="text-purple-300 font-semibold text-sm mb-2">💡 Függvénystruktúra az érettségin</p>
+                    <p class="text-gray-400 text-xs">Minden feladatot külön függvénybe! Az 1. függvény olvas be és adja vissza az adatokat, a többi fogad egy listát és dolgozik ra.</p>
+                </div>
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-purple-700/50">
+                    <p class="text-purple-300 font-semibold text-sm mb-2">💡 Indexek konstansként</p>
+                    <p class="text-gray-400 text-xs">EV=0, NEGYEDEV=1, EREDET=2 stb. — a kód olvashatóbb, kevesebb a hiba. Érettségin plusz pont!</p>
+                </div>
+                
+                <!-- ÚJ TIPPEK A JELADÁS FELADATBÓL -->
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-cyan-700/50">
+                    <p class="text-cyan-300 font-semibold text-sm mb-2">💡 Gyors utolsó elem (negatív index)</p>
+                    <pre class="text-xs"><code class="language-python">lista[len(lista)-1] # ❌ Bonyolult
+lista[-1]           # ✅ Elegáns és gyors</code></pre>
+                </div>
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-cyan-700/50">
+                    <p class="text-cyan-300 font-semibold text-sm mb-2">💡 print() egymás mellé</p>
+                    <pre class="text-xs"><code class="language-python">print(x, end=" ") # Nem ugrik új sorba
+print(y, end="")  # Köztes szóköz nélkül</code></pre>
+                </div>
+            </div>
+
+            <div class="space-y-4 mt-4">
+                <div class="keret">
+                    <div class="fejlec bg-cyan-800/60">🎯 Első és utolsó előfordulás kigyűjtése szótárral (Dictionary)</div>
+                    <pre><code class="language-python"># Ha a feladat az, hogy listázzuk ki minden rendszámhoz a legelső és legutolsó időpontot:
+elso = {}
+utolso = {}
+
+for adat in adatok:
+    rsz = adat[0]
+    # Ha még NINCS a szótárban, akkor ez a LEGELSŐ találat
+    if rsz not in elso:
+        elso[rsz] = adat
+    
+    # A legutolsó viszont folyamatosan FELÜLÍRÓDIK, 
+    # így a ciklus végén a tényleges utolsó érték marad benne!
+    utolso[rsz] = adat</code></pre>
+                </div>
+            </div>
+
+            <div class="mt-4 overflow-x-auto">
+                <p class="text-gray-400 text-sm mb-2">Gyors referencia táblázat:</p>
+                <table class="w-full text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-orange-900/40">
+                            <th class="border border-gray-700 px-3 py-2 text-left text-orange-300">Feladat</th>
+                            <th class="border border-gray-700 px-3 py-2 text-left text-orange-300">Megoldás</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Fájl beolvasás</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">with open(...) as f: for sor in f:</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Szöveg darabolás</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">sor.strip().split(";")</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Csoportosítás</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">dict() + if kulcs in d: d[kulcs]+=1 else: d[kulcs]=1</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Egyedi elemek</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">halmaz = set(); halmaz.add(elem)</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Maximum + index</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">maxval=0; for i:if lista[i]>maxval: maxval=lista[i];maxind=i</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Keresés névvel</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">i=0; while i&lt;len and adat[i][col]!=keresett: i+=1</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Vezető nullák (pl. perc)</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">f"{perc:02d}"</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Tört kiírás</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">f"{ertek:.2f}"</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">mp → H:P:M</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">ora=mp//3600; perc=(mp%3600)//60; mas=mp%60</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Fájlba írás</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">with open("ki.txt","w") as f: f.write(f"...{adat}\n")</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">HTML generálás</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">print("&lt;tr&gt;...&lt;/tr&gt;", file=ki)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        </div><!-- end space-y-10 -->
+
+        <footer class="text-center text-gray-600 text-xs py-10 mt-10 border-t border-gray-800">
+            Python Emelt Informatika Puska • konyvek • kraterek • banyato • ellenorzes • belepteto • park • rgb • sebesseg
+        </footer>
+    </main>
+    <!-- Vissza a főoldalra gomb -->
+    <a href="index.html" id="back-to-home-btn" title="Vissza a főoldalra">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    </a>
+
+    <!-- AI Chatbot Button -->
+    <div id="ai-chat-btn" onclick="toggleChat()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    </div>
+
+    <!-- AI Chatbot HTML (Jobb oldali sáv) -->
+    <aside id="ai-chat-window" class="hidden flex-col w-80 shrink-0 glass border-l border-gray-800 sticky top-0 h-screen z-10">
+        <div id="ai-chat-header">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                AI Asszisztens
+            </div>
+            <button onclick="toggleChat()" class="text-gray-400 hover:text-white">&times;</button>
+        </div>
+        <div id="ai-chat-messages">
+            <div class="ai-msg">Szia! Én az intelligens jegyzet-asszisztensed vagyok. Keress bármire a puskában, vagy kérdezz bátran, ha elakadtál egy feladatban, és segítek kikeresni a megoldást!</div>
+        </div>
+        <div id="ai-chat-input-container">
+            <input type="text" id="ai-chat-input" placeholder="Kérdezz bármit..." onkeypress="handleEnter(event)">
+            <button id="ai-chat-send" onclick="sendMessage()">Küldés</button>
+        </div>
+    </aside>
+
+</div><!-- end flex -->
+
+<!-- AI Chatbot Script -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    // === IDE ÍRD A SAJÁT GEMINI API KULCSODAT ===
+    // A kulcs a szerveren van (Netlify env változóban) - itt nem kell! 
+    
+    let isChatOpen = false;
+    const chatWindow = document.getElementById('ai-chat-window');
+    const messagesDiv = document.getElementById('ai-chat-messages');
+    const inputField = document.getElementById('ai-chat-input');
+    
+    // System prompt, hogy az AI tudja mi a feladata
+    let conversationHistory = [
+        {
+            role: "user",
+            parts: [{ text: "Te egy segítőkész programozó AI asszisztens vagy. A felhasználó egy emelt szintű informatikai érettségi vizsgára készül (Python, fájlkezelés, adatszerkezetek). Segíts neki röviden, pontos kódokkal és magyarul." }]
+        },
+        {
+            role: "model",
+            parts: [{ text: "Értettem! Készen állok, hogy segítsek az emelt informatika Python vizsgafeladataiban. Miben lehetek a segítségedre?" }]
+        }
+    ];
+
+    function toggleChat() {
+        isChatOpen = !isChatOpen;
+        const chatBtn = document.getElementById('ai-chat-btn');
+        if(isChatOpen) {
+            chatWindow.classList.remove('hidden');
+            chatWindow.classList.add('flex');
+            if (chatBtn) chatBtn.style.display = 'none';
+            inputField.focus();
+        } else {
+            chatWindow.classList.add('hidden');
+            chatWindow.classList.remove('flex');
+            if (chatBtn) chatBtn.style.display = 'flex';
+        }
+    }
+
+    function handleEnter(e) {
+        if(e.key === 'Enter') sendMessage();
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[tag]));
+    }
+
+    function formatMessage(text) {
+        if (typeof marked !== 'undefined') {
+            return marked.parse(text);
+        }
+        let formatted = escapeHTML(text).replace(/\n/g, '<br>');
+        formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-yellow-300 px-1 rounded">$1</code>');
+        return formatted;
+    }
+
+    function addMessage(text, isUser) {
+        const div = document.createElement('div');
+        div.className = isUser ? 'user-msg' : 'ai-msg';
+        div.innerHTML = formatMessage(text);
+        messagesDiv.appendChild(div);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function showTyping() {
+        const div = document.createElement('div');
+        div.className = 'ai-msg typing-msg';
+        div.innerHTML = '<span class="typing-indicator"></span><span class="typing-indicator"></span><span class="typing-indicator"></span>';
+        messagesDiv.appendChild(div);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        return div;
+    }
+
+    async function sendMessage() {
+        const text = inputField.value.trim();
+        if(!text) return;
+        
+        if(GEMINI_API_KEY === "PROXY_USED_NO_KEY_NEEDED" || GEMINI_API_KEY.trim() === "") {
+            addMessage(text, true);
+            inputField.value = '';
+            const hibaUzenet = "Kérlek, nyisd meg a HTML fájlt egy szerkesztőben (pl. VS Code), és írd be a saját Gemini API kulcsodat a kód legalján található `GEMINI_API_KEY` változóba!\n\nIngyenes kulcsot itt kérhetsz:\nhttps://aistudio.google.com/app/apikey";
+            addMessage(hibaUzenet, false);
+            return;
+        }
+
+        addMessage(text, true);
+        inputField.value = '';
+        inputField.disabled = true;
+        
+        conversationHistory.push({ role: "user", parts: [{ text }] });
+        
+        const typingIndicator = showTyping();
+
+        try {
+            const response = await fetch(`/.netlify/functions/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: conversationHistory
+                })
+            });
+
+            const data = await response.json();
+            typingIndicator.remove();
+
+            if(data.error) {
+                addMessage("Hiba történt: " + data.error.message, false);
+                conversationHistory.pop(); // Revert
+            } else if(data.candidates && data.candidates[0].content) {
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                addMessage(aiResponse, false);
+                conversationHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+            }
+        } catch (err) {
+            typingIndicator.remove();
+            addMessage("Hálózati hiba történt az API hívás során.", false);
+            conversationHistory.pop();
+        }
+        
+        inputField.disabled = false;
+        inputField.focus();
+    }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html>

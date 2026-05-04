@@ -1,0 +1,2419 @@
+<!DOCTYPE html>
+<html lang="hu" class="dark scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Nagy Frontend Vizsga Puska</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        pre[class*="language-"] {
+            margin: 0 !important;
+            border-radius: 0 !important;
+            font-size: 0.82rem !important;
+        }
+
+        code[class*="language-"] {
+            font-size: 0.82rem !important;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: #e2e8f0;
+            border-left-color: #6366f1;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .chip {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        /* Vissza a főoldalra gomb CSS */
+        #back-to-home-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+        }
+
+        #back-to-home-btn:hover {
+            transform: scale(1.1);
+            background: rgba(30, 41, 59, 1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Chatbot CSS */
+        #ai-chat-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #ec4899);
+            /* Orange/pink for Frontend */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.5);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        #ai-chat-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(245, 158, 11, 0.6);
+        }
+
+        #ai-chat-header {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        #ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+
+        #ai-chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #ai-chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #ai-chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        #ai-chat-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .ai-msg,
+        .user-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .ai-msg p:not(:last-child) {
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-msg ul {
+            list-style-type: disc;
+            margin-left: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-msg ol {
+            list-style-type: decimal;
+            margin-left: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-msg li {
+            margin-bottom: 0.2rem;
+        }
+
+        .ai-msg strong {
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+
+        .ai-msg code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #fde047;
+            font-size: 0.9em;
+        }
+
+        .ai-msg pre {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.75rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-msg pre code {
+            background: transparent;
+            padding: 0;
+            color: #e2e8f0;
+            font-size: 0.9em;
+        }
+
+        .ai-msg a {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+
+        .ai-msg {
+            background: rgba(255, 255, 255, 0.1);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-msg {
+            background: #f59e0b;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        #ai-chat-input-container {
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 8px;
+        }
+
+        #ai-chat-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        #ai-chat-input:focus {
+            border-color: #f59e0b;
+        }
+
+        #ai-chat-send {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        #ai-chat-send:hover {
+            background: #d97706;
+        }
+
+        .typing-indicator {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #ccc;
+            animation: typing 1.4s infinite ease-in-out both;
+            margin: 0 2px;
+        }
+
+        .typing-indicator:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-indicator:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1.5);
+            }
+        }
+    </style>
+</head>
+
+<body class="text-gray-200 antialiased">
+
+    <div class="flex min-h-screen">
+
+        <!-- SIDEBAR -->
+        <aside
+            class="hidden lg:flex flex-col w-60 shrink-0 glass border-r border-gray-800 sticky top-0 h-screen overflow-y-auto py-8 px-3 z-10">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 px-3">TARTALOM</p>
+            <nav class="space-y-1">
+                <a href="#sec-html-alap" class="nav-link">1. HTML alap struktúra</a>
+                <a href="#sec-bootstrap" class="nav-link">2. Bootstrap alapok</a>
+                <a href="#sec-reszponziv" class="nav-link">3. Reszponzivitás</a>
+                <a href="#sec-carousel" class="nav-link">4. Carousel</a>
+                <a href="#sec-navbar" class="nav-link">5. Navigáció</a>
+                <a href="#sec-css" class="nav-link">6. CSS beállítások</a>
+                <a href="#sec-validalas" class="nav-link">7. Validálás & section</a>
+                <a href="#sec-xml" class="nav-link">8. XML felépítése</a>
+                <a href="#sec-js-xml" class="nav-link">9. JS + XML feldolgozás</a>
+                <a href="#sec-dom" class="nav-link">10. DOM műveletek</a>
+                <a href="#sec-tippek" class="nav-link">11. Gyors tippek</a>
+                <a href="#sec-json" class="nav-link">12. JSON + fetch()</a>
+                <a href="#sec-modal" class="nav-link">13. Bootstrap Modal</a>
+                <a href="#sec-carousel2" class="nav-link">14. Carousel (részletes)</a>
+                <a href="#sec-vizsgamenet" class="nav-link">15. Vizsga menete & Parancsok</a>
+                <a href="#sec-urlap" class="nav-link">16. Űrlapok & Események (JS)</a>
+                <a href="#sec-vizsga-megoldas" class="nav-link">17. ✅ Teljes vizsgamegoldás</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full">
+
+            <!-- HEADER -->
+            <header class="text-center mb-12 mt-4">
+                <h1
+                    class="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-pink-400 to-violet-400 pb-2 mb-3">
+                    Frontend Vizsga Puska
+                </h1>
+                <p class="text-gray-400 text-sm">HTML • CSS • Bootstrap • JavaScript • XML</p>
+            </header>
+
+            <div class="space-y-10">
+
+                <!-- ===== 1. HTML ALAP ===== -->
+                <section id="sec-html-alap" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-orange-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-orange-600">1</span> HTML alap struktúra
+                    </h2>
+
+                    <p class="text-gray-400 text-sm mb-3">Minden HTML fájl elején kötelező beállítások:</p>
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-5">
+                        <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="hu"&gt;           &lt;!-- lang="hu" → oldal nyelve MAGYAR --&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;  &lt;!-- karakterkódolás: utf-8 --&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Szakmai Vizsga 2025&lt;/title&gt;   &lt;!-- böngésző fül felirata --&gt;
+
+    &lt;!-- Favicon (böngésző fül ikon) --&gt;
+    &lt;link rel="icon" type="image/png" href="gepesz.png"&gt;
+
+    &lt;!-- CSS fájlok hivatkozása (sorrend fontos!) --&gt;
+    &lt;link rel="stylesheet" href="css/bootstrap.min.css"&gt;
+    &lt;link rel="stylesheet" href="css/stilus.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    ...
+    &lt;!-- JS fájlok a BODY VÉGÉN (Bootstrap előbb, saját utána!) --&gt;
+    &lt;script src="js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+    &lt;script src="js/kocsik.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-orange-700/40">
+                            <p class="text-orange-300 font-semibold text-sm mb-1">H1 — főcím</p>
+                            <code class="text-emerald-300 text-xs font-mono">&lt;h1&gt;Autók Világa&lt;/h1&gt;</code>
+                            <p class="text-xs text-gray-400 mt-1">Oldalanként csak EGY h1 lehet!</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-orange-700/40">
+                            <p class="text-orange-300 font-semibold text-sm mb-1">H2 — alcímek</p>
+                            <code class="text-emerald-300 text-xs font-mono">&lt;h2&gt;Rólunk&lt;/h2&gt;</code>
+                            <p class="text-xs text-gray-400 mt-1">Section fejlécek h2-vel</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-orange-700/40">
+                            <p class="text-orange-300 font-semibold text-sm mb-1">Section + ID</p>
+                            <code class="text-emerald-300 text-xs font-mono">&lt;section id="adatok"&gt;</code>
+                            <p class="text-xs text-gray-400 mt-1">ID-re mutat a navigáció</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 2. BOOTSTRAP ALAPOK ===== -->
+                <section id="sec-bootstrap" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-blue-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-blue-700">2</span> Bootstrap legfontosabb osztályok
+                    </h2>
+
+                    <div class="overflow-x-auto mb-5">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-blue-900/40">
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-blue-300">Osztály</th>
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-blue-300">Mire való</th>
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-blue-300">Mikor kell</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        container</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Középre igazított
+                                        tartalom, max szélesség</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">Section / div köré</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">row
+                                    </td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Sor — flexbox sor az
+                                        oszlopoknak</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">col-* osztályok szülője
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        col-12</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Teljes szélességű oszlop
+                                        (egymás alatt)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">Mobilon egymás alá</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        col-md-3</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">12/3 = 4 egyforma oszlop
+                                        egymás mellett</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">Nagy képernyőn egymás
+                                        mellé</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        form-control</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Bootstrap stílusú
+                                        input/select mező</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">Minden input és select
+                                        elemre</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        d-none</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Elrejti az elemet
+                                        (display:none)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">Láthatatlan minden
+                                        méretben</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        d-none d-md-block</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Mobilon rejtve, tablettől
+                                        látható</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">Validálás menüpont /
+                                        section</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        text-center</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Szöveg középre igazítás
+                                    </td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">Fejléc, cím elemek</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        w-100</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">100% szélesség</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">Carousel képekre</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-blue-900/30 border border-blue-700/50 rounded-xl p-4">
+                        <p class="text-blue-300 font-bold text-sm mb-1">💡 Bootstrap col-* logika (12 oszlopos grid):
+                        </p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-xs text-center">
+                            <div class="bg-blue-800/40 rounded p-2"><code
+                                    class="text-emerald-300">col-md-6</code><br><span class="text-gray-400">2 oszlop
+                                    egymás mellett</span></div>
+                            <div class="bg-blue-800/40 rounded p-2"><code
+                                    class="text-emerald-300">col-md-4</code><br><span class="text-gray-400">3 oszlop
+                                    egymás mellett</span></div>
+                            <div class="bg-blue-800/40 rounded p-2"><code
+                                    class="text-emerald-300">col-md-3</code><br><span class="text-gray-400">4 oszlop
+                                    egymás mellett</span></div>
+                            <div class="bg-blue-800/40 rounded p-2"><code
+                                    class="text-emerald-300">col-md-2</code><br><span class="text-gray-400">6 oszlop
+                                    egymás mellett</span></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 3. RESZPONZIVITÁS ===== -->
+                <section id="sec-reszponziv" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-cyan-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-cyan-700">3</span> Reszponzív form — inputok egymás mellett/alatt
+                    </h2>
+
+                    <p class="text-gray-400 text-sm mb-3">Ha a feladat azt kéri, hogy <strong class="text-white">nagy
+                            képernyőn egymás mellett</strong>, <strong class="text-white">mobilon egymás alatt</strong>
+                        legyenek az input elemek:</p>
+
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-4">
+                        <pre><code class="language-html">&lt;form&gt;
+  &lt;div class="row"&gt;
+
+    &lt;div class="col-12 col-md-3"&gt;
+      &lt;label&gt;Márka:&lt;/label&gt;
+      &lt;select class="form-control" onchange="marka(this)"&gt;
+      &lt;/select&gt;
+    &lt;/div&gt;
+
+    &lt;div class="col-12 col-md-3"&gt;
+      &lt;label&gt;Modell:&lt;/label&gt;
+      &lt;input type="text" id="modell" class="form-control" readonly&gt;
+    &lt;/div&gt;
+
+    &lt;div class="col-12 col-md-3"&gt;
+      &lt;label&gt;Évjárat:&lt;/label&gt;
+      &lt;input type="text" id="evjarat" class="form-control" readonly&gt;
+    &lt;/div&gt;
+
+    &lt;div class="col-12 col-md-3"&gt;
+      &lt;label&gt;Teljesítmény:&lt;/label&gt;
+      &lt;input type="text" id="teljesitmeny" class="form-control" readonly&gt;
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+&lt;/form&gt;</code></pre>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="bg-cyan-900/30 border border-cyan-700/50 rounded-xl p-3">
+                            <p class="text-cyan-300 font-bold text-sm">col-12</p>
+                            <p class="text-xs text-gray-400">Mobilon (kis képernyőn) → teljes szélességű, egymás ALATT
+                            </p>
+                        </div>
+                        <div class="bg-cyan-900/30 border border-cyan-700/50 rounded-xl p-3">
+                            <p class="text-cyan-300 font-bold text-sm">col-md-3</p>
+                            <p class="text-xs text-gray-400">768px felett → 4 egyforma oszlop egymás MELLETT (4×3=12)
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 4. CAROUSEL ===== -->
+                <section id="sec-carousel" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-pink-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-pink-700">4</span> Bootstrap Carousel
+                    </h2>
+
+                    <p class="text-gray-400 text-sm mb-3">A carousel vezérlő gombok <code
+                            class="text-pink-300">data-bs-target</code> értékének meg kell egyeznie a carousel div <code
+                            class="text-pink-300">id</code> értékével! Ha kettő van, különböző id kell!</p>
+
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-4">
+                        <pre><code class="language-html">&lt;!-- CAROUSEL ALAP STRUKTÚRA --&gt;
+&lt;div id="carouselEgy" class="carousel slide" data-bs-ride="carousel"&gt;
+
+  &lt;div class="carousel-inner"&gt;
+    &lt;div class="carousel-item active"&gt;   &lt;!-- az első kép ACTIVE legyen! --&gt;
+      &lt;img src="img/kep1.jpg" class="d-block w-100" alt="kép"&gt;
+      &lt;!-- Opcionális felirat: --&gt;
+      &lt;div class="carousel-caption d-none d-md-block hatter"&gt;
+        &lt;h4&gt;Felirat&lt;/h4&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="carousel-item"&gt;
+      &lt;img src="img/kep2.jpg" class="d-block w-100" alt="kép"&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Gombok: data-bs-target="#carouselEgy" -- egyezzen az id-vel! --&gt;
+  &lt;button class="carousel-control-prev" type="button"
+          data-bs-target="#carouselEgy" data-bs-slide="prev"&gt;
+    &lt;span class="carousel-control-prev-icon" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="visually-hidden"&gt;Previous&lt;/span&gt;
+  &lt;/button&gt;
+  &lt;button class="carousel-control-next" type="button"
+          data-bs-target="#carouselEgy" data-bs-slide="next"&gt;
+    &lt;span class="carousel-control-next-icon" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="visually-hidden"&gt;Next&lt;/span&gt;
+  &lt;/button&gt;
+
+&lt;/div&gt;
+
+&lt;!-- HA KÉT CAROUSEL VAN, KÜLÖNBÖZŐ ID KELL! --&gt;
+&lt;div id="carouselKetto" class="carousel slide" data-bs-ride="carousel"&gt;
+  ...
+  &lt;button data-bs-target="#carouselKetto" ...&gt;&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+
+                    <div class="bg-red-900/30 border border-red-700/50 rounded-xl p-3">
+                        <p class="text-red-300 font-bold text-sm">⚠️ Leggyakoribb hiba:</p>
+                        <p class="text-gray-400 text-xs mt-1">Ha két carousel van és ugyanazt az id-t kapják, a gombok
+                            csak az egyiket vezérlik. Adj különböző id-t mindkettőnek, és a gombokban is a megfelelő
+                            id-t használd!</p>
+                    </div>
+                </section>
+
+                <!-- ===== 5. NAVBAR ===== -->
+                <section id="sec-navbar" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-violet-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-violet-700">5</span> Navigációs menü (Bootstrap Navbar)
+                    </h2>
+
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-4">
+                        <pre><code class="language-html">&lt;nav class="navbar navbar-expand-lg bg-body-tertiary"&gt;
+  &lt;!-- Hamburger gomb mobilon --&gt;
+  &lt;button class="navbar-toggler" type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNavDropdown"
+          aria-controls="navbarNavDropdown"
+          aria-expanded="false"
+          aria-label="Toggle navigation"&gt;
+    &lt;span class="navbar-toggler-icon"&gt;&lt;/span&gt;
+  &lt;/button&gt;
+
+  &lt;div class="collapse navbar-collapse" id="navbarNavDropdown"&gt;
+    &lt;ul class="navbar-nav"&gt;
+
+      &lt;!-- Egyszerű link egy section-re --&gt;
+      &lt;li class="nav-item"&gt;
+        &lt;a class="nav-link active" href="#cim1"&gt;Főoldal&lt;/a&gt;
+      &lt;/li&gt;
+
+      &lt;!-- Normál menüpont --&gt;
+      &lt;li class="nav-item"&gt;
+        &lt;a class="nav-link" href="#adatok"&gt;Adatok&lt;/a&gt;
+      &lt;/li&gt;
+
+      &lt;!-- Csak nagy képernyőn látható menüpont (d-none d-md-block) --&gt;
+      &lt;li class="nav-item d-none d-md-block"&gt;
+        &lt;a class="nav-link" href="#validalas"&gt;Validálás&lt;/a&gt;
+      &lt;/li&gt;
+
+    &lt;/ul&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;</code></pre>
+                    </div>
+
+                    <div class="bg-violet-900/30 border border-violet-700/50 rounded-xl p-3">
+                        <p class="text-violet-300 font-bold text-sm">💡 Hasznos navigáció tippek:</p>
+                        <ul class="text-xs text-gray-400 mt-2 space-y-1">
+                            <li>• A link <code class="text-violet-300">href="#azonosito"</code> értékének egyeznie kell
+                                a section <code class="text-violet-300">id="azonosito"</code> értékével</li>
+                            <li>• <code class="text-violet-300">d-none d-md-block</code> → mobilon rejtve, 768px felett
+                                látszik</li>
+                            <li>• <code class="text-violet-300">navbar-expand-lg</code> → 992px felett nem összecsukott
+                                a menü</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- ===== 6. CSS ===== -->
+                <section id="sec-css" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-emerald-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-emerald-700">6</span> CSS beállítások — stilus.css
+                    </h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-emerald-800/60 px-4 py-2 text-xs font-bold text-white">Általános oldal
+                                beállítás (body)</div>
+                            <pre><code class="language-css">body {
+    font-family: Arial;           /* betűtípus */
+    background-color: #0b6671;    /* háttérszín */
+    color: #333;                  /* szöveg színe */
+    margin: 0px;                  /* margó */
+    padding: 0px;                 /* belső bélés */
+}</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-emerald-800/60 px-4 py-2 text-xs font-bold text-white">Osztály (pl. .hatter)
+                            </div>
+                            <pre><code class="language-css">.hatter {
+    background-color: silver;   /* háttérszín */
+    opacity: 0.8;               /* átlátszóság (0-1) */
+    border-radius: 10px;        /* lekerekített sarok */
+}</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-emerald-800/60 px-4 py-2 text-xs font-bold text-white">Egyedi azonosító (pl.
+                                #kep-id)</div>
+                            <pre><code class="language-css">#validalas_img {
+    width: 160px;
+    height: 120px;
+    border: 3px solid black;    /* keret: vastagság, stílus, szín */
+}
+
+/* Hover állapot -- egér ráhúzásakor */
+#validalas_img:hover {
+    border-color: red;          /* keret szín vörös */
+    border-width: 5px;          /* vastagabb keret */
+}</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-emerald-800/60 px-4 py-2 text-xs font-bold text-white">Keret stílusok
+                                (border-style)</div>
+                            <pre><code class="language-css">border: 3px solid red;     /* folytonos vonal */
+border: 3px dashed blue;   /* szaggatott */
+border: 3px dotted green;  /* pontozott */
+border: 3px double black;  /* kettős */
+
+/* Csak egy oldalon: */
+border-top: 2px solid red;
+border-bottom: 2px solid blue;</code></pre>
+                        </div>
+
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <p class="text-gray-400 text-sm mb-2">Leggyakoribb CSS tulajdonságok táblázata:</p>
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-emerald-900/40">
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-emerald-300">Feladat szó
+                                    </th>
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-emerald-300">CSS
+                                        tulajdonság</th>
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-emerald-300">Példa érték
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">betűtípus</td>
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        font-family</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">Arial, sans-serif</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">háttérszín</td>
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        background-color</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">#0b6671, silver, red</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">szöveg színe</td>
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        color</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">#333, white, red</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">margó</td>
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        margin</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">0px, 20px, auto</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">bélés (belső margó)</td>
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        padding</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">0px, 10px</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">sarok lekerekítés</td>
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        border-radius</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">10px, 50%</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">átlátszóság</td>
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        opacity</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">0 (láthatatlan) – 1 (nem
+                                        átlátszó)</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">szélesség</td>
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        width</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">160px, 100%, auto</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">magasság</td>
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        height</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">120px, auto</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">keret</td>
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        border</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">3px solid black</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">elrejtés</td>
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        display: none</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">nem foglal helyet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ===== 7. VALIDÁLÁS ===== -->
+                <section id="sec-validalas" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-yellow-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-yellow-600">7</span> Validálás képernyőkép + Section
+                    </h2>
+
+                    <p class="text-gray-400 text-sm mb-4">Ha a feladat validálást kér: mentsd el a <a
+                            href="https://validator.w3.org" target="_blank"
+                            class="text-yellow-300 underline">validator.w3.org</a> eredményképernyőt <code
+                            class="text-yellow-300">validalas.png</code> névvel a weblapod mellé, majd:</p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-yellow-800/60 px-4 py-2 text-xs font-bold text-white">Validálás menüpont
+                                (csak nagyobb képernyőn)</div>
+                            <pre><code class="language-html">&lt;!-- A navbar-ban: csak md+ képernyőn látszik --&gt;
+&lt;li class="nav-item d-none d-md-block"&gt;
+  &lt;a class="nav-link" href="#validalas"&gt;Validálás&lt;/a&gt;
+&lt;/li&gt;</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-yellow-800/60 px-4 py-2 text-xs font-bold text-white">Validálás section
+                                (mobilon nem jelenik meg)</div>
+                            <pre><code class="language-html">&lt;!-- Section is csak md+ képernyőn látszik --&gt;
+&lt;section id="validalas" class="d-none d-md-block"&gt;
+  &lt;div class="container text-center"&gt;
+    &lt;h2&gt;Validálás eredménye&lt;/h2&gt;
+    &lt;!-- Kép: kattintásra új fülön nyílik meg --&gt;
+    &lt;a href="validalas.png" target="_blank"&gt;
+      &lt;img id="validalas_img"
+           src="validalas.png"
+           alt="Validálás"&gt;
+    &lt;/a&gt;
+  &lt;/div&gt;
+&lt;/section&gt;</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700 lg:col-span-2">
+                            <div class="bg-yellow-800/60 px-4 py-2 text-xs font-bold text-white">CSS — validálás kép
+                                stílusa (stilus.css-ben)</div>
+                            <pre><code class="language-css">/* A kép alapállapota */
+#validalas_img {
+    width: 160px;
+    height: 120px;
+    border: 3px solid black;   /* 3px vastag folytonos keret */
+}
+
+/* Egér ráhúzáskor */
+#validalas_img:hover {
+    border-color: red;         /* vörös keret */
+    border-width: 5px;         /* 5px vastag */
+}</code></pre>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- ===== 8. XML ===== -->
+                <section id="sec-xml" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-red-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-red-700">8</span> XML fájl felépítése
+                    </h2>
+
+                    <p class="text-gray-400 text-sm mb-3">Az XML fájl hierarchikus adattárolás. Ha a feladat txt fájlból
+                        kér XML-t, nézd meg hány sor = 1 rekord!</p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-red-800/60 px-4 py-2 text-xs font-bold text-white">autok.txt (forrás)</div>
+                            <pre><code class="language-text">Suzuki       ← marka
+S-cross      ← modell
+2022         ← evjarat
+105KW        ← teljesitmeny
+Ford         ← következő auto...
+Tourneo Custom
+2021
+92KW</code></pre>
+                        </div>
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-red-800/60 px-4 py-2 text-xs font-bold text-white">autok.xml (eredmény)</div>
+                            <pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;autok&gt;
+  &lt;auto&gt;
+    &lt;marka&gt;Suzuki&lt;/marka&gt;
+    &lt;modell&gt;S-cross&lt;/modell&gt;
+    &lt;evjarat&gt;2022&lt;/evjarat&gt;
+    &lt;teljesitmeny&gt;105KW&lt;/teljesitmeny&gt;
+  &lt;/auto&gt;
+  &lt;auto&gt;
+    &lt;marka&gt;Ford&lt;/marka&gt;
+    &lt;modell&gt;Tourneo Custom&lt;/modell&gt;
+    &lt;evjarat&gt;2021&lt;/evjarat&gt;
+    &lt;teljesitmeny&gt;92KW&lt;/teljesitmeny&gt;
+  &lt;/auto&gt;
+&lt;/autok&gt;</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-900/30 border border-red-700/50 rounded-xl p-4">
+                        <p class="text-red-300 font-bold text-sm mb-2">📋 XML szabályok (amiket be kell tartani):</p>
+                        <ul class="text-xs text-gray-400 space-y-1">
+                            <li>• Mindig legyen <code
+                                    class="text-red-300">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</code> az első
+                                sorban</li>
+                            <li>• Van egy gyökérelem (pl. <code class="text-red-300">&lt;autok&gt;</code>) ami mindent
+                                keretez</li>
+                            <li>• Minden nyitó tagnak legyen záró tagja: <code
+                                    class="text-red-300">&lt;marka&gt;...&lt;/marka&gt;</code></li>
+                            <li>• A tagok neve ne tartalmazzon szóközt, ékezetes betűt, ne kezdődjön számmal</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- ===== 9. JS + XML ===== -->
+                <section id="sec-js-xml" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-indigo-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-indigo-700">9</span> JavaScript + XML feldolgozás
+                    </h2>
+
+                    <div class="bg-yellow-900/30 border border-yellow-700/50 rounded-xl p-4 mb-5">
+                        <p class="text-yellow-300 font-bold text-sm">⚠️ FONTOS: fetch() vs XMLHttpRequest vs beágyazott
+                            XML</p>
+                        <div class="overflow-x-auto mt-2">
+                            <table class="w-full text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-800">
+                                        <th class="border border-gray-700 px-2 py-1 text-left text-gray-300">Módszer
+                                        </th>
+                                        <th class="border border-gray-700 px-2 py-1 text-yellow-300">file:// protokoll
+                                        </th>
+                                        <th class="border border-gray-700 px-2 py-1 text-blue-300">Szerver (localhost)
+                                        </th>
+                                        <th class="border border-gray-700 px-2 py-1 text-gray-300">Megjegyzés</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-gray-800/40">
+                                        <td class="border border-gray-700 px-2 py-1 font-mono text-red-300">fetch()</td>
+                                        <td class="border border-gray-700 px-2 py-1 text-center">❌ BLOKKOLVA</td>
+                                        <td class="border border-gray-700 px-2 py-1 text-center">✅ Működik</td>
+                                        <td class="border border-gray-700 px-2 py-1 text-gray-400">CORS blokkolja
+                                            file://-n</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800/40">
+                                        <td class="border border-gray-700 px-2 py-1 font-mono text-yellow-300">
+                                            XMLHttpRequest</td>
+                                        <td class="border border-gray-700 px-2 py-1 text-center">⚠️ Firefox igen, Chrome
+                                            nem</td>
+                                        <td class="border border-gray-700 px-2 py-1 text-center">✅ Működik</td>
+                                        <td class="border border-gray-700 px-2 py-1 text-gray-400">Inkább Firefox-ban
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-800/40 bg-emerald-900/20">
+                                        <td class="border border-gray-700 px-2 py-1 font-mono text-emerald-300">
+                                            Beágyazott XML string</td>
+                                        <td class="border border-gray-700 px-2 py-1 text-center">✅ MINDIG OK</td>
+                                        <td class="border border-gray-700 px-2 py-1 text-center">✅ Működik</td>
+                                        <td class="border border-gray-700 px-2 py-1 text-emerald-400 font-bold">→
+                                            VIZSGÁN EZT HASZNÁLD!</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-4">
+                        <div class="bg-indigo-800/60 px-4 py-2 text-xs font-bold text-white">✅ AJÁNLOTT: kocsik.js — XML
+                            beágyazva (szerver nélkül is működik!)</div>
+                        <pre><code class="language-javascript">// Az XML adatot közvetlenül a JS-ben tároljuk — MINDIG működik!
+let xmlString = `&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;autok&gt;
+  &lt;auto&gt;
+    &lt;marka&gt;Suzuki&lt;/marka&gt;
+    &lt;modell&gt;S-cross&lt;/modell&gt;
+    &lt;evjarat&gt;2022&lt;/evjarat&gt;
+    &lt;teljesitmeny&gt;105KW&lt;/teljesitmeny&gt;
+  &lt;/auto&gt;
+  &lt;auto&gt;
+    &lt;marka&gt;Ford&lt;/marka&gt;
+    &lt;modell&gt;Tourneo Custom&lt;/modell&gt;
+    &lt;evjarat&gt;2021&lt;/evjarat&gt;
+    &lt;teljesitmeny&gt;92KW&lt;/teljesitmeny&gt;
+  &lt;/auto&gt;
+&lt;/autok&gt;`;
+
+// XML string → XML dokumentum objektummá alakítás
+let parser = new DOMParser();
+let xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+// SELECT feltöltése az XML adatokból
+let autok = xmlDoc.getElementsByTagName("auto");   // összes &lt;auto&gt; elem
+let select = document.querySelector("select");      // a HTML select elem
+
+// Üres alapelem hozzáadása
+let alapOption = document.createElement("option");
+alapOption.text = "-- Válassz --";
+alapOption.value = "";
+select.add(alapOption);
+
+// Minden &lt;auto&gt; elemhez option létrehozása
+for (let i = 0; i &lt; autok.length; i++) {
+    let option = document.createElement("option");
+    // Tagból szöveg kinyerése:
+    option.text = autok[i].getElementsByTagName("marka")[0].textContent;
+    option.value = i;   // az index lesz az érték
+    select.add(option);
+}
+
+// A function neve a feladat szerint: marka(parameter)
+function marka(parameter) {
+    let index = parameter.value;   // a kiválasztott option value-ja (index)
+
+    // Ha az üres opciót választják:
+    if (index === "") {
+        document.getElementById("modell").value = "";
+        document.getElementById("evjarat").value = "";
+        document.getElementById("teljesitmeny").value = "";
+        return;
+    }
+
+    // A kiválasztott &lt;auto&gt; elem lekérése index alapján
+    let kivalasztott = xmlDoc.getElementsByTagName("auto")[index];
+
+    // Inputok feltöltése az XML adatokból
+    document.getElementById("modell").value =
+        kivalasztott.getElementsByTagName("modell")[0].textContent;
+    document.getElementById("evjarat").value =
+        kivalasztott.getElementsByTagName("evjarat")[0].textContent;
+    document.getElementById("teljesitmeny").value =
+        kivalasztott.getElementsByTagName("teljesitmeny")[0].textContent;
+}</code></pre>
+                    </div>
+
+                    <div class="rounded-xl overflow-hidden border border-gray-700">
+                        <div class="bg-gray-800/60 px-4 py-2 text-xs font-bold text-white">Alternatíva: XMLHttpRequest
+                            (Firefox-ban vagy szerverrel működik)</div>
+                        <pre><code class="language-javascript">let xhr = new XMLHttpRequest();
+xhr.open("GET", "autok.xml", false);   // false = szinkron betöltés
+xhr.send();
+
+let parser = new DOMParser();
+let xmlDoc = parser.parseFromString(xhr.responseText, "text/xml");
+// ... többi kód ugyanaz</code></pre>
+                    </div>
+                </section>
+
+                <!-- ===== 10. DOM MŰVELETEK ===== -->
+                <section id="sec-dom" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-lime-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-lime-700">10</span> DOM műveletek — JavaScript alapok
+                    </h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-lime-800/60 px-4 py-2 text-xs font-bold text-white">Elemek elérése
+                                (getElement...)</div>
+                            <pre><code class="language-javascript">// ID alapján (leggyakoribb):
+document.getElementById("modell")
+
+// CSS szelektor alapján (első találat):
+document.querySelector("select")
+document.querySelector("#modell")
+document.querySelector(".form-control")
+
+// CSS szelektor alapján (ÖSSZES találat):
+document.querySelectorAll(".nav-item")</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-lime-800/60 px-4 py-2 text-xs font-bold text-white">Értékek olvasása / írása
+                            </div>
+                            <pre><code class="language-javascript">// Input / select érték OLVASÁSA:
+let ertek = document.getElementById("modell").value;
+
+// Input érték BEÁLLÍTÁSA:
+document.getElementById("modell").value = "S-cross";
+
+// Szöveg tartalom OLVASÁSA:
+let szoveg = elem.textContent;
+
+// HTML tartalom BEÁLLÍTÁSA:
+elem.innerHTML = "&lt;b&gt;félkövér&lt;/b&gt;";</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-lime-800/60 px-4 py-2 text-xs font-bold text-white">XML elemek elérése</div>
+                            <pre><code class="language-javascript">// Összes &lt;auto&gt; elem lekérése:
+let autok = xmlDoc.getElementsByTagName("auto");
+// autok[0] = első auto, autok[1] = második, stb.
+
+// Egy elemen belül tag kinyerése:
+let elsoAuto = autok[0];
+let marka = elsoAuto.getElementsByTagName("marka")[0].textContent;
+
+// Atribútum olvasása:
+// &lt;auto tipus="SUV"&gt;
+let tipus = autok[0].getAttribute("tipus");</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-lime-800/60 px-4 py-2 text-xs font-bold text-white">Elemek létrehozása
+                                (create / add)</div>
+                            <pre><code class="language-javascript">// Új option létrehozása selectbe:
+let option = document.createElement("option");
+option.text = "Suzuki";    // látható szöveg
+option.value = "0";        // elküldött érték
+select.add(option);
+
+// Új div létrehozása és hozzáadása:
+let ujDiv = document.createElement("div");
+ujDiv.textContent = "Szöveg";
+document.body.appendChild(ujDiv);</code></pre>
+                        </div>
+
+                    </div>
+
+                    <div class="rounded-xl overflow-hidden border border-gray-700">
+                        <div class="bg-lime-800/60 px-4 py-2 text-xs font-bold text-white">Event (esemény) kezelés</div>
+                        <pre><code class="language-javascript">// onchange — select megváltozásakor (HTML-ben inline):
+&lt;select onchange="marka(this)"&gt;   // this = maga a select elem
+
+// onclick — gombra kattintáskor:
+&lt;button onclick="valami()"&gt;Kattints&lt;/button&gt;
+
+// JS-ből esemény hozzáadása:
+document.getElementById("gomb").addEventListener("click", function() {
+    alert("Kattintottál!");
+});</code></pre>
+                    </div>
+                </section>
+
+                <!-- ===== 12. JSON + FETCH ===== -->
+                <section id="sec-json" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-teal-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-teal-700">12</span> JSON + fetch() alapú adatfeldolgozás
+                    </h2>
+
+                    <p class="text-gray-400 text-sm mb-4">Ha a feladat <strong class="text-white">JSON fájlból</strong>
+                        tölt be adatokat (pl. városok, termékek), a <code class="text-teal-300">fetch()</code> + <code
+                            class="text-teal-300">.json()</code> a megközelítés. <strong class="text-yellow-300">FONTOS:
+                            csak szerverről (localhost) működik, file://-ról nem!</strong></p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-teal-800/60 px-4 py-2 text-xs font-bold text-white">adatok.json struktúra
+                            </div>
+                            <pre><code class="language-json">{
+  "varosok": [
+    {
+      "nev": "Budapest",
+      "homerseklet": 22,
+      "szel": 15,
+      "allapot": "napos"
+    },
+    {
+      "nev": "Debrecen",
+      "homerseklet": 20,
+      "szel": 10,
+      "allapot": "felhős"
+    }
+  ]
+}</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-teal-800/60 px-4 py-2 text-xs font-bold text-white">index.html — minimális
+                                struktúra</div>
+                            <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="hu"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;title&gt;Időjárás&lt;/title&gt;
+  &lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;h2&gt;Város időjárása&lt;/h2&gt;
+
+  &lt;!-- select id-t kap (JS el tudja érni) --&gt;
+  &lt;select id="varosLista"&gt;&lt;/select&gt;
+
+  &lt;!-- div id-t kap (JS ide írja az adatokat) --&gt;
+  &lt;div id="idojaras"&gt;&lt;/div&gt;
+
+  &lt;!-- script a body VÉGÉN --&gt;
+  &lt;script src="program.js"&gt;&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                        </div>
+
+                    </div>
+
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-4">
+                        <div class="bg-teal-800/60 px-4 py-2 text-xs font-bold text-white">program.js — teljes megoldás
+                            magyarázattal</div>
+                        <pre><code class="language-javascript">// fetch() betölti a JSON fájlt (csak szerverről működik!)
+fetch("adatok.json")
+.then(valasz => valasz.json())   // szöveg → JS objektum
+.then(adatok => {                // adatok = a teljes JSON objektum
+
+    const select = document.getElementById("varosLista");
+    const div = document.getElementById("idojaras");
+
+    // SELECT feltöltése: minden városhoz option
+    adatok.varosok.forEach(v => {          // forEach = végigmegy a tömbön
+        let option = document.createElement("option");
+        option.textContent = v.nev;        // a városi neve lesz a szöveg ÉS az érték
+        select.appendChild(option);        // hozzáadás a selecthez
+    });
+
+    // Megjelenít függvény: városnév alapján kikeresi és kiírja az adatokat
+    function megjelenit(varosNev) {
+        // find() megkeresi az első egyező elemet a tömbben
+        let v = adatok.varosok.find(x => x.nev === varosNev);
+
+        // innerHTML-be HTML kódot írunk (mértékegységekkel együtt!)
+        div.innerHTML =
+            "&lt;h3&gt;" + v.nev + "&lt;/h3&gt;" +
+            "Hőmérséklet: " + v.homerseklet + " °C&lt;br&gt;" +
+            "Szél: " + v.szel + " km/h&lt;br&gt;" +
+            "Időjárás: " + v.allapot;
+    }
+
+    // Első város automatikus megjelenítése (0. index = első elem)
+    megjelenit(adatok.varosok[0].nev);
+
+    // Eseményfigyelő: ha változik a select, frissíti az adatokat
+    select.addEventListener("change", function() {
+        megjelenit(this.value);   // this.value = a kiválasztott option szövege
+    });
+
+});</code></pre>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-teal-800/60 px-4 py-2 text-xs font-bold text-white">style.css — keretes
+                                elrendezés</div>
+                            <pre><code class="language-css">body {
+    background-color: lightblue;
+    font-family: Arial, sans-serif;
+    font-size: medium;
+    color: darkblue;
+    text-align: center;
+}
+
+/* A megjelenítő div stílusa */
+#idojaras {
+    margin-top: 15px;
+}
+
+/* Keretbe helyezett tartalom:
+   width + margin: auto = középre igazítás! */
+#keret {
+    border: 3px solid black;
+    width: 400px;
+    padding: 15px;
+    margin: 20px auto;   /* auto = vízszintesen középre */
+    background-color: white;
+}</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-teal-800/60 px-4 py-2 text-xs font-bold text-white">JSON vs XML — mikor
+                                melyik</div>
+                            <pre><code class="language-text">JSON (adatok.json)
+✅ Könnyű olvasni/írni
+✅ JS natívan kezeli (.json())
+✅ Modern feladatoknál tipikus
+⚠️  fetch() kell → csak szerverről
+
+XML (autok.xml)
+✅ Hagyományos, régi feladatoknál
+✅ Beágyazva JS-be = szerver nélkül
+⚠️  Több kód kell (DOMParser)
+
+JSON adatelérés:
+adatok.varosok[0].nev    → "Budapest"
+adatok.varosok[0].szel   → 15
+
+XML adatelérés:
+xmlDoc.getElementsByTagName("auto")[0]
+  .getElementsByTagName("marka")[0]
+  .textContent               → "Suzuki"</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-teal-700/40">
+                            <p class="text-teal-300 font-semibold text-sm mb-1">forEach vs for ciklus</p>
+                            <pre class="text-xs"><code class="language-javascript">// forEach (modern):
+adatok.varosok.forEach(v => {
+    console.log(v.nev);
+});
+
+// for (klasszikus):
+for (let i = 0; i < adatok.varosok.length; i++) {
+    console.log(adatok.varosok[i].nev);
+}</code></pre>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-teal-700/40">
+                            <p class="text-teal-300 font-semibold text-sm mb-1">find() — keresés tömbben</p>
+                            <pre class="text-xs"><code class="language-javascript">// Megkeresi az első olyat,
+// ahol x.nev === "Budapest"
+let v = adatok.varosok.find(
+    x => x.nev === varosNev
+);
+// v.homerseklet → 22
+// v.allapot     → "napos"</code></pre>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-teal-700/40">
+                            <p class="text-teal-300 font-semibold text-sm mb-1">JSON bővítése</p>
+                            <pre class="text-xs"><code class="language-json">// Új elem hozzáadása:
+// Csak másold az előző blokkot
+// és változtasd az adatokat!
+{
+  "nev": "Győr",
+  "homerseklet": 23,
+  "szel": 12,
+  "allapot": "napos"
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 13. BOOTSTRAP MODAL ===== -->
+                <section id="sec-modal" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-fuchsia-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-fuchsia-700">13</span> Bootstrap Modal — felugró ablak
+                    </h2>
+
+                    <p class="text-gray-400 text-sm mb-4">A modal egy felugró párbeszédablak. Szükség van rá mindig:
+                        <code class="text-fuchsia-300">bootstrap.bundle.min.js</code> (vagy <code
+                            class="text-fuchsia-300">bootstrap.min.js</code>) betöltve a body végén.
+                    </p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-fuchsia-800/60 px-4 py-2 text-xs font-bold text-white">1️⃣ Gomb — ami
+                                megnyitja a modalt</div>
+                            <pre><code class="language-html">&lt;!-- data-bs-toggle="modal" = Bootstrap nyitja meg --&gt;
+&lt;!-- data-bs-target="#enModal" = a modal id-je --&gt;
+
+&lt;button type="button"
+        class="btn btn-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#enModal"&gt;
+    Megnyitás
+&lt;/button&gt;
+
+&lt;!-- Vagy link is lehet gomb helyett: --&gt;
+&lt;a href="#"
+   data-bs-toggle="modal"
+   data-bs-target="#enModal"&gt;
+    Kattints ide
+&lt;/a&gt;</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-fuchsia-800/60 px-4 py-2 text-xs font-bold text-white">2️⃣ Magának a modalnak
+                                a kódja</div>
+                            <pre><code class="language-html">&lt;!-- id-nek egyeznie kell a data-bs-target-tel! --&gt;
+&lt;div class="modal fade" id="enModal"
+     tabindex="-1"
+     aria-labelledby="enModalLabel"
+     aria-hidden="true"&gt;
+
+  &lt;div class="modal-dialog"&gt;
+    &lt;div class="modal-content"&gt;
+
+      &lt;!-- FEJ --&gt;
+      &lt;div class="modal-header"&gt;
+        &lt;h5 class="modal-title" id="enModalLabel"&gt;
+          Címsor
+        &lt;/h5&gt;
+        &lt;button type="button" class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Bezárás"&gt;&lt;/button&gt;
+      &lt;/div&gt;
+
+      &lt;!-- TEST --&gt;
+      &lt;div class="modal-body"&gt;
+        Ide jön a tartalom...
+      &lt;/div&gt;
+
+      &lt;!-- LAB --&gt;
+      &lt;div class="modal-footer"&gt;
+        &lt;button type="button" class="btn btn-secondary"
+                data-bs-dismiss="modal"&gt;Bezárás&lt;/button&gt;
+        &lt;button type="button" class="btn btn-primary"&gt;
+          Mentés
+        &lt;/button&gt;
+      &lt;/div&gt;
+
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+
+                    </div>
+
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-4">
+                        <div class="bg-fuchsia-800/60 px-4 py-2 text-xs font-bold text-white">3️⃣ Modal méret beállítása
+                            — modal-dialog osztályhoz adva</div>
+                        <pre><code class="language-html">&lt;!-- Kisebb modal: --&gt;
+&lt;div class="modal-dialog modal-sm"&gt;
+
+&lt;!-- Alap (közepes, ez az alapértelmezett): --&gt;
+&lt;div class="modal-dialog"&gt;
+
+&lt;!-- Nagy modal: --&gt;
+&lt;div class="modal-dialog modal-lg"&gt;
+
+&lt;!-- Extra nagy modal: --&gt;
+&lt;div class="modal-dialog modal-xl"&gt;
+
+&lt;!-- Középre igazított (függőlegesen is): --&gt;
+&lt;div class="modal-dialog modal-dialog-centered"&gt;</code></pre>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-fuchsia-800/60 px-4 py-2 text-xs font-bold text-white">4️⃣ Modal vezérlése
+                                JS-ből (program)</div>
+                            <pre><code class="language-javascript">// Új modal példányosítása és nyitása:
+let ujModal = new bootstrap.Modal(document.getElementById('enModal'));
+ujModal.show();
+
+// MÁR LÉTEZŐ (pl. data-bs-toggle-al nyitott) Modal bezárása:
+let letezoModal = bootstrap.Modal.getInstance(document.getElementById('enModal'));
+// Biztosabb módszer, ha a getInstance null lenne:
+let biztosModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('enModal'));
+biztosModal.hide();
+
+// Példa: Űrlap mentés után bezárás:
+document.getElementById('urlap').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Mentés logika...
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('enModal')).hide();
+});</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-fuchsia-800/60 px-4 py-2 text-xs font-bold text-white">5️⃣ Kép megnyitása
+                                modalban (lightbox)</div>
+                            <pre><code class="language-html">&lt;!-- Kattintható kép, ami modalt nyit --&gt;
+&lt;img src="kiskep.jpg"
+     data-bs-toggle="modal"
+     data-bs-target="#kepModal"
+     style="cursor:pointer; width:150px"&gt;
+
+&lt;!-- A modal belsejében nagy kép: --&gt;
+&lt;div class="modal fade" id="kepModal" ...&gt;
+  &lt;div class="modal-dialog modal-lg"&gt;
+    &lt;div class="modal-content"&gt;
+      &lt;div class="modal-body text-center"&gt;
+        &lt;img src="nagykep.jpg"
+             class="img-fluid"&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <p class="text-gray-400 text-sm mb-2">Modal elemösszefoglaló:</p>
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-fuchsia-900/40">
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-fuchsia-300">HTML elem
+                                    </th>
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-fuchsia-300">Szerepe</th>
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-fuchsia-300">Kötelező?
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .modal.fade</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">A gyökér elem, fade =
+                                        behálózás effekt</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">✅ Igen</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .modal-dialog</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Méret és elhelyezés
+                                        (modal-lg stb.)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">✅ Igen</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .modal-content</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">A fehér dobozszerű keret
+                                    </td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">✅ Igen</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .modal-header</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Címsáv + X bezáró gomb
+                                    </td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">⚠️ Ajánlott</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .modal-body</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Tartalom (szöveg, kép,
+                                        űrlap stb.)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">✅ Igen</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .modal-footer</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Gombok lent (Bezárás,
+                                        Mentés stb.)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">⚠️ Opcionális</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        data-bs-dismiss="modal"</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">A bezáró gombra kell —
+                                        bezárja a modalt</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">✅ Bezáró gombra</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 bg-red-900/30 border border-red-700/50 rounded-xl p-4">
+                        <p class="text-red-300 font-bold text-sm mb-1">⚠️ Leggyakoribb hibák:</p>
+                        <ul class="text-xs text-gray-400 space-y-1 mt-1">
+                            <li>• A <code class="text-red-300">data-bs-target</code> értékének (pl. <code
+                                    class="text-red-300">#enModal</code>) pontosan egyeznie kell a modal <code
+                                    class="text-red-300">id</code>-jével — a <strong>#</strong> jel kötelező!</li>
+                            <li>• <code class="text-red-300">bootstrap.bundle.min.js</code> kell betöltve lennie —
+                                anélkül a modal nem nyit ki</li>
+                            <li>• A modal HTML kódja lehet bárhol a <code class="text-red-300">&lt;body&gt;</code>-ban,
+                                de nem kell látható helyen (Bootstrap el van rejtve)</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- ===== 14. CAROUSEL RÉSZLETES ===== -->
+                <section id="sec-carousel2" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-pink-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-pink-700">14</span> Bootstrap Carousel — részletes
+                    </h2>
+
+                    <p class="text-gray-400 text-sm mb-4">A carousel képformátumokat vált fel-le automatikusan vagy
+                        gombokkal. Szükség van rá mindig: <code class="text-pink-300">bootstrap.bundle.min.js</code>
+                        betöltve.</p>
+
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-4">
+                        <div class="bg-pink-800/60 px-4 py-2 text-xs font-bold text-white">Teljes carousel struktúra
+                            kommentárokkal</div>
+                        <pre><code class="language-html">&lt;!-- carousel kötelező osztályok + id --&gt;
+&lt;div id="kepesCarousel"
+     class="carousel slide"
+     data-bs-ride="carousel"&gt;  &lt;!-- auto lejátszás --&gt;
+
+  &lt;!-- PONTOK (indikátor) — opcionális --&gt;
+  &lt;div class="carousel-indicators"&gt;
+    &lt;button type="button"
+            data-bs-target="#kepesCarousel"
+            data-bs-slide-to="0"
+            class="active"&gt;&lt;/button&gt;
+    &lt;button type="button"
+            data-bs-target="#kepesCarousel"
+            data-bs-slide-to="1"&gt;&lt;/button&gt;
+    &lt;button type="button"
+            data-bs-target="#kepesCarousel"
+            data-bs-slide-to="2"&gt;&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;!-- KÉPEK: carousel-inner + carousel-item --&gt;
+  &lt;div class="carousel-inner"&gt;
+
+    &lt;!-- Első kép: ACTIVE osztály KÖTELEZŐ! --&gt;
+    &lt;div class="carousel-item active"&gt;
+      &lt;img src="img/kep1.jpg"
+           class="d-block w-100"
+           alt="leírás"&gt;
+      &lt;!-- Felirat (opcionális): --&gt;
+      &lt;div class="carousel-caption d-none d-md-block"&gt;
+        &lt;h5&gt;Cím&lt;/h5&gt;
+        &lt;p&gt;Leírás szövege&lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class="carousel-item"&gt;
+      &lt;img src="img/kep2.jpg"
+           class="d-block w-100" alt=""&gt;
+    &lt;/div&gt;
+
+    &lt;div class="carousel-item"&gt;
+      &lt;img src="img/kep3.jpg"
+           class="d-block w-100" alt=""&gt;
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+
+  &lt;!-- ELŐZŐ / KÖVETKEZŐ GOMBOK --&gt;
+  &lt;!-- data-bs-target = a carousel id-je! --&gt;
+  &lt;button class="carousel-control-prev"
+          type="button"
+          data-bs-target="#kepesCarousel"
+          data-bs-slide="prev"&gt;
+    &lt;span class="carousel-control-prev-icon"
+          aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="visually-hidden"&gt;Previous&lt;/span&gt;
+  &lt;/button&gt;
+
+  &lt;button class="carousel-control-next"
+          type="button"
+          data-bs-target="#kepesCarousel"
+          data-bs-slide="next"&gt;
+    &lt;span class="carousel-control-next-icon"
+          aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;span class="visually-hidden"&gt;Next&lt;/span&gt;
+  &lt;/button&gt;
+
+&lt;/div&gt;</code></pre>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-pink-800/60 px-4 py-2 text-xs font-bold text-white">data-bs-* attribútumok
+                            </div>
+                            <pre><code class="language-html">&lt;!-- Auto lejátszás: --&gt;
+data-bs-ride="carousel"
+
+&lt;!-- Váltási idő (ms-ban, alap: 5000): --&gt;
+data-bs-interval="3000"
+
+&lt;!-- Automatikus megállítása: --&gt;
+data-bs-ride="false"
+
+&lt;!-- Hurkolás kikapcs. (nem megy vissza): --&gt;
+data-bs-wrap="false"
+
+&lt;!-- Kérintésre léptetés tiltása (mobil): --&gt;
+data-bs-touch="false"</code></pre>
+                        </div>
+
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-pink-800/60 px-4 py-2 text-xs font-bold text-white">Carousel JS-ből vezérelve
+                            </div>
+                            <pre><code class="language-javascript">// Carousel példány létrehozása JS-ből:
+let carousel = new bootstrap.Carousel(
+    document.getElementById('kepesCarousel'),
+    {
+        interval: 3000,   // 3 másodpercenként vált
+        wrap: true        // körbe jár
+    }
+);
+
+// Kézi vezérlés:
+carousel.next();    // következő
+carousel.prev();    // előző
+carousel.pause();   // megállít
+carousel.cycle();   // ismét elindul</code></pre>
+                        </div>
+
+                    </div>
+
+                    <div class="overflow-x-auto mb-4">
+                        <p class="text-gray-400 text-sm mb-2">Carousel elemösszefoglaló:</p>
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-pink-900/40">
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-pink-300">Osztály /
+                                        Attribútum</th>
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-pink-300">Mire való</th>
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-pink-300">Kötelező?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .carousel.slide</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">A külső keret. slide =
+                                        csúszó animáció</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">✅ Igen</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .carousel-inner</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">A képeket tároló konténer
+                                    </td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">✅ Igen</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .carousel-item</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Egy dia (kép + felirat
+                                        egysége)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">✅ Igen</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .carousel-item.active</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Az első megjelenő dia —
+                                        CSAK EGYEN legyen!</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">✅ Kötelező az 1.-en</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .d-block.w-100</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Kép teljes szélességű —
+                                        carousel-item-en belül kötelező</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">✅ Képre</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .carousel-caption</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Felirat a kép alján —
+                                        opcionális</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">⚠️ Opcionális</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        .carousel-indicators</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">Alul a kis pontok
+                                        (navigációs jelzők)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">⚠️ Opcionális</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">
+                                        data-bs-target</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">A gombra kell: melyik
+                                        carousel-t vezérli (#id)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">✅ Gombokra</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-red-900/30 border border-red-700/50 rounded-xl p-4">
+                        <p class="text-red-300 font-bold text-sm mb-2">⚠️ Leggyakoribb hibák:</p>
+                        <ul class="text-xs text-gray-400 space-y-1">
+                            <li>• Ha <strong>két carousel</strong> van a lapon: mindkétnek <strong>különböző id</strong>
+                                kell, és a gombokban is a megfelelő id-t kell használni</li>
+                            <li>• Ha <strong>nincs active</strong> osztály egyik carousel-item-en sem: üres lesz a
+                                carousel</li>
+                            <li>• Ha a kép nem tölt be: ellenőrizd az elérési utat (<code
+                                    class="text-red-300">img/kep.jpg</code> vs <code
+                                    class="text-red-300">kep.jpg</code>)</li>
+                            <li>• <code class="text-red-300">bootstrap.bundle.min.js</code> kell — a sima <code
+                                    class="text-red-300">bootstrap.min.js</code> <strong>nem tartalmazza</strong> a
+                                Popper.js-t, ami kell a carousel működéséhez</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- ===== 11. GYORS TIPPEK ===== -->
+                <section id="sec-tippek" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-rose-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-rose-700">11</span> Gyors tippek &amp; Buktatók
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-rose-700/40">
+                            <p class="text-rose-300 font-semibold text-sm mb-1">🔗 Anchor link a section-ra</p>
+                            <p class="text-gray-400 text-xs">A navigáció <code
+                                    class="text-rose-300">href="#modellek"</code> értékének pontosan egyeznie kell a
+                                section <code class="text-rose-300">id="modellek"</code> értékével. A # jel kötelező!
+                            </p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-yellow-700/40">
+                            <p class="text-yellow-300 font-semibold text-sm mb-1">📁 Fájl elérési utak</p>
+                            <p class="text-gray-400 text-xs">Az útvonal az index.html helyéhez viszonyított: <code
+                                    class="text-yellow-300">css/stilus.css</code>, <code
+                                    class="text-yellow-300">js/kocsik.js</code>, <code
+                                    class="text-yellow-300">img/kep.jpg</code>. Ha valami nem tölt be, az út hibás!</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-blue-700/40">
+                            <p class="text-blue-300 font-semibold text-sm mb-1">📋 Script sorrendje</p>
+                            <p class="text-gray-400 text-xs">A Bootstrap JS-t előbb töltsd be, mint a saját JS-t.
+                                Mindkettő legyen a <code class="text-blue-300">&lt;/body&gt;</code> előtt. Ha a JS
+                                módosít HTML elemeket, az elemeknek már léteznie kell mikor a JS fut.</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-emerald-700/40">
+                            <p class="text-emerald-300 font-semibold text-sm mb-1">🖼️ Kép new fülön megnyitás</p>
+                            <p class="text-gray-400 text-xs">Ha a kép kattintásra új fülön nyíljon meg, csomagold <code
+                                    class="text-emerald-300">&lt;a href="kep.png" target="_blank"&gt;</code> elembe, és
+                                belé tedd az <code class="text-emerald-300">&lt;img&gt;</code> tagot.</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-purple-700/40">
+                            <p class="text-purple-300 font-semibold text-sm mb-1">📐 col-* összesítés = 12</p>
+                            <p class="text-gray-400 text-xs">Egy sorban lévő col-*-ok összege 12 kell legyen azonos
+                                breakpointon. Pl. 4 oszlop = <code class="text-purple-300">col-md-3</code> (4×3=12). Ha
+                                nem összegzik 12-re, törés vagy üres hely lesz.</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-cyan-700/40">
+                            <p class="text-cyan-300 font-semibold text-sm mb-1">🏷️ favicon típus</p>
+                            <p class="text-gray-400 text-xs">PNG ikonhoz: <code
+                                    class="text-cyan-300">type="image/png"</code>. ICO fájlhoz: <code
+                                    class="text-cyan-300">type="image/x-icon"</code>. Ha typo van (pl. <code
+                                    class="text-red-400">imgage/png</code>), a favicon nem jelenik meg!</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-orange-700/40">
+                            <p class="text-orange-300 font-semibold text-sm mb-1">🔄 getElementsByTagName index</p>
+                            <p class="text-gray-400 text-xs"><code
+                                    class="text-orange-300">getElementsByTagName("marka")[0]</code> — a <code
+                                    class="text-orange-300">[0]</code> azért kell, mert a függvény listát ad vissza. Ha
+                                nincs ott, <code class="text-red-400">undefined</code> lesz az eredmény.</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-indigo-700/40">
+                            <p class="text-indigo-300 font-semibold text-sm mb-1">🌐 Validálás lépései</p>
+                            <p class="text-gray-400 text-xs">1. Menj: <code
+                                    class="text-indigo-300">validator.w3.org</code> → 2. "Validate by File Upload" → 3.
+                                Töltsd fel az index.html-t → 4. Képernyőfotó az eredményről → 5. Mentsd <code
+                                    class="text-indigo-300">validalas.png</code> névvel a weblapB mappába.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 15. VIZSGA MENETE & PARANCSOK ===== -->
+                <section id="sec-vizsgamenet" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-amber-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-amber-700">15</span> Tipikus vizsgafeladat menete & Hasznos parancsok
+                    </h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-amber-700/40">
+                            <p class="text-amber-300 font-bold text-sm mb-2">1. A vizsga kezdő lépései</p>
+                            <ol class="text-xs text-gray-400 space-y-2 list-decimal pl-4">
+                                <li><strong>Könyvtárstruktúra:</strong> Hozz létre egy mappát a projektnek (pl. <code
+                                        class="text-amber-200">weblapB</code>). Másold ide az alapfájlokat (<code
+                                        class="text-amber-200">bootstrap.min.css</code>, <code
+                                        class="text-amber-200">stilus.css</code>, <code
+                                        class="text-amber-200">index.html</code>, adatok).</li>
+                                <li><strong>HTML Váz:</strong> Írd meg a html, head, body részeket, töltsd be a
+                                    stíluslapokat és a js-t a leírás alapján.</li>
+                                <li><strong>Layout (Rács):</strong> Építsd fel a Container, Navbar, Carousel, Form
+                                    szekciókat.</li>
+                                <li><strong>Stílusok (CSS):</strong> Csináld meg a feladat által kért ID és Class
+                                    formázásokat a <code class="text-amber-200">stilus.css</code>-ben.</li>
+                                <li><strong>JS & XML/JSON:</strong> Valósítsd meg az aszinkron adatbetöltést és az
+                                    eseményvezérlést (pl. <code class="text-amber-200">onchange</code>).</li>
+                            </ol>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-amber-700/40">
+                            <p class="text-amber-300 font-bold text-sm mb-2">2. Lokális szerver indítása (CORS hiba
+                                ellen)</p>
+                            <p class="text-xs text-gray-400 mb-2">Ha <code class="text-amber-200">fetch()</code>-el
+                                töltesz be JSON/XML fájlt, a <code class="text-amber-200">file://</code> protokoll
+                                blokkolja (CORS). Lokális szervert kell indítanod a projekt mappájából a parancssorban
+                                (Terminal):</p>
+                            <pre><code class="language-bash"># Ha van telepítve Python (a legegyszerűbb):
+python -m http.server 8000
+
+# Ha PHP van telepítve:
+php -S localhost:8000</code></pre>
+                            <p class="text-xs text-gray-400 mt-2">Megnyitás a böngészőben: <code
+                                    class="text-amber-200">http://localhost:8000</code></p>
+                            <p class="text-xs text-gray-400 mt-1"><em>Vagy VS Code-ban használd a "Live Server"
+                                    kiegészítőt.</em></p>
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-4">
+                        <div class="bg-amber-800/60 px-4 py-2 text-xs font-bold text-white">3. Hasznos parancsok
+                            (Terminál / PowerShell)</div>
+                        <pre><code class="language-powershell"># Ha hiányzik a Bootstrap CSS, letöltheted parancssorból egyenesen a mappába:
+Invoke-WebRequest -Uri "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" -OutFile "bootstrap.min.css"
+
+# Ugyanez a Bootstrap JS letöltésére:
+Invoke-WebRequest -Uri "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" -OutFile "bootstrap.bundle.min.js"
+
+# Új üres fájl létrehozása gyorsan Windows alatt:
+New-Item stilus.css
+New-Item kocsik.js</code></pre>
+                    </div>
+                </section>
+
+                <!-- ===== 16. ŰRLAPOK ÉS ESEMÉNYEK ===== -->
+                <section id="sec-urlap" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-emerald-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-emerald-700">16</span> Űrlapok és Eseménykezelés (JS)
+                    </h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-emerald-800/60 px-4 py-2 text-xs font-bold text-white">Oldal betöltésének
+                                megvárása</div>
+                            <pre><code class="language-javascript">// Ha a JS a &lt;head&gt;-ben van, vagy meg kell várni a HTML-t:
+document.addEventListener('DOMContentLoaded', function() {
+    // Ez a kód csak akkor fut le, ha felépült a DOM
+    adatokBetoltese();
+});</code></pre>
+                        </div>
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div class="bg-emerald-800/60 px-4 py-2 text-xs font-bold text-white">Űrlap mezőinek
+                                kiolvasása és űrítése</div>
+                            <pre><code class="language-javascript">// Érték kiolvasása (szöveg vagy szám):
+let nev = document.getElementById('nevInput').value;
+
+// Űrlap teljes kiürítése (Minden mező alaphelyzetbe):
+document.getElementById('mintaForm').reset();</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-4">
+                        <div class="bg-emerald-800/60 px-4 py-2 text-xs font-bold text-white">Űrlap küldés (Submit)
+                            megállítása és feldolgozása</div>
+                        <pre><code class="language-javascript">document.getElementById('mentesForm').addEventListener('submit', function(e) {
+    // ⚠️ FONTOS: Megakadályozza a lap újratöltődését!
+    e.preventDefault(); 
+    
+    // Értékek kiolvasása
+    const konyvCim = document.getElementById('cim').value;
+    const konyvAr = document.getElementById('ar').value;
+    
+    // Adatból JSON / Objektum építése
+    const ujKonyv = {
+        cim: konyvCim,
+        ar: Number(konyvAr)
+    };
+    
+    console.log("Elküldendő adat:", ujKonyv);
+    
+    // Ha Modalban volt az űrlap, bezárjuk a mentés után:
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('myModal')).hide();
+    
+    // Űrlap ürítése:
+    this.reset(); // (A 'this' az űrlapra mutat)
+});</code></pre>
+                    </div>
+                </section>
+
+                <!-- ===== 17. TELJES VIZSGAMEGOLDÁS ===== -->
+                <section id="sec-vizsga-megoldas" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-green-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-green-700">17</span> ✅ Teljes vizsgamegoldás — Mobilshop feladat
+                    </h2>
+
+                    <p class="text-gray-400 text-sm mb-5">Ez a teljes, működő vizsgafeladat megoldása négy fájlra
+                        bontva. A téma: Mobilshop weboldal, ahol JSON-ből töltünk be adatokat, Bootstrap Carousel-t és
+                        Modalt használunk.</p>
+
+                    <div class="bg-yellow-900/30 border border-yellow-700/50 rounded-xl p-4 mb-6">
+                        <p class="text-yellow-300 font-bold text-sm">⚠️ FONTOS: Lokális szerver kötelező a fetch()-hez!
+                        </p>
+                        <p class="text-gray-400 text-xs mt-1">A JSON betöltés <code
+                                class="text-yellow-300">file://</code> protokollról nem működik. Indíts lokális szervert
+                            a projekt mappájából:</p>
+                        <pre class="mt-2"><code class="language-bash">python -m http.server 8000
+# Majd böngészőben: http://localhost:8000</code></pre>
+                    </div>
+
+                    <!-- adatok.json -->
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-5">
+                        <div class="bg-green-800/60 px-4 py-2 text-xs font-bold text-white flex items-center gap-2">
+                            <span class="text-green-300">📄</span> adatok.json — az adatforrás
+                        </div>
+                        <pre><code class="language-json">{
+  "telefonok": [
+    { "marka": "Samsung", "modell": "Galaxy S24", "ar": 350000, "tarhely": "256 GB" },
+    { "marka": "Apple",   "modell": "iPhone 15",  "ar": 380000, "tarhely": "128 GB" },
+    { "marka": "Xiaomi",  "modell": "14 Pro",     "ar": 310000, "tarhely": "512 GB" },
+    { "marka": "Google",  "modell": "Pixel 8",    "ar": 290000, "tarhely": "128 GB" }
+  ]
+}</code></pre>
+                    </div>
+
+                    <!-- index.html -->
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-5">
+                        <div class="bg-green-800/60 px-4 py-2 text-xs font-bold text-white flex items-center gap-2">
+                            <span class="text-green-300">🌐</span> index.html — teljes HTML struktúra
+                        </div>
+                        <pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="hu"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Mobilshop&lt;/title&gt;
+    &lt;!-- Bootstrap CSS (CDN) --&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+    &lt;!-- Saját CSS --&gt;
+    &lt;link rel="stylesheet" href="css/stilus.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    &lt;!-- 1. NAVBAR: hamburger gomb mobilon, expand-lg = 992px felett kiterül --&gt;
+    &lt;nav class="navbar navbar-expand-lg bg-body-tertiary"&gt;
+        &lt;div class="container-fluid"&gt;
+            &lt;button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNavDropdown"&gt;
+                &lt;span class="navbar-toggler-icon"&gt;&lt;/span&gt;
+            &lt;/button&gt;
+            &lt;div class="collapse navbar-collapse" id="navbarNavDropdown"&gt;
+                &lt;ul class="navbar-nav"&gt;
+                    &lt;li class="nav-item"&gt;&lt;a class="nav-link active" href="#kezdolap"&gt;Kezdőlap&lt;/a&gt;&lt;/li&gt;
+                    &lt;li class="nav-item"&gt;&lt;a class="nav-link" href="#kinalat"&gt;Kínálatunk&lt;/a&gt;&lt;/li&gt;
+                    &lt;li class="nav-item"&gt;&lt;a class="nav-link" href="#kapcsolat"&gt;Kapcsolat&lt;/a&gt;&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/nav&gt;
+
+    &lt;div class="container mt-4"&gt;
+
+        &lt;!-- 2. CAROUSEL: data-bs-ride="carousel" = auto lejátszás, data-bs-interval = ms --&gt;
+        &lt;section id="kezdolap" class="mb-5"&gt;
+            &lt;h2 class="text-center mb-3"&gt;Kiemelt Ajánlataink&lt;/h2&gt;
+            &lt;div id="carouselEgy" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000"&gt;
+                &lt;div class="carousel-inner"&gt;
+                    &lt;div class="carousel-item active"&gt;  &lt;!-- ELSŐ kép: active kötelező! --&gt;
+                        &lt;img src="img/kep1.png" class="d-block w-100" alt="kép"&gt;
+                        &lt;div class="carousel-caption d-none d-md-block hatter"&gt;&lt;h4&gt;Samsung&lt;/h4&gt;&lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="carousel-item"&gt;
+                        &lt;img src="img/kep2.png" class="d-block w-100" alt="kép"&gt;
+                        &lt;div class="carousel-caption d-none d-md-block hatter"&gt;&lt;h4&gt;Apple&lt;/h4&gt;&lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class="carousel-item"&gt;
+                        &lt;img src="img/kep3.png" class="d-block w-100" alt="kép"&gt;
+                        &lt;div class="carousel-caption d-none d-md-block hatter"&gt;&lt;h4&gt;Xiaomi&lt;/h4&gt;&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;!-- Gombok: data-bs-target EGYEZZEN a div id-jével! --&gt;
+                &lt;button class="carousel-control-prev" type="button" data-bs-target="#carouselEgy" data-bs-slide="prev"&gt;
+                    &lt;span class="carousel-control-prev-icon" aria-hidden="true"&gt;&lt;/span&gt;
+                    &lt;span class="visually-hidden"&gt;Previous&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class="carousel-control-next" type="button" data-bs-target="#carouselEgy" data-bs-slide="next"&gt;
+                    &lt;span class="carousel-control-next-icon" aria-hidden="true"&gt;&lt;/span&gt;
+                    &lt;span class="visually-hidden"&gt;Next&lt;/span&gt;
+                &lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/section&gt;
+
+        &lt;!-- 3. JSON SELECT + ADATMEGJELENÍTÉS --&gt;
+        &lt;section id="kinalat" class="mb-5"&gt;
+            &lt;h2 class="text-center mb-3"&gt;Aktuális Kínálatunk&lt;/h2&gt;
+            &lt;div class="row justify-content-center"&gt;
+                &lt;div class="col-md-6 text-center"&gt;
+                    &lt;label for="markaSelect" class="form-label"&gt;Válassz egy márkát:&lt;/label&gt;
+                    &lt;!-- JS tölti fel az options-t! --&gt;
+                    &lt;select id="markaSelect" class="form-select mb-3"&gt;
+                        &lt;option value=""&gt;-- Válassz --&lt;/option&gt;
+                    &lt;/select&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;!-- d-none = rejtett, JS leveszi ha van adat --&gt;
+            &lt;div id="telefonAdatok" class="keretes-doboz d-none"&gt;
+                &lt;h3 id="marka"&gt;&lt;/h3&gt;
+                &lt;p id="modell"&gt;&lt;/p&gt;
+                &lt;p id="tarhely"&gt;&lt;/p&gt;
+                &lt;p id="ar"&gt;&lt;/p&gt;
+            &lt;/div&gt;
+        &lt;/section&gt;
+
+        &lt;!-- 4. MODAL MEGNYITÓ GOMB: data-bs-toggle + data-bs-target --&gt;
+        &lt;section id="kapcsolat" class="mb-5 text-center"&gt;
+            &lt;h2 class="mb-3"&gt;Lépj velünk kapcsolatba!&lt;/h2&gt;
+            &lt;button type="button" class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#kapcsolatModal"&gt;
+                Kapcsolatfelvétel
+            &lt;/button&gt;
+        &lt;/section&gt;
+
+    &lt;/div&gt;
+
+    &lt;!-- 5. MODAL: id egyezzen a data-bs-target-tel! --&gt;
+    &lt;div class="modal fade" id="kapcsolatModal" tabindex="-1" aria-hidden="true"&gt;
+        &lt;div class="modal-dialog"&gt;
+            &lt;div class="modal-content"&gt;
+                &lt;div class="modal-header"&gt;
+                    &lt;h5 class="modal-title"&gt;Üzenet küldése&lt;/h5&gt;
+                    &lt;button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"&gt;&lt;/button&gt;
+                &lt;/div&gt;
+                &lt;div class="modal-body"&gt;
+                    &lt;form id="uzenetForm"&gt;
+                        &lt;label for="nev" class="form-label"&gt;Név&lt;/label&gt;
+                        &lt;input type="text" class="form-control" id="nev"&gt;
+                        &lt;label for="email" class="form-label"&gt;Email&lt;/label&gt;
+                        &lt;input type="email" class="form-control" id="email"&gt;
+                        &lt;label for="uzenet" class="form-label"&gt;Üzenet&lt;/label&gt;
+                        &lt;textarea class="form-control" id="uzenet"&gt;&lt;/textarea&gt;
+                        &lt;button type="submit" class="btn btn-primary mt-3 w-100"&gt;Mentés&lt;/button&gt;
+                    &lt;/form&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Bootstrap JS (bundle = Popper is benne van!) --&gt;
+    &lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+    &lt;!-- Saját JS a BODY VÉGÉN (Bootstrap után!) --&gt;
+    &lt;script src="js/app.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+
+                    <!-- app.js -->
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-5">
+                        <div class="bg-green-800/60 px-4 py-2 text-xs font-bold text-white flex items-center gap-2">
+                            <span class="text-green-300">⚙️</span> js/app.js — teljes JavaScript logika
+                        </div>
+                        <pre><code class="language-javascript">document.addEventListener('DOMContentLoaded', function () {
+
+    // ⚠️ KULCS: minden adatfüggő kód a .then()-en BELÜL kell!
+    // Ha kívül van: az adatok még nem töltődtek be (async!).
+    fetch('adatok.json')
+        .then(function (response) {
+            return response.json();       // szöveg → JS objektum
+        })
+        .then(function (data) {
+            const telefonok = data.telefonok;  // a JSON "telefonok" tömbje
+            const select = document.getElementById('markaSelect');
+
+            // SELECT feltöltése: minden telefonhoz egy &lt;option&gt;
+            telefonok.forEach(function (telefon) {
+                const option = document.createElement('option');
+                option.textContent = telefon.marka;   // látható szöveg
+                option.value = telefon.marka;         // elküldött érték
+                select.appendChild(option);
+            });
+
+            // CHANGE esemény: select DOM elemre kell (nem a tömbre!)
+            select.addEventListener('change', function () {
+                // find() = megkeresi az első egyező elemet
+                const kivalasztott = telefonok.find(function (t) {
+                    return t.marka === select.value;
+                });
+
+                const doboz = document.getElementById('telefonAdatok');
+                if (kivalasztott) {
+                    // Az adatokat az előre elkészített elemekbe írjuk
+                    document.getElementById('marka').textContent = kivalasztott.marka;
+                    document.getElementById('modell').textContent = 'Modell: ' + kivalasztott.modell;
+                    document.getElementById('tarhely').textContent = 'Tárhely: ' + kivalasztott.tarhely;
+                    document.getElementById('ar').textContent = 'Ár: ' + kivalasztott.ar + ' Ft';
+                    doboz.classList.remove('d-none');  // elrejtés megszüntetése
+                } else {
+                    doboz.classList.add('d-none');     // üres választásnál elrejtés
+                }
+            });
+        });
+
+    // MODAL ŰRLAP eseménykezelő (nem fetch-függő, kívül is lehet)
+    const form = document.getElementById('uzenetForm');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();   // megakadályozza a lap újratöltését!
+
+            const adatok = {
+                nev:    document.getElementById('nev').value,
+                email:  document.getElementById('email').value,
+                uzenet: document.getElementById('uzenet').value
+            };
+            console.log('Elküldött adatok:', adatok);
+
+            // Modal bezárása JS-ből (getInstance = már meglévő példány)
+            const modal = bootstrap.Modal.getInstance(
+                document.getElementById('kapcsolatModal')
+            );
+            if (modal) modal.hide();
+
+            form.reset();  // mezők kiürítése
+        });
+    }
+});</code></pre>
+                    </div>
+
+                    <!-- stilus.css -->
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-5">
+                        <div class="bg-green-800/60 px-4 py-2 text-xs font-bold text-white flex items-center gap-2">
+                            <span class="text-green-300">🎨</span> css/stilus.css — formázások
+                        </div>
+                        <pre><code class="language-css">/* 1. body háttérszíne */
+body {
+    background-color: #c0c0c0;
+}
+
+/* 2. Az adatmegjelenítő doboz stílusa */
+.keretes-doboz {
+    border: 1px solid #000000;   /* sötét keret */
+    border-radius: 10px;          /* lekerekített sarok */
+    background-color: #ffffff;    /* fehér háttér */
+    margin: auto;                 /* vízszintesen középre */
+    text-align: center;           /* szöveg középre */
+    max-width: 400px;             /* max szélesség */
+    padding: 20px;                /* belső bélés */
+}
+
+/* 3. Carousel felirat háttere (d-none d-md-block miatt csak md+-on látszik) */
+.hatter {
+    background-color: #6c757d;
+}</code></pre>
+                    </div>
+
+                    <!-- Összefoglaló csapdák -->
+                    <div class="bg-red-900/30 border border-red-700/50 rounded-xl p-4">
+                        <p class="text-red-300 font-bold text-sm mb-2">⚠️ A leggyakoribb hibák ebben a feladattípusban:
+                        </p>
+                        <ul class="text-xs text-gray-400 space-y-2">
+                            <li>• <strong class="text-white">fetch() .then()-en kívüli kód:</strong> Az adatok még nem
+                                töltöttek be → üres tömb. <em>Megoldás: mindent .then()-en belülre!</em></li>
+                            <li>• <strong class="text-white">dat.addEventListener:</strong> Tömbre nem lehet
+                                eseményfigyelőt rakni. <em>Megoldás: a select DOM elemre kell.</em></li>
+                            <li>• <strong class="text-white">data-bs-ride és data-bs-interval összefut:</strong> <code
+                                    class="text-red-300">data-bs-ride="carousel data-bs-interval=" 3000"</code> — ez
+                                hibás! <em>Megoldás: két külön attribútum.</em></li>
+                            <li>• <strong class="text-white">Modal nem zárul JS-ből:</strong> Ha <code
+                                    class="text-red-300">getInstance()</code> null-t ad vissza (mert HTML-ből nyílt),
+                                tedd hozzá az <code class="text-red-300">if (modal)</code> ellenőrzést.</li>
+                            <li>• <strong class="text-white">fetch() file://-ról:</strong> CORS blokkolja. Mindig
+                                lokális szerveren (python -m http.server) futtasd!</li>
+                        </ul>
+                    </div>
+
+                </section>
+
+            </div><!-- end space-y-10 -->
+
+            <footer class="text-center text-gray-600 text-xs py-10 mt-10 border-t border-gray-800">
+                Frontend Vizsga Puska • HTML • CSS • Bootstrap • JavaScript • XML
+            </footer>
+
+        </main>
+        </main>
+
+        <!-- Vissza a főoldalra gomb -->
+        <a href="index.html" id="back-to-home-btn" title="Vissza a főoldalra">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+        </a>
+
+        <!-- AI Chatbot Button -->
+        <div id="ai-chat-btn" onclick="toggleChat()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </div>
+
+        <!-- AI Chatbot HTML (Jobb oldali sáv) -->
+        <aside id="ai-chat-window"
+            class="hidden flex-col w-80 shrink-0 glass border-l border-gray-800 sticky top-0 h-screen z-10">
+            <div id="ai-chat-header">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                    AI Asszisztens
+                </div>
+                <button onclick="toggleChat()" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <div id="ai-chat-messages">
+                <div class="ai-msg">Szia! Én az intelligens jegyzet-asszisztensed vagyok. Keress bármire a puskában,
+                    vagy kérdezz bátran, ha elakadtál egy feladatban, és segítek kikeresni a megoldást!</div>
+            </div>
+            <div id="ai-chat-input-container">
+                <input type="text" id="ai-chat-input" placeholder="Kérdezz bármit..." onkeypress="handleEnter(event)">
+                <button id="ai-chat-send" onclick="sendMessage()">Küldés</button>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- AI Chatbot Script -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // A kulcs a szerveren van (Netlify env változóban) — itt nem kell!
+
+        let isChatOpen = false;
+        const chatWindow = document.getElementById('ai-chat-window');
+        const messagesDiv = document.getElementById('ai-chat-messages');
+        const inputField = document.getElementById('ai-chat-input');
+
+        // System prompt, hogy az AI tudja mi a feladata
+        let conversationHistory = [
+            {
+                role: "user",
+                parts: [{ text: "Te egy segítőkész programozó AI asszisztens vagy. A felhasználó egy emelt szintű informatikai érettségi vizsgára készül frontend (HTML, CSS, JS, Bootstrap) feladatokból. Segíts neki röviden, pontos kódokkal és magyarul." }]
+            },
+            {
+                role: "model",
+                parts: [{ text: "Értettem! Készen állok, hogy segítsek a frontend vizsgafeladatokban. Miben lehetek a segítségedre?" }]
+            }
+        ];
+
+        function toggleChat() {
+            isChatOpen = !isChatOpen;
+            const chatBtn = document.getElementById('ai-chat-btn');
+            if (isChatOpen) {
+                chatWindow.classList.remove('hidden');
+                chatWindow.classList.add('flex');
+                if (chatBtn) chatBtn.style.display = 'none';
+                inputField.focus();
+            } else {
+                chatWindow.classList.add('hidden');
+                chatWindow.classList.remove('flex');
+                if (chatBtn) chatBtn.style.display = 'flex';
+            }
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag]));
+        }
+
+        function formatMessage(text) {
+            if (typeof marked !== 'undefined') {
+                return marked.parse(text);
+            }
+            let formatted = escapeHTML(text).replace(/\n/g, '<br>');
+            formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-yellow-300 px-1 rounded">$1</code>');
+            return formatted;
+        }
+
+        function addMessage(text, isUser) {
+            const div = document.createElement('div');
+            div.className = isUser ? 'user-msg' : 'ai-msg';
+            div.innerHTML = formatMessage(text);
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTyping() {
+            const div = document.createElement('div');
+            div.className = 'ai-msg typing-msg';
+            div.innerHTML = '<span class="typing-indicator"></span><span class="typing-indicator"></span><span class="typing-indicator"></span>';
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return div;
+        }
+
+        async function sendMessage() {
+            const text = inputField.value.trim();
+            if (!text) return;
+
+            addMessage(text, true);
+            inputField.value = '';
+            inputField.disabled = true;
+
+            conversationHistory.push({ role: "user", parts: [{ text }] });
+
+            const typingIndicator = showTyping();
+
+            try {
+                const response = await fetch('/.netlify/functions/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: conversationHistory })
+                });
+
+                const data = await response.json();
+                typingIndicator.remove();
+
+                if (data.error) {
+                    addMessage("Hiba történt: " + data.error.message, false);
+                    conversationHistory.pop(); // Revert
+                } else if (data.candidates && data.candidates[0].content) {
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+                    addMessage(aiResponse, false);
+                    conversationHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+                }
+            } catch (err) {
+                typingIndicator.remove();
+                addMessage("Hálózati hiba történt az API hívás során.", false);
+                conversationHistory.pop();
+            }
+
+            inputField.disabled = false;
+            inputField.focus();
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+
+</html>

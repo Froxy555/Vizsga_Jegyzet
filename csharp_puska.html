@@ -1,0 +1,1518 @@
+﻿<!DOCTYPE html>
+<html lang="hu" class="dark scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C# Emelt Informatika Puska</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0f1e;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        pre[class*="language-"] {
+            margin: 0 !important;
+            border-radius: 0 !important;
+            font-size: 0.8rem !important;
+        }
+
+        code[class*="language-"] {
+            font-size: 0.8rem !important;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 5px 12px;
+            border-radius: 7px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(139, 92, 246, 0.15);
+            color: #e2e8f0;
+            border-left-color: #8b5cf6;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .keret {
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid #374151;
+        }
+
+        .fejlec {
+            padding: 6px 14px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Vissza a főoldalra gomb CSS */
+        #back-to-home-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+        }
+        #back-to-home-btn:hover {
+            transform: scale(1.1);
+            background: rgba(30, 41, 59, 1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Chatbot CSS */
+        #ai-chat-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7, #ec4899); /* Pinkish/purple for C# */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.5);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        #ai-chat-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(168, 85, 247, 0.6);
+        }
+        #ai-chat-header {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        #ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+        #ai-chat-messages::-webkit-scrollbar { width: 6px; }
+        #ai-chat-messages::-webkit-scrollbar-track { background: transparent; }
+        #ai-chat-messages::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+        #ai-chat-messages::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+        .ai-msg, .user-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        .ai-msg p:not(:last-child) { margin-bottom: 0.5rem; }
+        .ai-msg ul { list-style-type: disc; margin-left: 1.2rem; margin-bottom: 0.5rem; }
+        .ai-msg ol { list-style-type: decimal; margin-left: 1.2rem; margin-bottom: 0.5rem; }
+        .ai-msg li { margin-bottom: 0.2rem; }
+        .ai-msg strong { font-weight: 700; color: #e2e8f0; }
+        .ai-msg code { background: rgba(0,0,0,0.3); padding: 0.1rem 0.3rem; border-radius: 4px; font-family: monospace; color: #fde047; font-size: 0.9em; }
+        .ai-msg pre { background: rgba(0,0,0,0.5); padding: 0.75rem; border-radius: 6px; overflow-x: auto; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .ai-msg pre code { background: transparent; padding: 0; color: #e2e8f0; font-size: 0.9em; }
+        .ai-msg a { color: #60a5fa; text-decoration: underline; }
+        .ai-msg {
+            background: rgba(255, 255, 255, 0.1);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        .user-msg {
+            background: #a855f7;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        #ai-chat-input-container {
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 8px;
+        }
+        #ai-chat-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        #ai-chat-input:focus { border-color: #a855f7; }
+        #ai-chat-send {
+            background: #a855f7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        #ai-chat-send:hover { background: #9333ea; }
+        .typing-indicator {
+            display: inline-block;
+            width: 4px; height: 4px; border-radius: 50%; background: #ccc;
+            animation: typing 1.4s infinite ease-in-out both; margin: 0 2px;
+        }
+        .typing-indicator:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.5); }
+        }
+    </style>
+</head>
+
+<body class="text-gray-200 antialiased">
+    <div class="flex min-h-screen">
+
+        <!-- SIDEBAR -->
+        <aside
+            class="hidden lg:flex flex-col w-64 shrink-0 glass border-r border-gray-800 sticky top-0 h-screen overflow-y-auto py-6 px-3 z-10">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-3">TARTALOM</p>
+            <nav class="space-y-0.5">
+                <a href="#sec-alapok" class="nav-link">1. C# alapok</a>
+                <a href="#sec-osztaly" class="nav-link">2. Osztályok (Class)</a>
+                <a href="#sec-fajlolvas" class="nav-link">3. Fájl beolvasás</a>
+                <a href="#sec-string" class="nav-link">4. Szövegkezelés (String)</a>
+                <a href="#sec-lista" class="nav-link">5. Listák (List)</a>
+                <a href="#sec-linq" class="nav-link">6. Keresések, számítások (LINQ nélkül is)</a>
+                <a href="#sec-fajliras" class="nav-link">7. Fájlba írás</a>
+                <a href="#sec-gui" class="nav-link">8. Windows Forms (GUI)</a>
+                <a href="#sec-teljeskod"
+                    class="nav-link text-yellow-400 font-bold mt-2 border-t border-gray-700 pt-2">9. Teljes megoldás
+                    (mai_menu)</a>
+                <a href="#sec-designer"
+                    class="nav-link text-green-400 font-bold">10. GUI Lépésről Lépésre (Designer)</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full">
+
+            <!-- HEADER -->
+            <header class="text-center mb-10 mt-2">
+                <h1
+                    class="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 pb-2 mb-2">
+                    C# Puska
+                </h1>
+                <p class="text-gray-400 text-sm">Emelt Informatika Érettségi (Szakmai) • Konzol & GUI feladatok</p>
+            </header>
+
+            <div class="space-y-10">
+
+                <!-- ===== 1. ALAPOK ===== -->
+                <section id="sec-alapok" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-purple-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-purple-700">1</span> C# alapok
+                    </h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="keret">
+                            <div class="fejlec bg-purple-800/60">Konzolos I/O</div>
+                            <pre><code class="language-csharp">// Bekérés:
+Console.Write("Kérek egy szöveget: ");
+string szoveg = Console.ReadLine(); // Lehet null!
+if (szoveg == null) szoveg = "";
+
+// Konverzió beolvasáskor:
+Console.Write("Kérek egy számot: ");
+int szam = int.Parse(Console.ReadLine());
+
+// Kiírás:
+Console.WriteLine("Sima szöveg egy sorba.");
+Console.WriteLine("Szöveg " + szoveg + " összefűzve.");
+Console.WriteLine($"Vagy így interpolálva: {szam}"); // f-string szerű
+
+// Várakozás a végén (hogy ne záródjon be azonnal):
+Console.ReadLine();</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-purple-800/60">Típuskonverziók (Parse)</div>
+                            <pre><code class="language-csharp">string s = "42";
+int a = int.Parse(s);
+double b = double.Parse("3,14"); // Figyelj a kultúrára (vessző vs pont)!
+
+// Biztonságos konverzió (nem dob hibát, ha rossz):
+bool siker = int.TryParse("123", out int eredmeny);
+if (siker) {
+    // eredmeny = 123
+}
+
+// double.TryParse vessző/pont problémára:
+string szamString = "3.14".Replace(".", ","); 
+double.TryParse(szamString, out double tortSzam);</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 2. OSZTÁLYOK ===== -->
+                <section id="sec-osztaly" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-blue-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-blue-700">2</span> Osztályok (Class) definiálása
+                    </h2>
+                    <div class="grid grid-cols-1 gap-4 mb-4">
+                        <div class="keret">
+                            <div class="fejlec bg-blue-800/60">Osztály szerkezete (vizsgára elég egyszerűen)</div>
+                            <pre><code class="language-csharp">// Egyszerű public mezőkkel (gyorsabb írni):
+class Tanulo 
+{
+    public string Nev = "";
+    public int Kor;
+    public double Atlag;
+    public List&lt;int&gt; Jegyek = new List&lt;int&gt;();
+}
+
+// Használata a Main-ben:
+Tanulo t = new Tanulo();
+t.Nev = "Gipsz Jakab";
+t.Kor = 18;
+t.Jegyek.Add(5);</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 3. FÁJL BEOLVASÁS ===== -->
+                <section id="sec-fajlolvas" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-green-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-green-700">3</span> Fájl beolvasás
+                    </h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="keret">
+                            <div class="fejlec bg-green-800/60">File.ReadAllLines (A legbiztosabb módszer)</div>
+                            <pre><code class="language-csharp">using System.IO;
+using System.Text;
+
+// Az exe mellett (bin/Debug/net...) lévő fájl beolvasása:
+string mappa = AppDomain.CurrentDomain.BaseDirectory;
+string utvonal = Path.Combine(mappa, "adatok.txt");
+
+if (!File.Exists(utvonal)) {
+    Console.WriteLine("A fájl nem található!");
+    return;
+}
+
+// UTF8 kell az ékezetek miatt!
+string[] sorok = File.ReadAllLines(utvonal, Encoding.UTF8);
+
+List&lt;Tanulo&gt; tanulok = new List&lt;Tanulo&gt;();
+
+// Első sor fejléc? Akkor: for (int i = 1; i &lt; sorok.Length; i++)
+foreach (string sor in sorok)
+{
+    // Üres sor átugrása
+    if (sor.Trim() == "") continue;
+    
+    // Feldarabolás pl. pontosvessző mentén
+    string[] reszek = sor.Split(';');
+    
+    Tanulo uj = new Tanulo();
+    uj.Nev = reszek[0];
+    uj.Kor = int.Parse(reszek[1]);
+    
+    tanulok.Add(uj);
+}</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-green-800/60">Több elválasztó (szóköz és TAB) egyszerre</div>
+                            <pre><code class="language-csharp">// Ha nem tudod biztosan, hogy TAB vagy szóköz van:
+string sor = "Sajt   500     2";
+
+// A RemoveEmptyEntries kiszedi az üres stringeket,
+// ha véletlen több szóköz volt egymás mellett.
+char[] elvalasztok = new char[] { ' ', '\t' };
+string[] szavak = sor.Split(elvalasztok, StringSplitOptions.RemoveEmptyEntries);
+
+// szavak[0] = "Sajt"
+// szavak[1] = "500"
+// szavak[2] = "2"</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 4. SZÖVEGKEZELÉS ===== -->
+                <section id="sec-string" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-cyan-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-cyan-700">4</span> Szövegkezelés (String)
+                    </h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="keret">
+                            <div class="fejlec bg-cyan-800/60">Gyakori String metódusok</div>
+                            <pre><code class="language-csharp">string s = "  Árvíztűrő tükörfúrógép  ";
+
+s = s.Trim();            // "Árvíztűrő tükörfúrógép" (Szóközök levágása elöl/hátul)
+s.ToLower();             // "árvíztűrő tükörfúrógép" (Kisbetűs)
+s.ToUpper();             // "ÁRVÍZTŰRŐ TÜKÖRFÚRÓGÉP" (Nagybetűs)
+s.Contains("tükör");     // true (Benne van?)
+s.StartsWith("Árvíz");   // true (Ezzel kezdődik?)
+s.EndsWith("gép");       // true (Ezzel végződik?)
+
+// Ékezetes karakterek lecserélése
+string csere = s.Replace("ű", "u").Replace("ő", "o").Replace(" ", "_");
+
+// Darabolás
+string[] reszek = s.Split(' ');</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-cyan-800/60">String összerakása feldarabolás után</div>
+                            <pre><code class="language-csharp">// Volt egy több szóból álló nevünk a darabolás végén:
+// reszek = ["2", "ek", "Pirospaprika", "örölt"]
+// Akarjuk: "Pirospaprika örölt"
+
+string nev = "";
+for (int i = 2; i &lt; reszek.Length; i++)
+{
+    if (i &gt; 2) nev = nev + " "; // Szóköz a szavak közé
+    nev = nev + reszek[i];
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 5. LISTÁK ===== -->
+                <section id="sec-lista" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-orange-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-orange-700">5</span> Listák (List)
+                    </h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="keret">
+                            <div class="fejlec bg-orange-800/60">Lista alapműveletek</div>
+                            <pre><code class="language-csharp">using System.Collections.Generic; // Ez kell a List-hez!
+
+List&lt;string&gt; nevek = new List&lt;string&gt;();
+
+nevek.Add("Péter");    // Hozzáadás a végéhez
+nevek.Insert(0, "Pál"); // Beszúrás az elejére
+nevek.Remove("Péter"); // Elem törlése (érték alapján)
+nevek.RemoveAt(0);     // Elem törlése (index alapján)
+nevek.Clear();         // Összes elem törlése
+
+int db = nevek.Count;  // Elemek száma (NEM Length!)
+
+// Biztonságos bejárás
+foreach(string nev in nevek)
+{
+    Console.WriteLine(nev);
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 6. LINQ NÉLKÜLI ALGORITMUSOK ===== -->
+                <section id="sec-linq" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-yellow-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-yellow-700">6</span> Gyakori algoritmusok (LINQ nélkül)
+                    </h2>
+                    <p class="text-gray-400 text-sm mb-4">A vizsgán az egyszerű `foreach` sokszor átláthatóbb és
+                        biztosabb, mint bonyolult LINQ lekérdezésekkel bajlódni.</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="keret">
+                            <div class="fejlec bg-yellow-800/60">Összegzés és Számlálás</div>
+                            <pre><code class="language-csharp">// Hány 18 évnél idősebb tanuló van?
+int db = 0;
+foreach(Tanulo t in tanulok)
+{
+    if (t.Kor &gt; 18) {
+        db++;
+    }
+}
+
+// Mennyi a tanulók összéletkora?
+int osszesKor = 0;
+foreach(Tanulo t in tanulok)
+{
+    osszesKor = osszesKor + t.Kor;
+}</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-yellow-800/60">Maximum kiválasztás</div>
+                            <pre><code class="language-csharp">// Ki a legidősebb tanuló?
+Tanulo legidosebb = tanulok[0]; // Feltételezzük, hogy az első
+
+foreach(Tanulo t in tanulok)
+{
+    if (t.Kor &gt; legidosebb.Kor)
+    {
+        legidosebb = t; // Új maxot találtunk
+    }
+}
+Console.WriteLine("A legidősebb: " + legidosebb.Nev);</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-yellow-800/60">Keresés (Eldöntés / Keresés)</div>
+                            <pre><code class="language-csharp">// Van-e 'Kovács' nevű tanuló?
+bool vanKovacs = false;
+
+foreach(Tanulo t in tanulok)
+{
+    if (t.Nev.Contains("Kovács"))
+    {
+        vanKovacs = true;
+        break; // Kilép a ciklusból, megvan amit kerestünk
+    }
+}
+
+// Keresd meg a 'Gábor' nevű tanulót (visszaadja a tanulót)
+Tanulo keresett = null;
+foreach(Tanulo t in tanulok)
+{
+    if (t.Nev == "Gábor")
+    {
+        keresett = t;
+        break;
+    }
+}</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-yellow-800/60">Csoportosítás (Egyedi elemek gyűjtése)</div>
+                            <pre><code class="language-csharp">// Kik azok a tanulók, akik az 1. osztályba járnak? (Szűrés)
+List&lt;Tanulo&gt; elsosok = new List&lt;Tanulo&gt;();
+
+foreach(Tanulo t in tanulok)
+{
+    if (t.Osztaly == 1) {
+        elsosok.Add(t);
+    }
+}
+
+// Ha a feladat azt kéri, hogy gyűjtsd össze az ÖSSZES
+// mennyiséget valami alapján (pl. hozzávalók).
+// Lásd a mai_menu megoldást: párhuzamos listákkal.
+List&lt;string&gt; nevek = new List&lt;string&gt;();
+List&lt;double&gt; ertekek = new List&lt;double&gt;();
+
+foreach(Elem e in lista) {
+    int index = nevek.IndexOf(e.Nev);
+    if (index == -1) {
+        // Még nincs benne, hozzáadjuk
+        nevek.Add(e.Nev);
+        ertekek.Add(e.Ertek);
+    } else {
+        // Már benne van, összegezzük
+        ertekek[index] += e.Ertek;
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 7. FÁJLBA ÍRÁS ===== -->
+                <section id="sec-fajliras" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-pink-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-pink-700">7</span> Fájlba írás
+                    </h2>
+                    <div class="grid grid-cols-1 gap-4 mb-4">
+                        <div class="keret">
+                            <div class="fejlec bg-pink-800/60">StreamWriter használata</div>
+                            <pre><code class="language-csharp">using System.IO;
+using System.Text;
+
+string mentesUtvonal = Path.Combine(mappa, "kell.txt");
+
+// 2. paraméter: false = felülírja, true = hozzáfűzi (append)
+using (StreamWriter sw = new StreamWriter(mentesUtvonal, false, Encoding.UTF8))
+{
+    foreach(string nev in nevek)
+    {
+        sw.WriteLine(nev + "\tadat1\tadat2"); // Soronkénti írás
+    }
+    
+    // Nem kötelező a Close(), a using blokk megcsinálja, de nem árt
+    sw.Close();
+}
+
+// Vagy egyszerűbben, List&lt;string&gt; esetén:
+// File.WriteAllLines(mentesUtvonal, lista, Encoding.UTF8);</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 8. WINDOWS FORMS (GUI) ===== -->
+                <section id="sec-gui" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-indigo-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-indigo-700">8</span> Windows Forms (GUI)
+                    </h2>
+                    <p class="text-gray-400 text-sm mb-4">A vizsgán a grafikus felületet Visual Studio Designer-rel rakd
+                        össze, ne kódolva! Itt a legfontosabb vezérlők kódjai vannak.</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                        <div class="keret">
+                            <div class="fejlec bg-indigo-800/60">MessageBox (Felugró ablak)</div>
+                            <pre><code class="language-csharp">// Sima figyelmeztetés
+MessageBox.Show("Ezt elrontottad!", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+MessageBox.Show("Sikeres mentés!", "Siker", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+// Kérdés Yes/No gombokkal
+DialogResult valasz = MessageBox.Show(
+    "A fájl már létezik. Felülírja?", 
+    "Kérdés", 
+    MessageBoxButtons.YesNo, 
+    MessageBoxIcon.Question
+);
+
+if (valasz == DialogResult.No)
+{
+    return; // Kilép a metódusból (nem csinál semmit)
+}</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-indigo-800/60">DataGridView (Táblázat)</div>
+                            <pre><code class="language-csharp">// Oszlopok beállítása: Designer-ben érdemes!
+
+// Új sor hozzáadása kódolva:
+dgv.Rows.Add("10", "dkg", "Sajt");
+
+// Végigiterálás a táblázat sorain (mentésnél kell):
+for (int i = 0; i &lt; dgv.Rows.Count; i++)
+{
+    DataGridViewRow sor = dgv.Rows[i];
+    
+    // Ha az üres sort kihagynád (ha engedélyezett az új sor felvétele dgv-ben):
+    // if (sor.IsNewRow) continue;
+
+    // Értékek kiolvasása (null check fontos!)
+    string ertek1 = sor.Cells[0].Value?.ToString() ?? "";
+    string ertek2 = sor.Cells[1].Value?.ToString() ?? "";
+}
+
+// Kijelölt sor(ok) törlése gombnyomásra:
+foreach (DataGridViewRow sor in dgv.SelectedRows)
+{
+    if (!sor.IsNewRow) dgv.Rows.Remove(sor);
+}</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-indigo-800/60">TextBox & Form ellenőrzések</div>
+                            <pre><code class="language-csharp">// Van-e írva valami a TextBoxba?
+if (txtNev.Text.Trim() == "")
+{
+    MessageBox.Show("A név mező kötelező!");
+    return;
+}
+
+// Vezérlő letiltása / engedélyezése:
+btnMentes.Enabled = false; // Szürke, nem kattintható
+tabControl1.Enabled = true;
+
+// TabControl fül váltás kódolva:
+tabControl1.SelectedTab = tabPage2;</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-indigo-800/60">Események (Events)</div>
+                            <pre><code class="language-csharp">// Gomb kattintás:
+private void btnMentes_Click(object sender, EventArgs e)
+{
+    // Ide írd a mentés kódját
+}
+
+// Form betöltésekor:
+private void Form1_Load(object sender, EventArgs e)
+{
+    // Ide írd a kezdeti beállításokat
+    // pl. listák feltöltése
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 9. TELJES MEGOLDÁS ===== -->
+                <section id="sec-teljeskod" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-yellow-400">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-yellow-600 text-black">9</span> Teljes megoldás (mai_menu vizsgafeladat)
+                    </h2>
+                    <p class="text-gray-400 text-sm mb-4">Itt egyben megtalálod a feladat leegyszerűsített, jól
+                        felépített megoldását, ami tökéletes minta a hasonló vizsgafeladatokhoz.</p>
+                    <div class="grid grid-cols-1 gap-6 mb-4">
+                        <div class="keret">
+                            <div class="fejlec bg-yellow-800/60 flex justify-between items-center">
+                                <span>Konzolos alkalmazás (Program.cs)</span>
+                            </div>
+                            <pre style="max-height: 500px; overflow-y: auto;"><code class="language-csharp">using System.Text;
+
+namespace mai_menu;
+
+class Hozzavalo
+{
+    public string Mennyiseg = "";
+    public string Egyseg = "";
+    public string Nev = "";
+}
+
+class Etel
+{
+    public string Nev = "";
+    public string FajlNev = "";
+    public List&lt;Hozzavalo&gt; Hozzavalok = new List&lt;Hozzavalo&gt;();
+    public string Elkeszites = "";
+}
+
+class Program
+{
+    static List&lt;Etel&gt; etelek = new List&lt;Etel&gt;();
+    static string mappa = AppDomain.CurrentDomain.BaseDirectory;
+
+    static void Main()
+    {
+        BeolvasMenu("menu.txt");
+
+        Console.WriteLine("Beolvasva " + etelek.Count + " foetel:");
+        foreach (Etel e in etelek)
+            Console.WriteLine("  - " + e.Nev + " (" + e.Hozzavalok.Count + " hozzavalo)");
+
+        Console.WriteLine();
+        KerdezQ1();
+
+        Console.WriteLine();
+        KerdezQ2();
+
+        Console.WriteLine();
+        KerdezQ3();
+
+        Console.WriteLine();
+        LetrehozKellTxt();
+
+        Console.WriteLine();
+        Console.ReadLine();
+    }
+
+    static void BeolvasMenu(string fajlnev)
+    {
+        string[] sorok = File.ReadAllLines(Path.Combine(mappa, fajlnev), Encoding.UTF8);
+
+        foreach (string sor in sorok)
+        {
+            if (!sor.Contains(".txt"))
+                continue;
+
+            string[] szavak = sor.Trim().Split(new char[] { '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            string fajlNev = "";
+            int fajlIndex = -1;
+
+            for (int i = szavak.Length - 1; i >= 0; i--)
+            {
+                if (szavak[i].EndsWith(".txt"))
+                {
+                    fajlNev = szavak[i];
+                    fajlIndex = i;
+                    break;
+                }
+            }
+
+            if (fajlNev == "")
+                continue;
+
+            string etelNev = "";
+            for (int i = 0; i &lt; fajlIndex; i++)
+            {
+                if (i &gt; 0) etelNev = etelNev + " ";
+                etelNev = etelNev + szavak[i];
+            }
+
+            if (etelNev.ToLower().Contains("leves"))
+                continue;
+
+            Etel uj = new Etel();
+            uj.Nev = etelNev;
+            uj.FajlNev = fajlNev;
+            BeolvasHozzavalok(uj);
+            etelek.Add(uj);
+        }
+    }
+
+    static void BeolvasHozzavalok(Etel etel)
+    {
+        string utvonal = Path.Combine(mappa, etel.FajlNev);
+        if (!File.Exists(utvonal)) return;
+
+        string[] sorok = File.ReadAllLines(utvonal, Encoding.UTF8);
+        bool hozzavalokResz = false;
+        bool elkeszitesResz = false;
+        string elkeszites = "";
+
+        foreach (string sor in sorok)
+        {
+            if (sor.Trim().Contains("Hozzávalók:"))
+            {
+                hozzavalokResz = true;
+                elkeszitesResz = false;
+                continue;
+            }
+
+            if (sor.Trim().Contains("Elkészítés:"))
+            {
+                hozzavalokResz = false;
+                elkeszitesResz = true;
+                continue;
+            }
+
+            if (hozzavalokResz && sor.Trim() != "")
+            {
+                string[] reszek = sor.Trim().Split(new char[] { '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (reszek.Length &gt;= 3)
+                {
+                    Hozzavalo h = new Hozzavalo();
+                    h.Mennyiseg = reszek[0];
+                    h.Egyseg = reszek[1];
+
+                    string nev = "";
+                    for (int i = 2; i &lt; reszek.Length; i++)
+                    {
+                        if (i &gt; 2) nev = nev + " ";
+                        nev = nev + reszek[i];
+                    }
+                    h.Nev = nev;
+
+                    etel.Hozzavalok.Add(h);
+                }
+            }
+
+            if (elkeszitesResz && sor.Trim() != "")
+                elkeszites = elkeszites + sor + "\n";
+        }
+
+        etel.Elkeszites = elkeszites;
+    }
+
+    static void KerdezQ1()
+    {
+        int osszes = 0;
+        foreach (Etel e in etelek)
+            osszes = osszes + e.Hozzavalok.Count;
+
+        Console.WriteLine("1. Osszesen hany hozzavalo kell?");
+        Console.WriteLine("   " + osszes + " hozzavalo szukseges.");
+    }
+
+    static void KerdezQ2()
+    {
+        Console.WriteLine("2. Melyik etelekhez kell egy adott hozzavalo?");
+        Console.Write("   Keresett hozzavalo: ");
+        string beker = Console.ReadLine();
+        if (beker == null) beker = "";
+        string keresett = beker.ToLower().Trim();
+
+        List&lt;string&gt; talalatok = new List&lt;string&gt;();
+
+        foreach (Etel e in etelek)
+        {
+            foreach (Hozzavalo h in e.Hozzavalok)
+            {
+                if (h.Nev.ToLower().Contains(keresett))
+                {
+                    talalatok.Add(e.Nev);
+                    break;
+                }
+            }
+        }
+
+        if (talalatok.Count == 0)
+        {
+            Console.WriteLine("   Egyetlen etelhez sem kell.");
+        }
+        else
+        {
+            Console.Write("   Szukseges: ");
+            for (int i = 0; i &lt; talalatok.Count; i++)
+            {
+                if (i &gt; 0) Console.Write(", ");
+                Console.Write(talalatok[i]);
+            }
+            Console.WriteLine();
+        }
+    }
+
+    static void KerdezQ3()
+    {
+        Console.WriteLine("3. Melyik hozzavalo szerepel mindharom etelben?");
+
+        List&lt;string&gt; mindharomban = new List&lt;string&gt;();
+
+        foreach (Hozzavalo h in etelek[0].Hozzavalok)
+        {
+            bool mindenbenVan = true;
+
+            for (int i = 1; i &lt; etelek.Count; i++)
+            {
+                bool benneVan = false;
+                foreach (Hozzavalo h2 in etelek[i].Hozzavalok)
+                {
+                    if (h2.Nev.ToLower() == h.Nev.ToLower())
+                    {
+                        benneVan = true;
+                        break;
+                    }
+                }
+
+                if (!benneVan)
+                {
+                    mindenbenVan = false;
+                    break;
+                }
+            }
+
+            if (mindenbenVan)
+                mindharomban.Add(h.Nev);
+        }
+
+        if (mindharomban.Count == 0)
+            Console.WriteLine("   Nincs kozos hozzavalo mindharom etelben.");
+        else
+        {
+            foreach (string nev in mindharomban)
+                Console.WriteLine("   Mindharomban: " + nev);
+        }
+    }
+
+    static void LetrehozKellTxt()
+    {
+        List&lt;string&gt; kulcsok = new List&lt;string&gt;();
+        List&lt;string&gt; nevek = new List&lt;string&gt;();
+        List&lt;string&gt; egysegek = new List&lt;string&gt;();
+        List&lt;double&gt; mennyisegek = new List&lt;double&gt;();
+
+        foreach (Etel e in etelek)
+        {
+            foreach (Hozzavalo h in e.Hozzavalok)
+            {
+                string kulcs = h.Nev.ToLower() + "|" + h.Egyseg.ToLower();
+
+                double menny = 0;
+                double.TryParse(h.Mennyiseg.Replace(",", "."), out menny);
+
+                int index = kulcsok.IndexOf(kulcs);
+                if (index == -1)
+                {
+                    kulcsok.Add(kulcs);
+                    nevek.Add(h.Nev);
+                    egysegek.Add(h.Egyseg);
+                    mennyisegek.Add(menny);
+                }
+                else
+                {
+                    mennyisegek[index] = mennyisegek[index] + menny;
+                }
+            }
+        }
+
+        StreamWriter sw = new StreamWriter(Path.Combine(mappa, "kell.txt"), false, Encoding.UTF8);
+
+        for (int i = 0; i &lt; kulcsok.Count; i++)
+            sw.WriteLine(nevek[i] + "\t" + egysegek[i] + "\t" + mennyisegek[i]);
+
+        sw.Close();
+
+        Console.WriteLine("kell.txt letrehozva (" + kulcsok.Count + " hozzavalo).");
+    }
+}</code></pre>
+                        </div>
+
+                        <div class="keret">
+                            <div class="fejlec bg-yellow-800/60 flex justify-between items-center">
+                                <span>Grafikus alkalmazás (Form1.cs)</span>
+                            </div>
+                            <pre style="max-height: 500px; overflow-y: auto;"><code class="language-csharp">using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Windows.Forms;
+
+// Hozzavalo osztaly - egy sornak felel meg a txt fajlban
+class Hozzavalo
+{
+    public string Mennyiseg;
+    public string Egyseg;
+    public string Nev;
+}
+
+// A fo form osztaly
+class Form1 : Form
+{
+    Label lblNev;
+    TextBox txtNev;
+    Button btnEllenorzes;
+    TabControl tabControl;
+    TabPage tabHozzavalok;
+    TabPage tabElkeszites;
+    DataGridView dgvHozzavalok;
+    Button btnHozzaad;
+    Button btnTorol;
+    TextBox txtElkeszites;
+    Button btnMentes;
+
+    bool ellenorzesOk = false;
+    string mappa = @"d:\emeltinfo\szakamivizsga\csharp\";
+
+    public Form1()
+    {
+        this.Text = "Uj etel felvetele";
+        this.Width = 620;
+        this.Height = 520;
+        this.StartPosition = FormStartPosition.CenterScreen;
+
+        // --- Etel neve ---
+        lblNev = new Label();
+        lblNev.Text = "Etel neve:";
+        lblNev.Left = 10;
+        lblNev.Top = 15;
+        lblNev.Width = 80;
+        this.Controls.Add(lblNev);
+
+        txtNev = new TextBox();
+        txtNev.Left = 95;
+        txtNev.Top = 12;
+        txtNev.Width = 300;
+        this.Controls.Add(txtNev);
+
+        btnEllenorzes = new Button();
+        btnEllenorzes.Text = "Ellenorzes";
+        btnEllenorzes.Left = 405;
+        btnEllenorzes.Top = 10;
+        btnEllenorzes.Width = 180;
+        btnEllenorzes.Click += new EventHandler(BtnEllenorzes_Click);
+        this.Controls.Add(btnEllenorzes);
+
+        // --- TabControl ---
+        tabControl = new TabControl();
+        tabControl.Left = 10;
+        tabControl.Top = 45;
+        tabControl.Width = 580;
+        tabControl.Height = 380;
+        tabControl.Enabled = false;
+        this.Controls.Add(tabControl);
+
+        // Tab 1: Hozzavalok
+        tabHozzavalok = new TabPage();
+        tabHozzavalok.Text = "Hozzavalok";
+
+        dgvHozzavalok = new DataGridView();
+        dgvHozzavalok.Left = 5;
+        dgvHozzavalok.Top = 5;
+        dgvHozzavalok.Width = 555;
+        dgvHozzavalok.Height = 265;
+        dgvHozzavalok.AllowUserToAddRows = false;
+        dgvHozzavalok.ColumnCount = 3;
+        dgvHozzavalok.Columns[0].Name = "Mennyiseg";
+        dgvHozzavalok.Columns[0].Width = 100;
+        dgvHozzavalok.Columns[1].Name = "Egyseg";
+        dgvHozzavalok.Columns[1].Width = 120;
+        dgvHozzavalok.Columns[2].Name = "Megnevezes";
+        dgvHozzavalok.Columns[2].Width = 325;
+        tabHozzavalok.Controls.Add(dgvHozzavalok);
+
+        btnHozzaad = new Button();
+        btnHozzaad.Text = "Sor hozzaadasa";
+        btnHozzaad.Left = 5;
+        btnHozzaad.Top = 278;
+        btnHozzaad.Width = 150;
+        btnHozzaad.Click += new EventHandler(BtnHozzaad_Click);
+        tabHozzavalok.Controls.Add(btnHozzaad);
+
+        btnTorol = new Button();
+        btnTorol.Text = "Kijolt sor torlese";
+        btnTorol.Left = 165;
+        btnTorol.Top = 278;
+        btnTorol.Width = 150;
+        btnTorol.Click += new EventHandler(BtnTorol_Click);
+        tabHozzavalok.Controls.Add(btnTorol);
+
+        // Tab 2: Elkeszites
+        tabElkeszites = new TabPage();
+        tabElkeszites.Text = "Elkeszites";
+
+        txtElkeszites = new TextBox();
+        txtElkeszites.Left = 5;
+        txtElkeszites.Top = 5;
+        txtElkeszites.Width = 555;
+        txtElkeszites.Height = 310;
+        txtElkeszites.Multiline = true;
+        txtElkeszites.ScrollBars = ScrollBars.Vertical;
+        tabElkeszites.Controls.Add(txtElkeszites);
+
+        tabControl.TabPages.Add(tabHozzavalok);
+        tabControl.TabPages.Add(tabElkeszites);
+
+        // --- Mentes gomb ---
+        btnMentes = new Button();
+        btnMentes.Text = "Mentes";
+        btnMentes.Left = 475;
+        btnMentes.Top = 438;
+        btnMentes.Width = 120;
+        btnMentes.Click += new EventHandler(BtnMentes_Click);
+        this.Controls.Add(btnMentes);
+    }
+
+    // Ekezetek eltavolitasa es szokozok cserelese alahuzasra
+    private string GeneralFajlNev(string etelNev)
+    {
+        string s = etelNev;
+        s = s.Replace("á", "a").Replace("Á", "A");
+        s = s.Replace("é", "e").Replace("É", "E");
+        s = s.Replace("í", "i").Replace("Í", "I");
+        s = s.Replace("ó", "o").Replace("Ó", "O");
+        s = s.Replace("ö", "o").Replace("Ö", "O");
+        s = s.Replace("ő", "o").Replace("Ő", "O");
+        s = s.Replace("ú", "u").Replace("Ú", "U");
+        s = s.Replace("ü", "u").Replace("Ü", "U");
+        s = s.Replace("ű", "u").Replace("Ű", "U");
+        s = s.Replace(" ", "_");
+        return s + ".txt";
+    }
+
+    // Ellenorzes gomb: fajl letezik-e? Feluliras?
+    private void BtnEllenorzes_Click(object sender, EventArgs e)
+    {
+        if (txtNev.Text.Trim() == "")
+        {
+            MessageBox.Show("Az etel neve nem lehet ures!", "Hiba",
+                MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        string fajlNev = GeneralFajlNev(txtNev.Text.Trim());
+        string utvonal = Path.Combine(mappa, fajlNev);
+
+        if (File.Exists(utvonal))
+        {
+            DialogResult valasz = MessageBox.Show(
+                "A '" + fajlNev + "' fajl mar letezik. Felulirja?",
+                "Fajl mar letezik",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (valasz == DialogResult.No)
+                return;
+        }
+
+        // Engedelyezzuk a tabokat
+        tabControl.Enabled = true;
+        ellenorzesOk = true;
+
+        MessageBox.Show("Rendben! Toltse ki a hozzavalokat es az elkeszitesi modot.",
+            "OK", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+
+    // Uj sor hozzaadasa a tablazathoz
+    private void BtnHozzaad_Click(object sender, EventArgs e)
+    {
+        dgvHozzavalok.Rows.Add("", "", "");
+    }
+
+    // Kivalasztott sor torlese
+    private void BtnTorol_Click(object sender, EventArgs e)
+    {
+        if (dgvHozzavalok.SelectedRows.Count &gt; 0)
+        {
+            foreach (DataGridViewRow sor in dgvHozzavalok.SelectedRows)
+            {
+                if (!sor.IsNewRow)
+                    dgvHozzavalok.Rows.Remove(sor);
+            }
+        }
+    }
+
+    // Mentes gomb: ellenorzesek + fajlba iras
+    private void BtnMentes_Click(object sender, EventArgs e)
+    {
+        if (!ellenorzesOk)
+        {
+            MessageBox.Show("Elobb kattintson az Ellenorzes gombra!",
+                "Figyelem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        // Hozzavalok osszegyujtese a tablazatbol
+        List&lt;Hozzavalo&gt; hozzavalok = new List&lt;Hozzavalo&gt;();
+
+        for (int i = 0; i &lt; dgvHozzavalok.Rows.Count; i++)
+        {
+            DataGridViewRow sor = dgvHozzavalok.Rows[i];
+            string menny = "";
+            string egys = "";
+            string nev = "";
+
+            if (sor.Cells[0].Value != null) menny = sor.Cells[0].Value.ToString().Trim();
+            if (sor.Cells[1].Value != null) egys = sor.Cells[1].Value.ToString().Trim();
+            if (sor.Cells[2].Value != null) nev = sor.Cells[2].Value.ToString().Trim();
+
+            // Csak a teljesen kitoltott sorokat vesszuk figyelembe
+            if (menny != "" && egys != "" && nev != "")
+            {
+                Hozzavalo h = new Hozzavalo();
+                h.Mennyiseg = menny;
+                h.Egyseg = egys;
+                h.Nev = nev;
+                hozzavalok.Add(h);
+            }
+        }
+
+        // Ellenorzes: van-e hozzavalo?
+        if (hozzavalok.Count == 0)
+        {
+            MessageBox.Show("Legalabb egy hozzavalot meg kell adni!",
+                "Hiany", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        // Ellenorzes: van-e elkeszitesi mod?
+        if (txtElkeszites.Text.Trim() == "")
+        {
+            MessageBox.Show("Az elkeszitesi modot meg kell adni!",
+                "Hiany", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        // Fajlba iras - ugyanolyan szerkezettel mint a tobbi etel fajl
+        string fajlNev = GeneralFajlNev(txtNev.Text.Trim());
+        string utvonal = Path.Combine(mappa, fajlNev);
+
+        StreamWriter sw = new StreamWriter(utvonal, false, Encoding.UTF8);
+        sw.WriteLine("Hozzávalók:");
+        foreach (Hozzavalo h in hozzavalok)
+        {
+            sw.WriteLine(h.Mennyiseg + "\t" + h.Egyseg + "\t" + h.Nev);
+        }
+        sw.WriteLine("Elkészítés:");
+        sw.WriteLine(txtElkeszites.Text.Trim());
+        sw.Close();
+
+        // Ellenorzes: sikerult-e a mentes?
+        if (File.Exists(utvonal) && new FileInfo(utvonal).Length &gt; 0)
+        {
+            MessageBox.Show("Sikeresen mentve: " + fajlNev,
+                "Siker", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        else
+        {
+            MessageBox.Show("Hiba a mentes soran!",
+                "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    // Belepo pont
+    [STAThread]
+    static void Main()
+    {
+        Application.EnableVisualStyles();
+        Application.Run(new Form1());
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 10. DESIGNER LÉPÉSRŐL LÉPÉSRE ===== -->
+                <section id="sec-designer" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-green-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-green-700 text-white">10</span> Vizsga GUI összerakása (Visual Studio Designer)
+                    </h2>
+                    <p class="text-gray-400 text-sm mb-6">Pontos lépéssor, hogyan rakd össze a felületet kódolás nélkül, hogy utána csak a logikát kelljen beilleszteni (lásd a 9. pontot).</p>
+                    
+                    <div class="space-y-4 text-gray-300 text-sm leading-relaxed">
+                        
+                        <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                            <h3 class="text-lg font-bold text-white mb-2">1. Előkészületek és a Form beállítása</h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Hozz létre egy új <strong>Windows Forms App (.NET)</strong> projektet.</li>
+                                <li>Kattints rá a Form üres területére a Designerben.</li>
+                                <li>A jobb oldali <strong>Properties</strong> (Tulajdonságok) ablakban állítsd be:
+                                    <ul class="list-disc pl-5 mt-1 text-gray-400">
+                                        <li><code class="text-pink-400">Text</code>: "Új étel felvétele" (ez lesz az ablak címe)</li>
+                                        <li><code class="text-pink-400">Size</code>: <code>620; 520</code></li>
+                                        <li><code class="text-pink-400">StartPosition</code>: <code>CenterScreen</code></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                            <h3 class="text-lg font-bold text-white mb-2">2. A felső rész: Név és Ellenőrzés gomb</h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Húzz be egy <strong>Label</strong>-t bal felülre. <code class="text-pink-400">Text</code>-jét állítsd át erre: "Étel neve:".</li>
+                                <li>Húzz mellé egy <strong>TextBox</strong>-ot. A <code class="text-pink-400">(Name)</code> tulajdonságát nevezd át erre: <strong><code>txtNev</code></strong>.</li>
+                                <li>Húzz be mellé jobb oldalra egy <strong>Button</strong>-t.
+                                    <ul class="list-disc pl-5 mt-1 text-gray-400">
+                                        <li><code class="text-pink-400">(Name)</code>: <strong><code>btnEllenorzes</code></strong></li>
+                                        <li><code class="text-pink-400">Text</code>: "Ellenőrzés"</li>
+                                        <li>Kattints rá <strong>duplán</strong> a gombra! Ez létrehozza a kódban a <code>btnEllenorzes_Click</code> eseményt.</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                            <h3 class="text-lg font-bold text-white mb-2">3. A középső rész: TabControl</h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Keress a Toolboxban egy <strong>TabControl</strong>-t és húzd be a Form közepére. Húzd szét nagyra.</li>
+                                <li>Állítsd az <code class="text-pink-400">Enabled</code> tulajdonságát <strong><code>False</code></strong>-ra (így kezdetben inaktív lesz).</li>
+                                <li>Nevezd el <code class="text-pink-400">(Name)</code>: <strong><code>tabControl</code></strong>.</li>
+                                <li>Kattints a jobb felső sarkában lévő kis nyílra, majd az <strong>Add Tab</strong> gombbal érd el, hogy 2 fül legyen:
+                                    <ul class="list-disc pl-5 mt-1 text-gray-400">
+                                        <li>1. fül <code class="text-pink-400">Text</code> tulajdonsága: "Hozzávalók"</li>
+                                        <li>2. fül <code class="text-pink-400">Text</code> tulajdonsága: "Elkészítés"</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                            <h3 class="text-lg font-bold text-white mb-2">4. Hozzávalók fül berendezése (1. Tab)</h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Kattints a "Hozzávalók" fülre. Húzz be ide egy <strong>DataGridView</strong>-t.
+                                    <ul class="list-disc pl-5 mt-1 text-gray-400">
+                                        <li><code class="text-pink-400">(Name)</code>: <strong><code>dgvHozzavalok</code></strong></li>
+                                        <li><code class="text-pink-400">AllowUserToAddRows</code>: <strong><code>False</code></strong></li>
+                                        <li>Kattints a jobb felső kis nyilára -> <strong>Edit Columns...</strong> Adj hozzá 3 oszlopot: "Mennyiség", "Egység", és "Megnevezés" (ennek a <code class="text-pink-400">Width</code>-jét tedd pl. 300-ra).</li>
+                                    </ul>
+                                </li>
+                                <li>Húzz alá balra egy <strong>Button</strong>-t. <code class="text-pink-400">(Name)</code>: <strong><code>btnHozzaad</code></strong>, <code class="text-pink-400">Text</code>: "Sor hozzáadása". Kattints duplán!</li>
+                                <li>Húzz mellé még egy <strong>Button</strong>-t. <code class="text-pink-400">(Name)</code>: <strong><code>btnTorol</code></strong>, <code class="text-pink-400">Text</code>: "Kijelölt sor törlése". Kattints duplán!</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                            <h3 class="text-lg font-bold text-white mb-2">5. Elkészítés fül berendezése (2. Tab)</h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Kattints az "Elkészítés" fülre a tervezőben.</li>
+                                <li>Húzz be egy <strong>TextBox</strong>-ot.
+                                    <ul class="list-disc pl-5 mt-1 text-gray-400">
+                                        <li><code class="text-pink-400">(Name)</code>: <strong><code>txtElkeszites</code></strong></li>
+                                        <li><code class="text-pink-400">Multiline</code>: <strong><code>True</code></strong> (nagyon fontos, különben 1 soros lesz!)</li>
+                                        <li><code class="text-pink-400">ScrollBars</code>: <strong><code>Vertical</code></strong></li>
+                                        <li>Húzd szét, hogy kitöltse a fület.</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                            <h3 class="text-lg font-bold text-white mb-2">6. Mentés gomb</h3>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Húzz be a Form legalsó részére (a TabControl alá) egy <strong>Button</strong>-t.</li>
+                                <li><code class="text-pink-400">(Name)</code>: <strong><code>btnMentes</code></strong></li>
+                                <li><code class="text-pink-400">Text</code>: "Mentés"</li>
+                                <li>Kattints <strong>duplán</strong> a gombra!</li>
+                                <li class="text-green-400 font-semibold mt-2">Kész is vagy! Ezzel minden esemény megvan a kódban. Most már csak be kell másolni a logikai változókat, függvényeket és az események kódjait a 9-es pontból a megfelelő helyekre.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+        <!-- Vissza a főoldalra gomb -->
+    <a href="index.html" id="back-to-home-btn" title="Vissza a főoldalra">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    </a>
+
+    <!-- AI Chatbot Button -->
+        <div id="ai-chat-btn" onclick="toggleChat()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+
+        <!-- AI Chatbot HTML (Jobb oldali sáv) -->
+        <aside id="ai-chat-window" class="hidden flex-col w-80 shrink-0 glass border-l border-gray-800 sticky top-0 h-screen z-10">
+            <div id="ai-chat-header">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-pink-500"></span>
+                    AI Asszisztens
+                </div>
+                <button onclick="toggleChat()" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <div id="ai-chat-messages">
+                <div class="ai-msg">Szia! Én az intelligens jegyzet-asszisztensed vagyok. Keress bármire a puskában, vagy kérdezz bátran, ha elakadtál egy feladatban, és segítek kikeresni a megoldást!</div>
+            </div>
+            <div id="ai-chat-input-container">
+                <input type="text" id="ai-chat-input" placeholder="Kérdezz bármit..." onkeypress="handleEnter(event)">
+                <button id="ai-chat-send" onclick="sendMessage()">Küldés</button>
+            </div>
+        </aside>
+
+    </div><!-- end flex -->
+
+    <!-- AI Chatbot Script -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // === IDE ÍRD A SAJÁT GEMINI API KULCSODAT ===
+        // A kulcs a szerveren van (Netlify env változóban) - itt nem kell! 
+        
+        let isChatOpen = false;
+        const chatWindow = document.getElementById('ai-chat-window');
+        const messagesDiv = document.getElementById('ai-chat-messages');
+        const inputField = document.getElementById('ai-chat-input');
+        
+        // System prompt, hogy az AI tudja mi a feladata
+        let conversationHistory = [
+            {
+                role: "user",
+                parts: [{ text: "Te egy segítőkész programozó AI asszisztens vagy. A felhasználó egy emelt szintű informatikai érettségi vizsgára készül C# programozásból és Windows Forms feladatokból. Segíts neki röviden, pontos kódokkal és magyarul." }]
+            },
+            {
+                role: "model",
+                parts: [{ text: "Értettem! Készen állok, hogy segítsek a C# és Windows Forms vizsgafeladatokban. Miben lehetek a segítségedre?" }]
+            }
+        ];
+
+        function toggleChat() {
+            isChatOpen = !isChatOpen;
+            const chatBtn = document.getElementById('ai-chat-btn');
+            if(isChatOpen) {
+                chatWindow.classList.remove('hidden');
+                chatWindow.classList.add('flex');
+                if (chatBtn) chatBtn.style.display = 'none';
+                inputField.focus();
+            } else {
+                chatWindow.classList.add('hidden');
+                chatWindow.classList.remove('flex');
+                if (chatBtn) chatBtn.style.display = 'flex';
+            }
+        }
+
+        function handleEnter(e) {
+            if(e.key === 'Enter') sendMessage();
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag]));
+        }
+
+        function formatMessage(text) {
+            if (typeof marked !== 'undefined') {
+                return marked.parse(text);
+            }
+            let formatted = escapeHTML(text).replace(/\n/g, '<br>');
+            formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-yellow-300 px-1 rounded">$1</code>');
+            return formatted;
+        }
+
+        function addMessage(text, isUser) {
+            const div = document.createElement('div');
+            div.className = isUser ? 'user-msg' : 'ai-msg';
+            div.innerHTML = formatMessage(text);
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTyping() {
+            const div = document.createElement('div');
+            div.className = 'ai-msg typing-msg';
+            div.innerHTML = '<span class="typing-indicator"></span><span class="typing-indicator"></span><span class="typing-indicator"></span>';
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return div;
+        }
+
+        async function sendMessage() {
+            const text = inputField.value.trim();
+            if(!text) return;
+            
+            if(GEMINI_API_KEY === "PROXY_USED_NO_KEY_NEEDED" || GEMINI_API_KEY.trim() === "") {
+                addMessage(text, true);
+                inputField.value = '';
+                const hibaUzenet = "Kérlek, nyisd meg a HTML fájlt egy szerkesztőben (pl. VS Code), és írd be a saját Gemini API kulcsodat a kód legalján található `GEMINI_API_KEY` változóba!\n\nIngyenes kulcsot itt kérhetsz:\nhttps://aistudio.google.com/app/apikey";
+                addMessage(hibaUzenet, false);
+                return;
+            }
+
+            addMessage(text, true);
+            inputField.value = '';
+            inputField.disabled = true;
+            
+            conversationHistory.push({ role: "user", parts: [{ text }] });
+            
+            const typingIndicator = showTyping();
+
+            try {
+                const response = await fetch(`/.netlify/functions/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: conversationHistory
+                    })
+                });
+
+                const data = await response.json();
+                typingIndicator.remove();
+
+                if(data.error) {
+                    addMessage("Hiba történt: " + data.error.message, false);
+                    conversationHistory.pop(); // Revert
+                } else if(data.candidates && data.candidates[0].content) {
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+                    addMessage(aiResponse, false);
+                    conversationHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+                }
+            } catch (err) {
+                typingIndicator.remove();
+                addMessage("Hálózati hiba történt az API hívás során.", false);
+                conversationHistory.pop();
+            }
+            
+            inputField.disabled = false;
+            inputField.focus();
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+</body>
+
+</html>

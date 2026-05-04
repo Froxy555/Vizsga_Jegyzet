@@ -1,0 +1,1604 @@
+﻿<!DOCTYPE html>
+<html lang="hu" class="dark scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Nagy Laravel Vizsga Puska</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        pre[class*="language-"] {
+            margin: 0 !important;
+            border-radius: 0 !important;
+            font-size: 0.82rem !important;
+        }
+
+        code[class*="language-"] {
+            font-size: 0.82rem !important;
+        }
+
+        /* Sidebar nav */
+        .nav-link {
+            display: block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #94a3b8;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: #e2e8f0;
+            border-left-color: #6366f1;
+        }
+
+        /* Section number badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Tag chips */
+        .chip {
+            display: inline-block;
+            padding: 1px 8px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        /* Operation colour badges */
+        .op-get {
+            background: #1d4ed8;
+        }
+
+        .op-post {
+            background: #15803d;
+        }
+
+        .op-put {
+            background: #b45309;
+        }
+
+        .op-delete {
+            background: #b91c1c;
+        }
+
+        /* Vissza a főoldalra gomb CSS */
+        #back-to-home-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+        }
+        #back-to-home-btn:hover {
+            transform: scale(1.1);
+            background: rgba(30, 41, 59, 1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Chatbot CSS */
+        #ai-chat-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.5);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        #ai-chat-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.6);
+        }
+
+        #ai-chat-header {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        #ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+
+        #ai-chat-messages::-webkit-scrollbar { width: 6px; }
+        #ai-chat-messages::-webkit-scrollbar-track { background: transparent; }
+        #ai-chat-messages::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+        #ai-chat-messages::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+
+        .ai-msg,
+        .user-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .ai-msg p:not(:last-child) { margin-bottom: 0.5rem; }
+        .ai-msg ul { list-style-type: disc; margin-left: 1.2rem; margin-bottom: 0.5rem; }
+        .ai-msg ol { list-style-type: decimal; margin-left: 1.2rem; margin-bottom: 0.5rem; }
+        .ai-msg li { margin-bottom: 0.2rem; }
+        .ai-msg strong { font-weight: 700; color: #e2e8f0; }
+        .ai-msg code { background: rgba(0,0,0,0.3); padding: 0.1rem 0.3rem; border-radius: 4px; font-family: monospace; color: #fde047; font-size: 0.9em; }
+        .ai-msg pre { background: rgba(0,0,0,0.5); padding: 0.75rem; border-radius: 6px; overflow-x: auto; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .ai-msg pre code { background: transparent; padding: 0; color: #e2e8f0; font-size: 0.9em; }
+        .ai-msg a { color: #60a5fa; text-decoration: underline; }
+
+        .ai-msg {
+            background: rgba(255, 255, 255, 0.1);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-msg {
+            background: #3b82f6;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        #ai-chat-input-container {
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 8px;
+        }
+
+        #ai-chat-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        #ai-chat-input:focus {
+            border-color: #3b82f6;
+        }
+
+        #ai-chat-send {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        #ai-chat-send:hover {
+            background: #2563eb;
+        }
+
+        .typing-indicator {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #ccc;
+            animation: typing 1.4s infinite ease-in-out both;
+            margin: 0 2px;
+        }
+
+        .typing-indicator:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-indicator:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1.5);
+            }
+        }
+    </style>
+</head>
+
+<body class="text-gray-200 antialiased">
+
+    <!-- ===== LAYOUT ===== -->
+    <div class="flex min-h-screen">
+
+        <!-- SIDEBAR -->
+        <aside
+            class="hidden lg:flex flex-col w-56 shrink-0 glass border-r border-gray-800 sticky top-0 h-screen overflow-y-auto py-8 px-3 z-10">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 px-3">TARTALOM</p>
+            <nav class="space-y-1">
+                <a href="#sec-parancsok" class="nav-link">1. Terminál</a>
+                <a href="#sec-auth" class="nav-link">2. Auth (Breeze)</a>
+                <a href="#sec-migracio" class="nav-link">3. Migráció</a>
+                <a href="#sec-factory" class="nav-link">4. Factory & Faker</a>
+                <a href="#sec-seeder" class="nav-link">5. Seeder</a>
+                <a href="#sec-modell" class="nav-link">6. Modell (alap)</a>
+                <a href="#sec-routes" class="nav-link">7. Routes & Auth</a>
+                <a href="#sec-crud" class="nav-link">8. Controller CRUD</a>
+                <a href="#sec-blade" class="nav-link">9. Blade Nézetek</a>
+                <a href="#sec-tips" class="nav-link">10. Gyors tippek</a>
+                <a href="#sec-validas" class="nav-link">11. Validáció</a>
+                <a href="#sec-named" class="nav-link">12. Named Routes</a>
+                <a href="#sec-spoof" class="nav-link">13. Method Spoofing</a>
+                <a href="#sec-modell2" class="nav-link">14. Modell (haladó)</a>
+                <a href="#sec-konyvtar" class="nav-link">15. Könyvtár Projekt (Példa)</a>
+                <a href="#sec-leadas" class="nav-link">16. Vizsga leadás (Export & ZIP)</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full">
+
+            <!-- HEADER -->
+            <header class="text-center mb-12 mt-4">
+                <h1
+                    class="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-blue-400 to-emerald-400 pb-2 mb-3">
+                    Laravel Vizsga Puska
+                </h1>
+
+            </header>
+
+            <div class="space-y-10">
+
+                <!-- ===== 1. TERMINÁL ===== -->
+                <section id="sec-parancsok" class="glass rounded-2xl p-6 shadow-2xl">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-blue-700">1</span> Terminál parancsok
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
+                            <p class="text-xs text-gray-400 mb-1">Új projekt</p>
+                            <code
+                                class="text-emerald-300 text-sm font-mono">composer create-project laravel/laravel projektnev</code>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
+                            <p class="text-xs text-gray-400 mb-1">Model + Migráció + Controller</p>
+                            <code class="text-emerald-300 text-sm font-mono">php artisan make:model TablaNev -mc</code>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
+                            <p class="text-xs text-gray-400 mb-1">Model + Migráció + Factory + Seeder + Controller
+                                (MINDEN)</p>
+                            <code
+                                class="text-emerald-300 text-sm font-mono">php artisan make:model TablaNev <span class="text-yellow-300">-mfsc</span></code>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
+                            <p class="text-xs text-gray-400 mb-1">Migráció futtatása</p>
+                            <code class="text-emerald-300 text-sm font-mono">php artisan migrate</code>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
+                            <p class="text-xs text-gray-400 mb-1">Reset + újramigráció + seed (vigyázz: törli az
+                                adatot!)</p>
+                            <code class="text-emerald-300 text-sm font-mono">php artisan migrate:fresh --seed</code>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
+                            <p class="text-xs text-gray-400 mb-1">Seeder futtatása</p>
+                            <code
+                                class="text-emerald-300 text-sm font-mono">php artisan db:seed --class=KimenohivasokSeeder</code>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
+                            <p class="text-xs text-gray-400 mb-1">Dev szerver indítása</p>
+                            <code class="text-emerald-300 text-sm font-mono">php artisan serve</code>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
+                            <p class="text-xs text-gray-400 mb-1">Route-ok listázása (debug)</p>
+                            <code class="text-emerald-300 text-sm font-mono">php artisan route:list</code>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 2. AUTH ===== -->
+                <section id="sec-auth" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-indigo-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-indigo-700">2</span> Hitelesítés — Laravel Breeze
+                    </h2>
+                    <p class="text-gray-400 text-sm mb-4">Ha a feladat bejelentkezést kér, a legegyszerűbb a Breeze
+                        telepítése. Blade stack elegendő vizsgán.</p>
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-5">
+                        <pre><code class="language-bash">composer require laravel/breeze --dev
+php artisan breeze:install blade
+npm install && npm run build
+php artisan migrate</code></pre>
+                    </div>
+
+                    <div class="bg-yellow-900/30 border border-yellow-700/50 rounded-xl p-4">
+                        <p class="text-yellow-300 font-bold text-sm mb-2">⚠️ Regisztráció letiltása (miután felvetted a
+                            2 felhasználót)</p>
+                        <p class="text-gray-300 text-sm mb-3">Regisztrálj be 2 felhasználót a böngészőben, majd nyisd
+                            meg a <code class="text-indigo-300">routes/auth.php</code> fájlt és kommentezd ki a
+                            regisztrációs route-okat:</p>
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <pre><code class="language-php">// Ezeket a sorokat kommentezd be // jellel:
+// Route::get('register', [RegisteredUserController::class, 'create'])...
+// Route::post('register', [RegisteredUserController::class, 'store'])...</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 3. MIGRÁCIÓ ===== -->
+                <section id="sec-migracio" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-purple-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-purple-700">3</span> Migráció — Mezőtípusok táblázat
+                    </h2>
+
+                    <div class="overflow-x-auto mb-5">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-purple-900/40">
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-purple-300">Feladat szó
+                                    </th>
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-purple-300">Laravel típus
+                                    </th>
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-purple-300">Példa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">számláló / id</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-emerald-300 font-mono">$table->id()
+                                    </td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">Auto inc. PK</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">szöveg (rövid)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-emerald-300 font-mono">
+                                        $table->string('mezo')</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">max 255 kar.</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">szöveg (hosszú)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-emerald-300 font-mono">
+                                        $table->text('mezo')</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">leírás, megjegyzés</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">szám (egész)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-emerald-300 font-mono">
+                                        $table->integer('mezo')</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">ora, perc, masodperc</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">szám (tizedes)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-emerald-300 font-mono">
+                                        $table->float('mezo')</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">hőmérséklet, szél</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">dátum</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-emerald-300 font-mono">
+                                        $table->date('mezo')</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">nap, meres_napja</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">idő</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-emerald-300 font-mono">
+                                        $table->time('mezo')</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">meres_idopontja</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/40">
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-300">logikai (igen/nem)</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-emerald-300 font-mono">
+                                        $table->boolean('mezo')</td>
+                                    <td class="border border-gray-700 px-3 py-2 text-gray-400">visszahivas</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-gray-400 text-sm mb-2">Módosítók (a típus után láncolva):</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
+                            <code class="text-yellow-300 text-sm font-mono">->nullable()</code>
+                            <p class="text-xs text-gray-400 mt-1">Nem kötelező mező</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
+                            <code class="text-yellow-300 text-sm font-mono">->unique()</code>
+                            <p class="text-xs text-gray-400 mt-1">Egyedi értékek</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-3 rounded-xl border border-gray-700/50">
+                            <code class="text-yellow-300 text-sm font-mono">->default(0)</code>
+                            <p class="text-xs text-gray-400 mt-1">Alapértelmezett érték</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 4. FACTORY ===== -->
+                <section id="sec-factory" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-pink-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-pink-700">4</span> Factory &amp; Faker — Véletlenszerű adatok
+                    </h2>
+
+                    <p class="text-sm text-gray-400 mb-3">1. Magyar Faker: nyisd meg a <code
+                            class="text-indigo-300">config/app.php</code> fájlt és írd át:</p>
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-5">
+                        <pre><code class="language-php">'faker_locale' => 'hu_HU',</code></pre>
+                    </div>
+
+                    <p class="text-sm text-gray-400 mb-3">2. A factory fájl (<code
+                            class="text-indigo-300">database/factories/KimenohivasokFactory.php</code>):</p>
+                    <div class="rounded-xl overflow-hidden border border-gray-700">
+                        <pre><code class="language-php">public function definition(): array
+{
+    return [
+        // Szöveg / Név
+        'nev'        => $this->faker->name(),
+        'telszam'    => $this->faker->phoneNumber(),
+
+        // Dátum INTERVALLUM között:
+        'nap'        => $this->faker->dateTimeBetween('-2 weeks', '+1 day')->format('Y-m-d'),
+
+        // Szám MIN és MAX között:
+        'ora'        => $this->faker->numberBetween(8, 19),
+        'perc'       => $this->faker->numberBetween(0, 59),
+        'masodperc'  => $this->faker->numberBetween(0, 59),
+
+        // Egész szám:
+        'hossz'      => $this->faker->numberBetween(30, 3600),
+
+        // Logikai (igaz/hamis véletlenszerűen):
+        'visszahivas' => $this->faker->boolean(),
+    ];
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- ===== 5. SEEDER ===== -->
+                <section id="sec-seeder" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-cyan-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-cyan-700">5</span> Seeder — Adatok feltöltése
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-sm text-gray-400 mb-2">A model Seeder fájljában (<code
+                                    class="text-indigo-300">KimenohivasokSeeder.php</code>) Factory hívás:</p>
+                            <div class="rounded-xl overflow-hidden border border-gray-700">
+                                <pre><code class="language-php">public function run(): void
+{
+    // 15 db véletlenszerű adat generálása:
+    Kimenohivasok::factory(15)->create();
+}</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400 mb-2">A <code
+                                    class="text-indigo-300">DatabaseSeeder.php</code>-ban hívd meg a saját seederedet:
+                            </p>
+                            <div class="rounded-xl overflow-hidden border border-gray-700">
+                                <pre><code class="language-php">public function run(): void
+{
+    $this->call([
+        KimenohivasokSeeder::class,
+    ]);
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-base text-cyan-300 font-semibold mb-2 mt-6">Adatok importálása CSV fájlból (Gyakori
+                        vizsgafeladat!)</h3>
+                    <p class="text-gray-400 text-sm mb-2">Ha kapsz egy <code class="text-cyan-300">adatok.csv</code>
+                        fájlt, másold a <code class="text-cyan-300">database/seeders</code> mappába. Példa egy beolvasó
+                        Seederre:</p>
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-4">
+                        <pre><code class="language-php">public function run(): void
+{
+    $file = database_path('seeders/adatok.csv');
+    $handle = fopen($file, 'r');
+
+    // 1. Fejléc beolvasása (Figyelj az elválasztóra! Lehet ';' vagy ',')
+    $headers = fgetcsv($handle, 0, ';'); 
+    
+    // Tipp: Ha a fejlécek idézőjelben vannak ("id", "nev"), így szedd ki:
+    $headers = array_map(fn($h) => trim($h, '"'), $headers);
+
+    // 2. Adatsorok beolvasása
+    while (($row = fgetcsv($handle, 0, ';')) !== false) {
+        $data = array_combine($headers, $row);
+        
+        SajatModell::create([
+            // A CSV oszlopai alapján hivatkozz rájuk:
+            'perc'       => (int) $data['perc'],
+            'cim'        => trim($data['cim']),
+            // Ha a CSV-ben NULL szöveg van:
+            'megjegyzes' => ($data['megjegyzes'] !== 'NULL') ? trim($data['megjegyzes']) : null,
+        ]);
+    }
+
+    fclose($handle);
+}</code></pre>
+                    </div>
+                    <div class="bg-red-900/30 border border-red-700/50 rounded-xl p-4">
+                        <p class="text-red-300 font-bold text-sm mb-2">⚠️ Tipikus CSV Import hibák:</p>
+                        <ul class="text-gray-300 text-sm list-disc pl-5 space-y-2 mt-2">
+                            <li><strong class="text-white">Undefined array key "valami":</strong> Vagy az elválasztó
+                                rossz (<code class="text-yellow-300 font-mono text-xs">;</code> helyett <code
+                                    class="text-yellow-300 font-mono text-xs">,</code>), vagy a fejlécben idézőjelek
+                                vannak és azt is beolvasta. Használj <code>var_dump($headers)</code>-t debugoláshoz!
+                            </li>
+                            <li><strong class="text-white">Failed to open stream:</strong> Nincs ott a fájl! Másold be a
+                                <code>database/seeders</code> mappába.</li>
+                            <li><strong class="text-white">Oszlopnév elírások:</strong> A CSV oszlopnevei (pl.
+                                <code>mperc</code>) nem mindig egyeznek meg a te adatbázis oszlopaiddal (pl.
+                                <code>mpercg</code>). A Seederben így párosítsd: <code>'mpercg' => $data['mperc']</code>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- ===== 6. MODELL ===== -->
+                <section id="sec-modell" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-violet-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-violet-700">6</span> Modell fájl (app/Models)
+                    </h2>
+                    <div class="rounded-xl overflow-hidden border border-gray-700">
+                        <pre><code class="language-php">class Kimenohivasok extends Model
+{
+    // Kikapcsolni, ha a migration-ben NINCS created_at / updated_at oszlop!
+    public $timestamps = false;
+
+    // Felsorolod azokat a mezőket, amelyeket az Eloquent menthet (create/update).
+    // Ha hiányzik valami, az adat menthető, de a mező NULL lesz az adatbázisban.
+    protected $fillable = [
+        'nev', 'nap', 'ora', 'perc', 'masodperc',
+        'telszam', 'hossz', 'visszahivas',
+    ];
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- ===== 7. ROUTES ===== -->
+                <section id="sec-routes" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-yellow-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-yellow-600">7</span> Útvonalak (routes/web.php) &amp; Middleware védelem
+                    </h2>
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-5">
+                        <pre><code class="language-php">use App\Http\Controllers\KimenohivasokController;
+
+// === PUBLIKUS VÉGPONTOK (bárki elérheti) ===
+Route::get('/adatok',         [KimenohivasokController::class, 'getJson']);    // JSON API
+Route::get('/adatokformazva', [KimenohivasokController::class, 'index']);     // Formázott nézet
+Route::get('/create',         [KimenohivasokController::class, 'create']);    // Felviteli űrlap
+Route::post('/store',         [KimenohivasokController::class, 'store']);     // Mentés POST
+Route::get('/edit/{id}',      [KimenohivasokController::class, 'edit']);      // Szerkesztő
+Route::post('/update/{id}',   [KimenohivasokController::class, 'update']);    // Frissítés POST
+
+// === VÉDETT VÉGPONT — csak bejelentkezett user érheti el! ===
+Route::get('/torles/{id}',    [KimenohivasokController::class, 'delete'])->middleware('auth');</code></pre>
+                    </div>
+                    <div class="bg-blue-900/30 border border-blue-700/50 rounded-xl p-4">
+                        <p class="text-blue-300 font-semibold text-sm">💡 Ha több route-ot is védeni kell egyszerre
+                            (csoportban):</p>
+                        <div class="rounded-xl overflow-hidden border border-gray-700 mt-2">
+                            <pre><code class="language-php">Route::middleware('auth')->group(function () {
+    Route::get('/torles/{id}', [KimenohivasokController::class, 'delete']);
+    Route::get('/edit/{id}',   [KimenohivasokController::class, 'edit']);
+    Route::post('/update/{id}',[KimenohivasokController::class, 'update']);
+});</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 8. CRUD CONTROLLER ===== -->
+                <section id="sec-crud" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-red-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-red-700">8</span> Controller CRUD (app/Http/Controllers)
+                    </h2>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                        <!-- READ JSON -->
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div
+                                class="bg-blue-800/60 px-4 py-2 text-xs font-bold text-white flex items-center justify-between">
+                                <span>READ — JSON API válasz</span>
+                                <span class="chip op-get">GET /adatok</span>
+                            </div>
+                            <pre><code class="language-php">public function getJson()
+{
+    $adatok = Kimenohivasok::all();
+    return response()->json($adatok);
+}</code></pre>
+                        </div>
+
+                        <!-- READ HTML -->
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div
+                                class="bg-blue-800/60 px-4 py-2 text-xs font-bold text-white flex items-center justify-between">
+                                <span>READ — Formázott nézet (rendezve)</span>
+                                <span class="chip op-get">GET /adatokformazva</span>
+                            </div>
+                            <pre><code class="language-php">public function index()
+{
+    $adatok = Kimenohivasok::orderBy('nap')
+                ->orderBy('ora')
+                ->get();
+    return view('lista', compact('adatok'));
+}</code></pre>
+                        </div>
+
+                        <!-- CREATE FORM -->
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div
+                                class="bg-emerald-800/60 px-4 py-2 text-xs font-bold text-white flex items-center justify-between">
+                                <span>CREATE — Űrlap megjelenítése</span>
+                                <span class="chip op-get">GET /create</span>
+                            </div>
+                            <pre><code class="language-php">public function create()
+{
+    return view('create');
+}</code></pre>
+                        </div>
+
+                        <!-- STORE -->
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div
+                                class="bg-emerald-800/60 px-4 py-2 text-xs font-bold text-white flex items-center justify-between">
+                                <span>CREATE — Adatok mentése DB-be</span>
+                                <span class="chip op-post">POST /store</span>
+                            </div>
+                            <pre><code class="language-php">public function store(Request $request)
+{
+    // Ha checkbox nem volt bepipálva, kézzel adjuk meg a 0 értéket:
+    if (!$request->has('visszahivas')) {
+        $request->merge(['visszahivas' => 0]);
+    }
+
+    Kimenohivasok::create($request->all());
+    return redirect('/');
+}</code></pre>
+                        </div>
+
+                        <!-- EDIT -->
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div
+                                class="bg-yellow-700/60 px-4 py-2 text-xs font-bold text-white flex items-center justify-between">
+                                <span>UPDATE — Szerkesztő megjelenítése</span>
+                                <span class="chip op-get">GET /edit/{id}</span>
+                            </div>
+                            <pre><code class="language-php">public function edit($id)
+{
+    $adat = Kimenohivasok::findOrFail($id);
+    return view('edit', compact('adat'));
+}</code></pre>
+                        </div>
+
+                        <!-- UPDATE -->
+                        <div class="rounded-xl overflow-hidden border border-gray-700">
+                            <div
+                                class="bg-yellow-700/60 px-4 py-2 text-xs font-bold text-white flex items-center justify-between">
+                                <span>UPDATE — Változtatás DB-be</span>
+                                <span class="chip op-post">POST /update/{id}</span>
+                            </div>
+                            <pre><code class="language-php">public function update(Request $request, $id)
+{
+    $adat = Kimenohivasok::findOrFail($id);
+    $adat->update($request->all());
+    return redirect('/');
+}</code></pre>
+                        </div>
+
+                        <!-- DELETE (teljes szélességű) -->
+                        <div class="rounded-xl overflow-hidden border border-gray-700 md:col-span-2">
+                            <div
+                                class="bg-red-800/60 px-4 py-2 text-xs font-bold text-white flex items-center justify-between">
+                                <span>DELETE — Törlés + átirányítás (sikeres/sikertelen ág)</span>
+                                <span class="chip op-delete">GET /torles/{id}</span>
+                            </div>
+                            <pre><code class="language-php">public function delete($id)
+{
+    $adat = Kimenohivasok::find($id);
+
+    if ($adat) {
+        $adat->delete();
+        return redirect('/');         // ✅ Sikeres: vissza a főoldalra
+    }
+
+    return redirect('/adatok');       // ❌ Sikertelen: az adatok listájára
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 9. BLADE ===== -->
+                <section id="sec-blade" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-orange-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-orange-600">9</span> Blade Nézetek (resources/views)
+                    </h2>
+
+                    <h3 class="text-base text-orange-300 font-semibold mb-2">Adatok listázása táblázatban
+                        (lista.blade.php)</h3>
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-6">
+                        <pre><code class="language-php">@foreach($adatok as $a)
+&lt;tr&gt;
+    &lt;td&gt;{{ $a-&gt;nev }}&lt;/td&gt;
+    &lt;td&gt;{{ $a-&gt;nap }}&lt;/td&gt;
+    &lt;td&gt;{{ $a-&gt;ora }}:{{ $a-&gt;perc }}:{{ $a-&gt;masodperc }}&lt;/td&gt;
+    &lt;td&gt;{{ $a-&gt;visszahivas ? 'Igen' : 'Nem' }}&lt;/td&gt;  {{-- Logikai kiírás --}}
+    &lt;td&gt;
+        &lt;a href="/edit/{{ $a-&gt;id }}"&gt;Szerkesztés&lt;/a&gt;
+
+        @auth   {{-- A törlés gomb csak belépetteknek látszik --}}
+            &lt;a href="/torles/{{ $a-&gt;id }}"&gt;Törlés&lt;/a&gt;
+        @endauth
+    &lt;/td&gt;
+&lt;/tr&gt;
+@endforeach</code></pre>
+                    </div>
+
+                    <h3 class="text-base text-orange-300 font-semibold mb-2">Formok (create.blade.php / edit.blade.php)
+                    </h3>
+                    <div class="bg-red-900/30 border border-red-700/50 rounded-xl p-3 mb-3">
+                        <p class="text-red-300 font-bold text-sm">🔐 @csrf — MINDIG kötelező POST formoknál! Nélküle 419
+                            hiba lesz.</p>
+                    </div>
+                    <div class="rounded-xl overflow-hidden border border-gray-700">
+                        <pre><code class="language-php">&lt;form action="/store" method="POST"&gt;
+    @csrf
+
+    &lt;input type="text" name="nev" value="{{ old('nev', $adat-&gt;nev ?? '') }}"&gt;
+
+    &lt;input type="date" name="nap" value="{{ $adat-&gt;nap ?? '' }}"&gt;
+
+    &lt;input type="number" name="ora" min="8" max="19" value="{{ $adat-&gt;ora ?? '' }}"&gt;
+
+    {{-- Idő input - step=600 = 10 perces ugrás (csak 0-ra végződő percek!) --}}
+    &lt;input type="time" name="meres_idopontja" step="600" value="{{ $adat-&gt;meres_idopontja ?? '' }}"&gt;
+
+    {{-- Checkbox - value="1" = ezt küldi ha be van pipálva --}}
+    &lt;input type="checkbox" name="visszahivas" value="1"
+        {{ isset($adat) && $adat-&gt;visszahivas ? 'checked' : '' }}&gt;
+
+    &lt;button type="submit"&gt;Mentés&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                    </div>
+                </section>
+
+                <!-- ===== 10. GYORS TIPPEK ===== -->
+                <section id="sec-tips" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-emerald-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-emerald-700">10</span> Gyors tippek &amp; Buktatók
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-emerald-700/40">
+                            <p class="text-emerald-300 font-semibold text-sm mb-1">🕐 Időpont — csak 0-ra végződő percek
+                            </p>
+                            <p class="text-gray-400 text-xs">Az input formon <code>step="600"</code> beállítással a
+                                böngésző csak 10 perces lépéseket enged (pl. 13:00, 13:10, 13:20...). A feladat minden
+                                esetben elfogadja ezt a megoldást.</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-yellow-700/40">
+                            <p class="text-yellow-300 font-semibold text-sm mb-1">☑️ Checkbox bug mentésnél</p>
+                            <p class="text-gray-400 text-xs">Ha a checkbox nincs bepipálva, a böngésző el sem küldi azt
+                                a mezőt. A store() és update() metódusban kézzel kell beállítani:
+                                <code>$request->merge(['visszahivas' => 0])</code>
+                            </p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-purple-700/40">
+                            <p class="text-purple-300 font-semibold text-sm mb-1">🔑 $fillable vs $guarded</p>
+                            <p class="text-gray-400 text-xs">Ha a feladat sok mezőt kér, egyszerűbb a
+                                <code>protected $guarded = [];</code> beállítás a modellben — ez mindent engedélyez.
+                                Vizsgán elfogadható.
+                            </p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-red-700/40">
+                            <p class="text-red-300 font-semibold text-sm mb-1">🧠 @auth vs middleware</p>
+                            <p class="text-gray-400 text-xs"><code>@auth</code> Blade direktíva: csak a nézet egy részét
+                                rejti el. A <code>->middleware('auth')</code> a route-on: teljesen megtiltja az oldal
+                                elérését ha nem vagy belépve.</p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-blue-700/40">
+                            <p class="text-blue-300 font-semibold text-sm mb-1">📦 groupBy() a controllerben</p>
+                            <p class="text-gray-400 text-xs">Ha a feladat "mérési hely szerinti bontást" kér:
+                                <code>->get()->groupBy('meresi_hely')</code>. A Blade-ben akkor két egymásba ágyazott
+                                <code>@foreach</code> kell.
+                            </p>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-cyan-700/40">
+                            <p class="text-cyan-300 font-semibold text-sm mb-1">📤 Projekt tömörítése</p>
+                            <p class="text-gray-400 text-xs">A <code>vendor/</code> mappa nagyon nehéz! A vizsgán
+                                általában elfogadják a <code>vendor/</code> nélküli .zip-et, de kérd meg a felügyelőt,
+                                hogy egyértelműsítse.</p>
+                        </div>
+                    </div>
+                </section>
+
+            </div><!-- end space-y-10 -->
+
+            <!-- ===== 11. VALIDÁCIÓ ===== -->
+            <div class="space-y-10 mt-10">
+
+                <section id="sec-validas" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-rose-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-rose-700">11</span> Validáció — Adatok ellenőrzése (<code
+                            class="text-sm text-rose-300">store()</code> / <code
+                            class="text-sm text-rose-300">update()</code>)
+                    </h2>
+                    <p class="text-gray-400 text-sm mb-4">Ha a feladat azt kéri, hogy adatok megadása előtt ellenőrizzük
+                        a mezőket, a <code class="text-rose-300">$request->validate()</code> a megoldás. Hiba esetén
+                        automatikusan visszairányít az űrlapra.</p>
+
+                    <h3 class="text-base text-rose-300 font-semibold mb-2">Alap validáció (store metódus)</h3>
+                    <div class="rounded-xl overflow-hidden border border-gray-700 mb-5">
+                        <pre><code class="language-php">public function store(Request $request)
+{
+    $validated = $request->validate([
+        // Kötelező szöveg, egyedi az egész táblában:
+        'tanterem'           => 'required|string|unique:termeks,tanterem',
+        // Kötelező egész szám, minimum értékkel:
+        'befogadokepesseg'   => 'required|integer|min:1',
+        // Nem kötelező, de ha van, legyen egész:
+        'tv_meret'           => 'nullable|integer|min:1',
+        // Logikai mező:
+        'projektor'          => 'boolean',
+        // Egyéni üzleti logika (closure szintaxis):
+        'berbeadas_osszege'  => [
+            'required', 'integer', 'min:0',
+            function ($attribute, $value, $fail) {
+                if ($value % 1000 !== 0 && $value % 500 !== 0) {
+                    $fail('Az összegnek 500-ra vagy 1000-re kell végződnie!');
+                }
+            },
+        ],
+    ], [
+        // Saját hibaüzenetek:
+        'tanterem.unique'  => 'Ez a teremszám már létezik!',
+        'tanterem.required'=> 'A terem megadása kötelező!',
+    ]);
+
+    Termek::create($validated); // create() a validált adatokkal
+    return redirect()->route('termekek.index')->with('success', 'Sikeresen létrehozva!');
+}</code></pre>
+                    </div>
+
+                    <h3 class="text-base text-rose-300 font-semibold mb-2">Módosításnál: <code>unique</code> az éppen
+                        szerkesztett sort kihagyva (!):</h3>
+                    <div class="rounded-xl overflow-hidden border border-gray-700">
+                        <pre><code class="language-php">use Illuminate\Validation\Rule;
+
+public function update(Request $request, $id)
+{
+    $termek = Termek::findOrFail($id);
+
+    $validated = $request->validate([
+        // Az 'unique' rule-t kiegészítjük: hagyja figyelmen kívül az éppen szerkesztett sort!
+        'tanterem' => [
+            'required', 'string',
+            Rule::unique('termeks', 'tanterem')->ignore($termek->id)
+        ],
+    ]);
+
+    $termek->update($validated);
+    return redirect()->route('termekek.index')->with('success', 'Sikeresen frissítve!');
+}</code></pre>
+                    </div>
+
+                    <div class="mt-4 overflow-x-auto">
+                        <p class="text-gray-400 text-sm mb-2">A leggyakoribb validációs szabályok táblázata:</p>
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-rose-900/40">
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-rose-300">Szabály</th>
+                                    <th class="border border-gray-700 px-3 py-2 text-left text-rose-300">Mit csinál</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-300">
+                                <tr class="hover:bg-gray-800/50">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs">required</td>
+                                    <td class="border border-gray-700 px-3 py-2">Kötelező — nem lehet üres</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/50">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs">nullable</td>
+                                    <td class="border border-gray-700 px-3 py-2">Nem kötelező, de ha van, ellenőrzi a
+                                        többi szabályt</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/50">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs">string</td>
+                                    <td class="border border-gray-700 px-3 py-2">Szöveges érték</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/50">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs">integer</td>
+                                    <td class="border border-gray-700 px-3 py-2">Egész szám</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/50">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs">min:5</td>
+                                    <td class="border border-gray-700 px-3 py-2">Minimum érték (számoknál) / minimum
+                                        hossz (szövegnél)</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/50">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs">max:100</td>
+                                    <td class="border border-gray-700 px-3 py-2">Maximum érték / hossz</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/50">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs">unique:tabla,mezo
+                                    </td>
+                                    <td class="border border-gray-700 px-3 py-2">Egyedi az adott táblában</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/50">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs">boolean</td>
+                                    <td class="border border-gray-700 px-3 py-2">Igaz/Hamis (1/0)</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/50">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs">email</td>
+                                    <td class="border border-gray-700 px-3 py-2">Érvényes email formátum</td>
+                                </tr>
+                                <tr class="hover:bg-gray-800/50">
+                                    <td class="border border-gray-700 px-3 py-2 font-mono text-xs">date</td>
+                                    <td class="border border-gray-700 px-3 py-2">Érvényes dátum</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ===== 12. NAMED ROUTES + FLASH ===== -->
+                <section id="sec-named" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-lime-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-lime-700">12</span> Named Routes &amp; Flash üzenetek
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-base text-lime-300 font-semibold mb-2">Named Routes (elnevezett útvonalak)
+                            </h3>
+                            <p class="text-gray-400 text-sm mb-2">Ha a route-hoz adsz egy <code
+                                    class="text-lime-300">->name()</code>-t, akkor a Blade-ben és a Controllerben
+                                szimbolikusan hivatkozhatsz rá — ha az URL változik, nem kell mindent átírni.</p>
+                            <div class="rounded-xl overflow-hidden border border-gray-700">
+                                <pre><code class="language-php">// routes/web.php:
+Route::get('/', [TCtrl::class, 'index'])->name('termekek.index');
+Route::get('/create', [TCtrl::class, 'create'])->name('termekek.create');
+Route::post('/store', [TCtrl::class, 'store'])->name('termekek.store');
+
+// Controllerben - vissza a named route-ra:
+return redirect()->route('termekek.index');
+
+// Blade-ben link generálás:
+&lt;a href="{{ route('termekek.create') }}"&gt;Új terem&lt;/a&gt;</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-base text-lime-300 font-semibold mb-2">Flash üzenetek (sikeres/sikertelen
+                                visszajelzés)</h3>
+                            <p class="text-gray-400 text-sm mb-2">A <code
+                                    class="text-lime-300">->with('kulcs', 'uzenet')</code> egy egyszer látható session
+                                üzenetet küld. A Blade-ben így jelenítheted meg:</p>
+                            <div class="rounded-xl overflow-hidden border border-gray-700">
+                                <pre><code class="language-php">// Controllerben mentés után:
+return redirect()->route('termekek.index')
+    ->with('success', 'Terem sikeresen mentve!');
+
+// Controllerben hiba esetén:
+return redirect()->back()
+    ->with('error', 'Valami hiba történt!');</code></pre>
+                            </div>
+                            <div class="rounded-xl overflow-hidden border border-gray-700 mt-3">
+                                <pre><code class="language-php">{{-- Blade-ben a nézeten belül (pl. lista.blade.php): --}}
+@if(session('success'))
+    &lt;div class="alert-success"&gt;{{ session('success') }}&lt;/div&gt;
+@endif
+
+@if(session('error'))
+    &lt;div class="alert-error"&gt;{{ session('error') }}&lt;/div&gt;
+@endif
+
+{{-- Validációs hibák megjelenítése egy mezőnél: --}}
+@error('tanterem')
+    &lt;span class="text-red-500"&gt;{{ $message }}&lt;/span&gt;
+@enderror</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 13. METHOD SPOOFING ===== -->
+                <section id="sec-spoof" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-teal-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-teal-700">13</span> Method Spoofing — PUT &amp; DELETE HTML formokon
+                    </h2>
+                    <p class="text-gray-400 text-sm mb-4">A böngésző HTML formokban csak <code>GET</code> és
+                        <code>POST</code> metódust tud küldeni. Ha a route <code>Route::put()</code> vagy
+                        <code>Route::delete()</code>-t használ, a form metódust "spoofolni" kell a
+                        <code>@method()</code> direktívával.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-base text-teal-300 font-semibold mb-2">PUT (módosításhoz) —
+                                routes/web.php-ban:</h3>
+                            <div class="rounded-xl overflow-hidden border border-gray-700 mb-3">
+                                <pre><code class="language-php">Route::put('/update/{id}', [Ctrl::class, 'update'])->name('update');
+// VAGY egyszerűbb megoldás vizsgán (mindkettő elfogadott):
+Route::post('/update/{id}', [Ctrl::class, 'update']);</code></pre>
+                            </div>
+                            <h3 class="text-base text-teal-300 font-semibold mb-2">Form a Blade-ben (PUT-hoz
+                                <code>@method</code> kell):
+                            </h3>
+                            <div class="rounded-xl overflow-hidden border border-gray-700">
+                                <pre><code class="language-php">&lt;form action="/update/{{ $telek->id }}" method="POST"&gt;
+    @csrf
+    @method('PUT')  {{-- ezzel jelezzük, hogy valójában PUT --}}
+
+    &lt;input type="text" name="cim" value="{{ $telek->cim }}"&gt;
+    &lt;button type="submit"&gt;Mentés&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-base text-teal-300 font-semibold mb-2">DELETE (törléshez) —
+                                routes/web.php-ban:</h3>
+                            <div class="rounded-xl overflow-hidden border border-gray-700 mb-3">
+                                <pre><code class="language-php">Route::delete('/destroy/{id}', [Ctrl::class, 'destroy'])->name('destroy');
+// VAGY — vizsgafeladatnál a GET is teljesen elfogadott:
+Route::get('/delete/{id}', [Ctrl::class, 'destroy']);</code></pre>
+                            </div>
+                            <h3 class="text-base text-teal-300 font-semibold mb-2">DELETE form Blade-ben (ha nem GET):
+                            </h3>
+                            <div class="rounded-xl overflow-hidden border border-gray-700">
+                                <pre><code class="language-php">&lt;form action="/destroy/{{ $adat->id }}" method="POST"&gt;
+    @csrf
+    @method('DELETE')  {{-- ezzel jelezzük a DELETE metódust --}}
+    &lt;button type="submit"&gt;Törlés&lt;/button&gt;
+&lt;/form&gt;
+
+{{-- EGYSZERŰBB megoldás vizsgán (ha GET van a route-ban): --}}
+&lt;a href="/delete/{{ $adat->id }}"&gt;Törlés&lt;/a&gt;</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 14. HALADÓ MODELL ===== -->
+                <section id="sec-modell2" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-sky-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-sky-700">14</span> Modell — Haladó beállítások &amp; Lekérdezési tippek
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-base text-sky-300 font-semibold mb-2">$table, $casts, $timestamps</h3>
+                            <p class="text-gray-400 text-sm mb-2">Ha a tábla neve nem egyezik a Laravel konvencióval
+                                (pl. <code>Termek</code> → <code>termeks</code> helyett <code>tanterem</code>), kézzel
+                                kell megadni:</p>
+                            <div class="rounded-xl overflow-hidden border border-gray-700">
+                                <pre><code class="language-php">class Termek extends Model
+{
+    // Ha a tábla neve NEM az, amit Laravel generálna:
+    protected $table = 'tanterem';
+
+    // Időbélyegek kikapcsolása:
+    public $timestamps = false;
+
+    // Automatikus típuskonverzió (cast):
+    // -> a Blade-ben $adat->projektor már PHP bool lesz!
+    protected $casts = [
+        'projektor' => 'boolean',
+        'tv'        => 'boolean',
+    ];
+
+    protected $fillable = ['tanterem', 'projektor', 'tv'];
+}</code></pre>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-base text-sky-300 font-semibold mb-2">select() — Csak bizonyos oszlopok
+                                lekérése</h3>
+                            <p class="text-gray-400 text-sm mb-2">Ha a feladat csak bizonyos adatokat kér megjeleníteni:
+                            </p>
+                            <div class="rounded-xl overflow-hidden border border-gray-700 mb-5">
+                                <pre><code class="language-php">// Csak meghatározott oszlopok:
+$adatok = Termek::select('tanterem', 'befogadokepesseg', 'szamitogepek_szama')->get();
+
+// Feltétel alapján szűrés:
+$olcsok = Auto::where('ar', '<', 5000000)->get();
+
+// Több feltétel:
+$szurt = Auto::where('ar', '<', 5000000)
+             ->where('evjarat', '>', 2015)
+             ->orderBy('ar')
+             ->get();
+
+// Count - megszámlálás:
+$db = Termek::count();
+$db2 = Termek::where('projektor', true)->count();</code></pre>
+                            </div>
+                            <h3 class="text-base text-sky-300 font-semibold mb-2">Manuális mentés vs create()</h3>
+                            <p class="text-gray-400 text-sm mb-2">Mindkét módszer elfogadott vizsgán:</p>
+                            <div class="rounded-xl overflow-hidden border border-gray-700">
+                                <pre><code class="language-php">// 1. Módszer — MANUÁLIS (nem kell $fillable!):
+$uj = new Telek();
+$uj->cim = $request->cim;
+$uj->ar  = $request->ar;
+$uj->save();
+
+// 2. Módszer — create() ($fillable szükséges a modellben!):
+Telek::create($request->all());
+
+// 3. Módszer — create() validált adatokkal:
+Telek::create($request->validate([...]));</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div><!-- end new sections -->
+
+            <!-- ===== 15. KÖNYVTÁR PROJEKT PÉLDA ===== -->
+            <section id="sec-konyvtar" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-fuchsia-500 mt-10">
+                <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                    <span class="badge bg-fuchsia-700">15</span> Teljes vizsgafeladat lépésről lépésre (Könyvtár)
+                </h2>
+
+                <div class="space-y-6">
+                    <!-- Lépés 1-2 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                            <h3 class="text-fuchsia-300 font-bold mb-2">1. Projekt és Modell létrehozása</h3>
+                            <p class="text-gray-400 text-sm mb-2">Modell, migráció, factory, seeder és controller
+                                generálása (egyszerre mind):</p>
+                            <pre><code class="language-bash">php artisan make:model Konyv -mfsc</code></pre>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                            <h3 class="text-fuchsia-300 font-bold mb-2">2. Adatbázis beállítás (.env)</h3>
+                            <p class="text-gray-400 text-sm mb-2">Az SQLite helyett használd a megadott MySQL
+                                adatbázist:</p>
+                            <pre><code class="language-env">DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=konyvtar
+DB_USERNAME=root
+DB_PASSWORD=</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Lépés 3-4 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                            <h3 class="text-fuchsia-300 font-bold mb-2">3. Migráció (database/migrations)</h3>
+                            <p class="text-gray-400 text-sm mb-2">Adjuk meg a mezőket a migration fájl up() metódusában:
+                            </p>
+                            <pre><code class="language-php">Schema::create('konyvek', function (Blueprint $table) {
+    $table-&gt;id();
+    $table-&gt;string('isbn', 13);
+    $table-&gt;string('cim');
+    $table-&gt;string('szerzo');
+    $table-&gt;year('kiadasi_ev');
+    $table-&gt;string('mufaj', 100);
+    $table-&gt;integer('peldanyszam');
+    // Ha nem kéri a feladat az időt, vedd ki a timestamps()-et
+});</code></pre>
+                        </div>
+                        <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                            <h3 class="text-fuchsia-300 font-bold mb-2">4. Migrálás és Modell beállítása</h3>
+                            <p class="text-gray-400 text-sm mb-2">Migrálás: <code
+                                    class="text-indigo-300">php artisan migrate</code></p>
+                            <p class="text-gray-400 text-sm mb-2 mt-2">Mivel magyar nevet használunk, a Modellben meg
+                                kell adni a táblanevet és kikapcsolni a timestamps-et:</p>
+                            <pre><code class="language-php">class Konyv extends Model {
+    protected $table = 'konyvek';
+    public $timestamps = false;
+    protected $fillable = ['isbn', 'cim', 'szerzo', 'kiadasi_ev', 'mufaj', 'peldanyszam'];
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Lépés 5 -->
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-fuchsia-300 font-bold mb-2">5. Útvonalak (routes/web.php)</h3>
+                        <pre><code class="language-php">use App\Http\Controllers\KonyvController;
+
+Route::get('/konyvek', [KonyvController::class, 'getJson']);
+Route::get('/lista', [KonyvController::class, 'lista']);
+Route::get('/create', [KonyvController::class, 'create']);
+Route::post('/store', [KonyvController::class, 'store']);
+Route::get('/edit/{id}', [KonyvController::class, 'edit']);
+Route::post('/update/{id}', [KonyvController::class, 'update']);
+// Ha a törléshez nem kell authentikáció:
+Route::get('/torles/{id}', [KonyvController::class, 'torles'])-&gt;withoutMiddleware('auth');</code></pre>
+                    </div>
+
+                    <!-- Lépés 6 -->
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-fuchsia-300 font-bold mb-2">6. Controller
+                            (app/Http/Controllers/KonyvController.php)</h3>
+                        <div class="max-h-80 overflow-y-auto">
+                            <pre><code class="language-php">use App\Models\Konyv; // NE FELEJTSD EL BEIMPORTÁLNI!
+
+class KonyvController extends Controller {
+    public function getJson() {
+        return response()-&gt;json(Konyv::all());
+    }
+
+    public function lista() {
+        $konyvek = Konyv::orderBy('mufaj')-&gt;orderBy('kiadasi_ev')-&gt;orderBy('cim')-&gt;get();
+        return view('lista', compact('konyvek'));
+    }
+
+    public function create() {
+        return view('create');
+    }
+
+    public function store() {
+        $konyv = new Konyv();
+        $konyv-&gt;isbn = request('isbn');
+        $konyv-&gt;cim = request('cim');
+        $konyv-&gt;szerzo = request('szerzo');
+        $konyv-&gt;kiadasi_ev = request('kiadasi_ev');
+        $konyv-&gt;mufaj = request('mufaj');
+        $konyv-&gt;peldanyszam = request('peldanyszam');
+        $konyv-&gt;save();
+        return redirect('/lista');
+    }
+
+    public function edit($id) {
+        $konyv = Konyv::find($id);
+        return view('edit', compact('konyv'));
+    }
+
+    public function update($id) {
+        $konyv = Konyv::find($id);
+        $konyv-&gt;isbn = request('isbn');
+        $konyv-&gt;cim = request('cim');
+        // ... többi mező beállítása
+        $konyv-&gt;save();
+        return redirect('/lista');
+    }
+
+    public function torles($id) {
+        $konyv = Konyv::find($id);
+        if ($konyv) {
+            $konyv-&gt;delete();
+            return redirect('/lista');
+        }
+        return redirect('/konyvek');
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Lépés 7 -->
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-fuchsia-300 font-bold mb-2">7. Validáció Blade nézetben (JS példa ISBN-re az
+                            edit.blade.php-ban)</h3>
+                        <p class="text-gray-400 text-sm mb-2">Pl. frontend ISBN ellenőrzés form beküldéskor
+                            JavaScript-el (10 vagy 13 számjegy):</p>
+                        <pre><code class="language-html">&lt;form action="{{ url('/update/' . $konyv-&gt;id) }}" method="POST" id="editForm"&gt;
+    @csrf
+    &lt;input type="text" name="isbn" id="isbn" value="{{ $konyv-&gt;isbn }}" maxlength="13"&gt;
+    &lt;div class="hiba-uzenet" id="isbnHiba" style="display:none; color:#e74c3c;"&gt;Az ISBN csak 10 vagy 13 jegyű szám lehet!&lt;/div&gt;
+    
+    &lt;!-- többi mező --&gt;
+    &lt;button type="submit"&gt;Mentés&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;script&gt;
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        const isbn = document.getElementById('isbn').value;
+        const hibaMezо = document.getElementById('isbnHiba');
+        // Regex: pontosan 10 vagy 13 számjegy
+        if (!/^\d{10}$|^\d{13}$/.test(isbn)) {
+            e.preventDefault(); // Ne küldje el a formot, ha rossz az ISBN
+            hibaMezо.style.display = 'block';
+        } else {
+            hibaMezо.style.display = 'none';
+        }
+    });
+&lt;/script&gt;</code></pre>
+                    </div>
+
+                    <div class="bg-red-900/30 border border-red-700/50 rounded-xl p-4 mt-4">
+                        <p class="text-red-300 font-bold text-sm mb-2">⚠️ Tipikus hibák javítása ebből a projektből:</p>
+                        <ul class="text-gray-300 text-sm list-disc pl-5 space-y-2 mt-2">
+                            <li><strong class="text-white">Mentéskor (updated_at) hiba:</strong> Kikapcsolni az
+                                időbélyegeket a modellben: <code
+                                    class="text-yellow-300 font-mono text-xs">public $timestamps = false;</code></li>
+                            <li><strong class="text-white">Többes szám a táblanévben (konyvs):</strong> A Laravel
+                                angolul teszi többesszámba a modelleket (Konyv → konyvs). Mindig add meg manuálisan, ha
+                                magyar nevet használsz: <code
+                                    class="text-yellow-300 font-mono text-xs">protected $table = 'konyvek';</code></li>
+                            <li><strong class="text-white">RouteNotFoundException (login) törléskor:</strong> A
+                                <code>/torles</code> route-on volt <code>auth</code> middleware, de nem voltunk
+                                bejelentkezve. Le kell venni a middleware-t, vagy bejelentkezés kell hozzá.</li>
+                            <li><strong class="text-white">POST útvonal 404 vagy GET hiba:</strong> A szerkesztés form
+                                tagjébe megfelelő URL kell: <code
+                                    class="text-yellow-300 font-mono text-xs">action="/update/{{ $konyv-&gt;id }}"</code>
+                                (vagy url() helperrel), és a method POST kell legyen.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== 16. VIZSGA LEADÁS ===== -->
+            <section id="sec-leadas" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-emerald-400 mt-10">
+                <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                    <span class="badge bg-emerald-600">16</span> Vizsga leadás: Export & ZIP
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-emerald-300 font-bold mb-2">1. Adatbázis Exportálás (SQL)</h3>
+                        <p class="text-gray-400 text-sm mb-2">Nyiss egy új parancssort a projekt mappában, majd futtasd:
+                        </p>
+                        <div class="rounded-xl overflow-hidden border border-gray-700 mb-3">
+                            <pre><code class="language-bash">mysqldump -u root -p adatbazis_neve > mentes.sql</code></pre>
+                        </div>
+                        <ul class="text-gray-400 text-xs list-disc pl-5 space-y-1">
+                            <li><strong class="text-gray-300">-u root</strong>: felhasználónév</li>
+                            <li><strong class="text-gray-300">-p</strong>: jelszót kér (ha XAMPP-on nincs jelszó, hagyd
+                                le a <code class="text-yellow-300">-p</code>-t)</li>
+                            <li>Ha a <code class="text-yellow-300">mysqldump</code> parancs nem található, használd a
+                                teljes elérési utat (XAMPP):</li>
+                        </ul>
+                        <div class="rounded-xl overflow-hidden border border-gray-700 mt-2">
+                            <pre><code class="language-bash">C:\xampp\mysql\bin\mysqldump -u root adatbazis_neve > mentes.sql</code></pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-emerald-300 font-bold mb-2">2. Projekt Tömörítése (ZIP)</h3>
+                        <p class="text-gray-400 text-sm mb-2">A leadandó fájl mérete miatt a <code
+                                class="text-emerald-300">vendor</code> mappát KI KELL HAGYNI!</p>
+                        <ol class="text-gray-400 text-sm list-decimal pl-5 space-y-2 mt-3">
+                            <li>Másold be az előbb elkészült <code class="text-yellow-300">mentes.sql</code> fájlt a
+                                projekt gyökérmappájába.</li>
+                            <li>Kattints jobb gombbal a projekt mappájára (pl. <code
+                                    class="text-white">backendHT</code>).</li>
+                            <li>Ha van <strong>7-Zip</strong>: Jobb klikk -> 7-Zip -> Hozzáadás archívumhoz. Jelöld ki a
+                                fájlokat úgy, hogy a <code class="text-red-400">vendor</code> mappa NINCS kijelölve.
+                            </li>
+                            <li>VAGY: Egyszerűen töröld ki a <code class="text-red-400">vendor</code> mappát a tömörítés
+                                előtt (ha már biztosan kész vagy mindennel).</li>
+                        </ol>
+                        <div class="bg-blue-900/30 border border-blue-700/50 rounded-xl p-3 mt-3">
+                            <p class="text-blue-300 text-xs font-semibold">💡 A javító tanár a kicsomagolás után egy
+                                <code class="font-mono text-blue-200">composer install</code> paranccsal újra letölti a
+                                vendor mappát, így az nem kell a beadandóba.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="mt-16 mb-8 text-center text-gray-500 text-sm border-t border-gray-800 pt-8">
+                Hevesi Tamas - Sajat Backend Jegyzet 2026
+            </footer>
+        </main>
+
+        <!-- Vissza a főoldalra gomb -->
+    <a href="index.html" id="back-to-home-btn" title="Vissza a főoldalra">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    </a>
+
+    <!-- AI Chatbot Button -->
+        <div id="ai-chat-btn" onclick="toggleChat()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </div>
+
+        <!-- AI Chatbot HTML (Jobb oldali sáv) -->
+        <aside id="ai-chat-window" class="hidden flex-col w-80 shrink-0 glass border-l border-gray-800 sticky top-0 h-screen z-10">
+            <div id="ai-chat-header">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    AI Asszisztens
+                </div>
+                <button onclick="toggleChat()" class="text-gray-400 hover:text-white">&times;</button>
+            </div>
+            <div id="ai-chat-messages">
+                <div class="ai-msg">Szia! Én az intelligens jegyzet-asszisztensed vagyok. Keress bármire a puskában, vagy kérdezz bátran, ha elakadtál egy feladatban, és segítek kikeresni a megoldást!</div>
+            </div>
+            <div id="ai-chat-input-container">
+                <input type="text" id="ai-chat-input" placeholder="Kérdezz bármit..." onkeypress="handleEnter(event)">
+                <button id="ai-chat-send" onclick="sendMessage()">Küldés</button>
+            </div>
+        </aside>
+
+    </div><!-- end flex -->
+
+    <!-- AI Chatbot Script -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // === IDE ÍRD A SAJÁT GEMINI API KULCSODAT ===
+        // A kulcs a szerveren van (Netlify env változóban) - itt nem kell!
+
+        let isChatOpen = false;
+        const chatWindow = document.getElementById('ai-chat-window');
+        const messagesDiv = document.getElementById('ai-chat-messages');
+        const inputField = document.getElementById('ai-chat-input');
+
+        // System prompt, hogy az AI tudja mi a feladata
+        let conversationHistory = [
+            {
+                role: "user",
+                parts: [{ text: "Te egy segítőkész programozó AI asszisztens vagy. A felhasználó egy emelt szintű informatikai vizsgára készül backend fejlesztésből (Laravel, PHP). Segíts neki röviden, kódrészletekkel és magyarul." }]
+            },
+            {
+                role: "model",
+                parts: [{ text: "Értettem! Készen állok, hogy segítsek a Laravel és backend vizsgafeladatokban. Miben lehetek a segítségedre?" }]
+            }
+        ];
+
+        function toggleChat() {
+            isChatOpen = !isChatOpen;
+            const chatBtn = document.getElementById('ai-chat-btn');
+            if (isChatOpen) {
+                chatWindow.classList.remove('hidden');
+                chatWindow.classList.add('flex');
+                if (chatBtn) chatBtn.style.display = 'none';
+                inputField.focus();
+            } else {
+                chatWindow.classList.add('hidden');
+                chatWindow.classList.remove('flex');
+                if (chatBtn) chatBtn.style.display = 'flex';
+            }
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag]));
+        }
+
+        function formatMessage(text) {
+            if (typeof marked !== 'undefined') {
+                return marked.parse(text);
+            }
+            let formatted = escapeHTML(text).replace(/\n/g, '<br>');
+            formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-yellow-300 px-1 rounded">$1</code>');
+            return formatted;
+        }
+
+        function addMessage(text, isUser) {
+            const div = document.createElement('div');
+            div.className = isUser ? 'user-msg' : 'ai-msg';
+            div.innerHTML = formatMessage(text);
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function showTyping() {
+            const div = document.createElement('div');
+            div.className = 'ai-msg typing-msg';
+            div.innerHTML = '<span class="typing-indicator"></span><span class="typing-indicator"></span><span class="typing-indicator"></span>';
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return div;
+        }
+
+        async function sendMessage() {
+            const text = inputField.value.trim();
+            if (!text) return;
+
+            if (GEMINI_API_KEY === "PROXY_USED_NO_KEY_NEEDED" || GEMINI_API_KEY.trim() === "") {
+                addMessage(text, true);
+                inputField.value = '';
+                const hibaUzenet = "Kérlek, nyisd meg a HTML fájlt egy szerkesztőben (pl. VS Code), és írd be a saját Gemini API kulcsodat a kód legalján található `GEMINI_API_KEY` változóba!\n\nIngyenes kulcsot itt kérhetsz:\nhttps://aistudio.google.com/app/apikey";
+                addMessage(hibaUzenet, false);
+                return;
+            }
+
+            addMessage(text, true);
+            inputField.value = '';
+            inputField.disabled = true;
+
+            conversationHistory.push({ role: "user", parts: [{ text }] });
+
+            const typingIndicator = showTyping();
+
+            try {
+                const response = await fetch(`/.netlify/functions/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: conversationHistory
+                    })
+                });
+
+                const data = await response.json();
+                typingIndicator.remove();
+
+                if (data.error) {
+                    addMessage("Hiba történt: " + data.error.message, false);
+                    conversationHistory.pop(); // Revert
+                } else if (data.candidates && data.candidates[0].content) {
+                    const aiResponse = data.candidates[0].content.parts[0].text;
+                    addMessage(aiResponse, false);
+                    conversationHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+                }
+            } catch (err) {
+                typingIndicator.remove();
+                addMessage("Hálózati hiba történt az API hívás során.", false);
+                conversationHistory.pop();
+            }
+
+            inputField.disabled = false;
+            inputField.focus();
+        }
+    </script>
+
+    <!-- Syntax Highlighter -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,1316 @@
+﻿<!DOCTYPE html>
+<html lang="hu" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Puska — Emelt Informatika</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #0a0f1e; }
+        .glass {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        pre[class*="language-"] { margin: 0 !important; border-radius: 0 !important; font-size: 0.78rem !important; }
+        code[class*="language-"] { font-size: 0.78rem !important; font-family: 'JetBrains Mono', monospace !important; }
+        .nav-link {
+            display: block; padding: 5px 12px; border-radius: 7px;
+            font-size: 0.75rem; font-weight: 600; color: #94a3b8;
+            transition: all 0.2s; border-left: 3px solid transparent;
+        }
+        .nav-link:hover { background: rgba(99,102,241,0.15); color: #e2e8f0; border-left-color: #6366f1; }
+        .badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 30px; height: 30px; border-radius: 7px;
+            font-size: 0.82rem; font-weight: 800; margin-right: 10px; flex-shrink: 0;
+        }
+        .keret { border-radius: 0.75rem; overflow: hidden; border: 1px solid #374151; }
+        .fejlec { padding: 6px 14px; font-size: 0.72rem; font-weight: 700; color: white; }
+        .mikor {
+            background: rgba(34,197,94,0.08); border-left: 3px solid #22c55e;
+            border-radius: 0 8px 8px 0; padding: 8px 14px; margin-bottom: 14px; font-size: 0.82rem; color: #86efac;
+        }
+        .figyelj {
+            background: rgba(239,68,68,0.08); border-left: 3px solid #ef4444;
+            border-radius: 0 8px 8px 0; padding: 8px 14px; margin-top: 10px; font-size: 0.82rem; color: #fca5a5;
+        }
+        .info {
+            background: rgba(59,130,246,0.08); border-left: 3px solid #3b82f6;
+            border-radius: 0 8px 8px 0; padding: 8px 14px; margin-top: 10px; font-size: 0.82rem; color: #93c5fd;
+        }
+
+        /* Vissza a főoldalra gomb CSS */
+        #back-to-home-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+        }
+        #back-to-home-btn:hover {
+            transform: scale(1.1);
+            background: rgba(30, 41, 59, 1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Chatbot CSS */
+        #ai-chat-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0ea5e9, #6366f1); /* Cyan/blue for SQL */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.5);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        #ai-chat-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(14, 165, 233, 0.6);
+        }
+        #ai-chat-header {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        #ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+        #ai-chat-messages::-webkit-scrollbar { width: 6px; }
+        #ai-chat-messages::-webkit-scrollbar-track { background: transparent; }
+        #ai-chat-messages::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+        #ai-chat-messages::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+        .ai-msg, .user-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        .ai-msg p:not(:last-child) { margin-bottom: 0.5rem; }
+        .ai-msg ul { list-style-type: disc; margin-left: 1.2rem; margin-bottom: 0.5rem; }
+        .ai-msg ol { list-style-type: decimal; margin-left: 1.2rem; margin-bottom: 0.5rem; }
+        .ai-msg li { margin-bottom: 0.2rem; }
+        .ai-msg strong { font-weight: 700; color: #e2e8f0; }
+        .ai-msg code { background: rgba(0,0,0,0.3); padding: 0.1rem 0.3rem; border-radius: 4px; font-family: monospace; color: #fde047; font-size: 0.9em; }
+        .ai-msg pre { background: rgba(0,0,0,0.5); padding: 0.75rem; border-radius: 6px; overflow-x: auto; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .ai-msg pre code { background: transparent; padding: 0; color: #e2e8f0; font-size: 0.9em; }
+        .ai-msg a { color: #60a5fa; text-decoration: underline; }
+        .ai-msg {
+            background: rgba(255, 255, 255, 0.1);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        .user-msg {
+            background: #0ea5e9;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        #ai-chat-input-container {
+            padding: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 8px;
+        }
+        #ai-chat-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        #ai-chat-input:focus { border-color: #0ea5e9; }
+        #ai-chat-send {
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        #ai-chat-send:hover { background: #0284c7; }
+        .typing-indicator {
+            display: inline-block;
+            width: 4px; height: 4px; border-radius: 50%; background: #ccc;
+            animation: typing 1.4s infinite ease-in-out both; margin: 0 2px;
+        }
+        .typing-indicator:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.5); }
+        }
+    </style>
+</head>
+<body class="text-gray-200 antialiased">
+<div class="flex min-h-screen">
+
+    <!-- SIDEBAR -->
+    <aside class="hidden lg:flex flex-col w-64 shrink-0 glass border-r border-gray-800 sticky top-0 h-screen overflow-y-auto py-6 px-3 z-10">
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-3">TARTALOM</p>
+        <nav class="space-y-0.5">
+            <a href="#sec-felep"   class="nav-link">1. SELECT felépítése</a>
+            <a href="#sec-where"   class="nav-link">2. WHERE — szűrés</a>
+            <a href="#sec-szamit"  class="nav-link">3. Számított mező (AS)</a>
+            <a href="#sec-order"   class="nav-link">4. ORDER BY — rendezés</a>
+            <a href="#sec-distinct"class="nav-link">5. DISTINCT</a>
+            <a href="#sec-join"    class="nav-link">6. JOIN — táblák</a>
+            <a href="#sec-group"   class="nav-link">7. GROUP BY + aggr.</a>
+            <a href="#sec-having"  class="nav-link">8. HAVING</a>
+            <a href="#sec-limit"   class="nav-link">9. LIMIT</a>
+            <a href="#sec-in"      class="nav-link">10. IN / NOT IN</a>
+            <a href="#sec-skalar"  class="nav-link">11. Skaláris allekérdezés</a>
+            <a href="#sec-from"    class="nav-link">12. FROM allekérdezés</a>
+            <a href="#sec-onill"   class="nav-link">13. Önillesztés</a>
+            <a href="#sec-like"    class="nav-link">14. LIKE / LENGTH</a>
+            <a href="#sec-datum"   class="nav-link">15. Dátumfüggvények</a>
+            <a href="#sec-null"    class="nav-link">16. NULL kezelés</a>
+            <a href="#sec-str"     class="nav-link">17. Szövegfüggvények</a>
+            <a href="#sec-sorrend" class="nav-link">18. Végrehajtási sorrend</a>
+            <a href="#sec-mintak"  class="nav-link">19. Típusminták</a>
+            <a href="#sec-gyors"   class="nav-link">20. Gyors referencia</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 p-4 md:p-8 max-w-5xl mx-auto w-full">
+
+        <header class="text-center mb-10 mt-2">
+            <h1 class="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400 pb-2 mb-2">
+                SQL Puska
+            </h1>
+            <p class="text-gray-400 text-sm">Emelt Informatika Érettségi • MySQL • 20 témakör • általánosított minták</p>
+        </header>
+
+        <div class="space-y-10">
+
+        <!-- ===== 1. SELECT FELÉPÍTÉSE ===== -->
+        <section id="sec-felep" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-cyan-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-cyan-700">1</span> SELECT lekérdezés teljes felépítése
+            </h2>
+            <div class="keret mb-4">
+                <div class="fejlec bg-cyan-800/60">A SELECT záradékok kötelező sorrendje</div>
+                <pre><code class="language-sql">SELECT   mezo1, mezo2, AGG_FUGGVENY(mezo3) AS alias
+FROM     tabla1
+JOIN     tabla2 ON tabla1.id = tabla2.kulso_id   -- opcionális
+WHERE    feltétel                                  -- sorok szűrése (csoportosítás ELŐTT)
+GROUP BY mezo1, mezo2                              -- csoportosítás
+HAVING   AGG_FUGGVENY(mezo3) > 5                  -- csoportok szűrése (csoportosítás UTÁN)
+ORDER BY mezo1 ASC, mezo2 DESC                     -- rendezés
+LIMIT    10;                                       -- hány sort adjunk vissza</code></pre>
+            </div>
+            <div class="info">A sorrendet <strong>nem lehet felcserélni</strong> — mindig ez a sorrend: SELECT → FROM → JOIN → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT</div>
+
+            <div class="grid grid-cols-3 gap-3 mt-4">
+                <div class="bg-gray-800/80 p-3 rounded-xl border border-cyan-800/40 text-center">
+                    <p class="text-cyan-300 font-bold text-xs">WHERE</p>
+                    <p class="text-gray-400 text-xs mt-1">Sorok szűrése<br><strong>csoportosítás ELŐTT</strong></p>
+                </div>
+                <div class="bg-gray-800/80 p-3 rounded-xl border border-violet-800/40 text-center">
+                    <p class="text-violet-300 font-bold text-xs">GROUP BY</p>
+                    <p class="text-gray-400 text-xs mt-1">Csoportokat hoz létre<br>aggregáltfüggvényekhez</p>
+                </div>
+                <div class="bg-gray-800/80 p-3 rounded-xl border border-pink-800/40 text-center">
+                    <p class="text-pink-300 font-bold text-xs">HAVING</p>
+                    <p class="text-gray-400 text-xs mt-1">Csoportok szűrése<br><strong>csoportosítás UTÁN</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 2. WHERE ===== -->
+        <section id="sec-where" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-green-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-green-700">2</span> WHERE — sorok szűrése
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha feltétel alapján csak bizonyos sorokat szeretnénk látni.</div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-green-800/60">Összehasonlító operátorok</div>
+                    <pre><code class="language-sql">SELECT nev, ar FROM termek WHERE ar > 1000;
+SELECT nev FROM diak WHERE atlag >= 4.5;
+SELECT cim FROM film WHERE ev <> 2000;   -- nem egyenlő
+SELECT nev FROM ember WHERE kor BETWEEN 18 AND 65;
+-- BETWEEN mindkét határt beleérti!</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-green-800/60">Logikai operátorok (AND, OR, NOT)</div>
+                    <pre><code class="language-sql">-- AND: mindkét feltétel teljesül
+SELECT nev FROM termek WHERE ar > 100 AND ar < 500;
+
+-- OR: valamelyik teljesül
+SELECT nev FROM diak WHERE osztaly = 'A' OR osztaly = 'B';
+
+-- NOT: tagadás
+SELECT nev FROM emp WHERE NOT osztaly = 'HR';
+
+-- Zárójelezés fontos!
+WHERE (a = 1 OR b = 2) AND c = 3</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-green-800/60">IN — értéklista</div>
+                    <pre><code class="language-sql">-- IN: szerepel a felsorolt értékek között
+SELECT nev FROM varos WHERE orszag IN ('HU', 'AT', 'SK');
+
+-- NOT IN: egyik sem egyezik
+SELECT nev FROM diak WHERE osztaly NOT IN ('A', 'B');
+
+-- Egyenértékű:
+WHERE osztaly = 'A' OR osztaly = 'B'
+-- ezzel:
+WHERE osztaly IN ('A', 'B')</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-green-800/60">Összetett feltételek kombinálása</div>
+                    <pre><code class="language-sql">-- Több feltétel AND-del:
+SELECT cim FROM film
+WHERE ev > 2000
+  AND nyert > 0
+  AND jatekido < 120;
+
+-- Holtverseny esetén HAVING-gel is szűrünk:
+SELECT nev, COUNT(*) AS db
+FROM tabla
+GROUP BY nev
+HAVING COUNT(*) = (SELECT MAX(db) FROM (...) AS al);</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 3. SZÁMÍTOTT MEZŐ ===== -->
+        <section id="sec-szamit" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-yellow-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-yellow-600">3</span> Számított mező — AS alias
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha a SELECT-ben új értéket kell kiszámolni a meglévő mezőkből.</div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-yellow-800/60">Aritmetikai kifejezések</div>
+                    <pre><code class="language-sql">-- Összeg, különbség, szorzat:
+SELECT nev, (kesz + epul + terv) AS osszeg FROM munka;
+SELECT nev, ar * 1000 / tomeg AS fajlag FROM anyag;
+SELECT nev, (vegszam - kezdszam) AS terjedelem FROM adat;
+
+-- Százalék:
+SELECT nev, (teljesitett / osszes) * 100 AS szazalek FROM feladat;
+
+-- AS = az új oszlop neve (idézőjel ha szóköz van):
+SELECT ar * 1.27 AS "Bruttó ár" FROM termek;</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-yellow-800/60">ROUND, TRUNCATE, ABS</div>
+                    <pre><code class="language-sql">-- Kerekítés:
+SELECT ROUND(ar / 3, 2) AS harmad FROM termek;
+-- ROUND(szam, tizedesek)
+
+-- Csonkítás (lefelé kerekít):
+SELECT TRUNCATE(atlag, 1) FROM eredmeny;
+
+-- Abszolút érték:
+SELECT ABS(kulonbseg) AS elteres FROM mertek;
+
+-- IF feltétel SELECT-ben:
+SELECT nev,
+  IF(ar > 1000, 'drága', 'olcsó') AS kategoria
+FROM termek;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 4. ORDER BY ===== -->
+        <section id="sec-order" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-orange-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-orange-600">4</span> ORDER BY — rendezés
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha az eredményt sorba kell rendezni.</div>
+            <div class="keret mb-4">
+                <div class="fejlec bg-orange-800/60">Rendezési variációk</div>
+                <pre><code class="language-sql">-- Egyszerű, növekvő (alapértelmezett):
+SELECT nev, ar FROM termek ORDER BY ar;
+SELECT nev, ar FROM termek ORDER BY ar ASC;
+
+-- Csökkenő:
+SELECT nev, ar FROM termek ORDER BY ar DESC;
+
+-- Több szempont (elsősorban nev, azon belül ar szerint):
+SELECT nev, osztalyba, ar FROM tabla ORDER BY osztalyba, ar DESC;
+
+-- Rendezés sorszámmal (2. oszlop szerint):
+SELECT nev, COUNT(*) FROM tabla GROUP BY nev ORDER BY 2 DESC;
+
+-- Számított mező szerint:
+SELECT nev, ar * tomeg AS ertek FROM anyag ORDER BY ertek DESC;</code></pre>
+            </div>
+        </section>
+
+        <!-- ===== 5. DISTINCT ===== -->
+        <section id="sec-distinct" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-teal-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-teal-700">5</span> DISTINCT — duplikátumok eltávolítása
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha ismétlődő értékek lehetnek, és minden értéket csak egyszer szeretnél látni.</div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-teal-800/60">Alap DISTINCT</div>
+                    <pre><code class="language-sql">-- Hány különböző rendező van?
+SELECT DISTINCT rendezo FROM film;
+
+-- Szűréssel kombinálva:
+SELECT DISTINCT rendezo FROM film WHERE ev > 2000;
+
+-- Több mezőre: a kombináció legyen egyedi
+SELECT DISTINCT osztaly, varos FROM diak;</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-teal-800/60">DISTINCT vs GROUP BY</div>
+                    <pre><code class="language-sql">-- Egyedi értékek lekérése — mindkettő működik:
+SELECT DISTINCT nev FROM tabla;
+-- ekvivalens:
+SELECT nev FROM tabla GROUP BY nev;
+
+-- Ha COUNT-ot is kell → GROUP BY kell:
+SELECT nev, COUNT(*) FROM tabla GROUP BY nev;
+
+-- DISTINCT COUNT-ban (egyedi nem-NULL értékek):
+SELECT COUNT(DISTINCT varos) FROM diak;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 6. JOIN ===== -->
+        <section id="sec-join" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-violet-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-violet-700">6</span> JOIN — táblák összekapcsolása
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha az adatok több táblában vannak, és össze kell őket fűzni.</div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">Implicit JOIN (régi stílus — WHERE-es)</div>
+                    <pre><code class="language-sql">-- Két tábla:
+SELECT t1.mezo, t2.mezo
+FROM tabla1 t1, tabla2 t2
+WHERE t1.id = t2.kulso_id;
+
+-- Három tábla (kapcsolótáblával):
+SELECT f.cim, s.szinesz
+FROM film f, kapcsolat k, szinesz s
+WHERE f.id = k.film_id
+  AND s.id = k.szinesz_id;
+-- Mindkét idegen kulcsot be kell kötni!</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">Explicit JOIN (új stílus — JOIN ON)</div>
+                    <pre><code class="language-sql">-- Két tábla:
+SELECT t1.mezo, t2.mezo
+FROM tabla1 t1
+JOIN tabla2 t2 ON t1.id = t2.kulso_id;
+
+-- LEFT JOIN — bal tábla összes sora, jobb csak ha van:
+SELECT t1.mezo, t2.mezo
+FROM tabla1 t1
+LEFT JOIN tabla2 t2 ON t1.id = t2.kulso_id;
+-- Ha nincs egyezés, t2 mezői NULL-ok lesznek</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">Három+ tábla összekapcsolása</div>
+                    <pre><code class="language-sql">-- Implicit (leggyakoribb vizsgán):
+SELECT a.nev, b.cim, c.ar
+FROM tabla_a a, tabla_b b, tabla_c c
+WHERE a.id = b.a_id
+  AND b.id = c.b_id
+  AND a.varos = 'Budapest';
+
+-- Explicit:
+SELECT a.nev, c.ar
+FROM tabla_a a
+JOIN tabla_b b ON a.id = b.a_id
+JOIN tabla_c c ON b.id = c.b_id
+WHERE a.varos = 'Budapest';</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">Szöveges mezőn alapuló kapcsolat</div>
+                    <pre><code class="language-sql">-- Ha nem id-n, hanem szöveges mezőn kötünk össze
+-- (pl. rendező neve = színész neve):
+SELECT DISTINCT rendezo AS szinesz_rendezo
+FROM film, szinkron
+WHERE film.rendezo = szinkron.szinesz;
+
+-- Alias (AS) elhagyható FROM-ban:
+SELECT f.cim FROM film f, szinkron s
+WHERE f.filmaz = s.filmaz;</code></pre>
+                </div>
+            </div>
+            <div class="figyelj">⚠️ Ha n darab táblát kapcsolsz össze, <strong>legalább n-1 feltételt</strong> kell írni a WHERE-be (vagy ON-ba). Kapcsolótáblánál mindkét idegen kulcsot be kell kötni!</div>
+        </section>
+
+        <!-- ===== 7. GROUP BY ===== -->
+        <section id="sec-group" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-emerald-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-emerald-700">7</span> GROUP BY + Aggregált függvények
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha csoportonként kell megszámolni, összegezni, max/min értéket keresni.</div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-emerald-800/60">Aggregált függvények</div>
+                    <pre><code class="language-sql">COUNT(*)         -- sorok száma (NULL-t is számolja)
+COUNT(mezo)      -- nem NULL értékek száma
+COUNT(DISTINCT mezo) -- egyedi nem-NULL értékek
+SUM(mezo)        -- összeg
+AVG(mezo)        -- átlag
+MAX(mezo)        -- legnagyobb érték
+MIN(mezo)        -- legkisebb érték
+MAX(ev)-MIN(ev)  -- terjedelem</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-emerald-800/60">GROUP BY minta</div>
+                    <pre><code class="language-sql">-- Előadónként hány dalt adott ki?
+SELECT eloado, COUNT(*) AS dalszam
+FROM zenek
+GROUP BY eloado;
+
+-- Tanulónként összesített jegy:
+SELECT nev, AVG(jegy) AS atlag, COUNT(*) AS db
+FROM jegyek
+GROUP BY nev
+ORDER BY atlag DESC;</code></pre>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-emerald-900/40">
+                            <th class="border border-gray-700 px-3 py-2 text-left text-emerald-300">Feladat szövege</th>
+                            <th class="border border-gray-700 px-3 py-2 text-left text-emerald-300">Aggregált függvény</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">hány ... van / darabszám</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">COUNT(*)</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">összesen / összege</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">SUM(mezo)</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">átlagos / átlaga</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">AVG(mezo)</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">legtöbb / legnagyobb / legmagasabb</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">MAX(mezo)</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">legkevesebb / legkisebb / legalacsonyabb</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">MIN(mezo)</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">hány különböző</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-emerald-300">COUNT(DISTINCT mezo)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="figyelj mt-4">⚠️ A SELECT-ben csak olyan mező szerepelhet, ami GROUP BY-ban van, VAGY aggregált függvénybe van csomagolva! Minden más mező → hibás lekérdezés.</div>
+        </section>
+
+        <!-- ===== 8. HAVING ===== -->
+        <section id="sec-having" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-pink-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-pink-700">8</span> HAVING — csoportszűrés
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha csoportosítás UTÁN kell szűrni — pl. "amelyik csoportban több mint 2 rekord van".</div>
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-green-700/50 text-center">
+                    <p class="text-green-300 font-bold text-sm">WHERE</p>
+                    <p class="text-gray-400 text-xs mt-1">Sorok szűrése csoportosítás <strong>ELŐTT</strong><br>Nem használhat aggregált függvényt!</p>
+                </div>
+                <div class="bg-gray-800/80 p-4 rounded-xl border border-pink-700/50 text-center">
+                    <p class="text-pink-300 font-bold text-sm">HAVING</p>
+                    <p class="text-gray-400 text-xs mt-1">Csoportok szűrése csoportosítás <strong>UTÁN</strong><br>Használhat COUNT, SUM, MAX stb.-t!</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-pink-800/60">HAVING alap minták</div>
+                    <pre><code class="language-sql">-- Legalább 10 filmmel rendelkező évek:
+SELECT ev, COUNT(*) AS db
+FROM film
+GROUP BY ev
+HAVING COUNT(*) >= 10;
+
+-- Legalább 2 filmet rendező rendezők:
+SELECT rendezo, COUNT(*) AS db
+FROM film
+GROUP BY rendezo
+HAVING COUNT(*) > 1
+ORDER BY db DESC;</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-pink-800/60">WHERE + HAVING kombinálása</div>
+                    <pre><code class="language-sql">-- WHERE szűr a csoportosítás előtt,
+-- HAVING szűr utána:
+SELECT eloado, COUNT(*) AS db
+FROM zenek
+WHERE ev > 2000               -- csak 2000 utáni zenék
+GROUP BY eloado
+HAVING COUNT(*) >= 5          -- amelyiktől legalább 5 van
+ORDER BY db DESC;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 9. LIMIT ===== -->
+        <section id="sec-limit" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-amber-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-amber-600">9</span> LIMIT — legjobb N elem
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha csak a legtöbbet / legnagyobb / legdrágábbat kell visszaadni.</div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-amber-800/60">LIMIT variációk</div>
+                    <pre><code class="language-sql">-- Legtöbb résztvevőjű esemény:
+SELECT nev, COUNT(*) AS db
+FROM esemeny, resztvevo
+WHERE esemeny.id = resztvevo.esemeny_id
+GROUP BY nev
+ORDER BY db DESC
+LIMIT 1;    -- csak az első (legtöbb)
+
+-- LIMIT kihagyás, darab:
+LIMIT 0, 5   -- első 5 sor
+LIMIT 5, 5   -- 6-10. sor (kihagyja az első 5-öt)
+LIMIT 1, 1   -- 2. sor (kihagyja az elsőt)
+-- LIMIT kihagyás, darab</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-amber-800/60">⚠️ Holtverseny — LIMIT nem elég!</div>
+                    <pre><code class="language-sql">-- Ha LIMIT 1-et használsz, holtverseny esetén
+-- csak egyet ad vissza! Megoldás: skaláris allekérdezés
+
+-- Mindazok, akiknek a legtöbb pontjuk van:
+SELECT nev, SUM(pont) AS ossz
+FROM pontok
+GROUP BY nev
+HAVING SUM(pont) = (
+    SELECT MAX(osszeg) FROM (
+        SELECT SUM(pont) AS osszeg
+        FROM pontok
+        GROUP BY nev
+    ) AS al
+);</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 10. IN / NOT IN ===== -->
+        <section id="sec-in" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-indigo-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-indigo-700">10</span> IN / NOT IN — halmazos szűrés
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha egy halmaz alapján kell szűrni — "amelynek id-ja szerepel egy másik lekérdezés eredményében".</div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                <div class="keret">
+                    <div class="fejlec bg-indigo-800/60">IN — benne van</div>
+                    <pre><code class="language-sql">-- Azok az elemek, amelyek teljesítenek egy másik feltételt
+-- (pl. valamit tartalmaznak / kapcsolatban vannak valamivel):
+SELECT nev FROM termek
+WHERE id IN (
+    SELECT termek_id FROM kapcsolat, tulajdonsag
+    WHERE tulajdonsag.id = kapcsolat.tulaj_id
+      AND tulajdonsag.nev = 'keresett_ertek'
+);</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-indigo-800/60">NOT IN — nincs benne</div>
+                    <pre><code class="language-sql">-- Azok, amelyek NEM rendelkeznek valamivel:
+SELECT nev FROM termek
+WHERE id NOT IN (
+    SELECT termek_id FROM kapcsolat, tulajdonsag
+    WHERE tulajdonsag.id = kapcsolat.tulaj_id
+      AND tulajdonsag.nev = 'kizarandó_ertek'
+);</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-indigo-800/60">IN + IN — mindkét feltétel teljesül</div>
+                    <pre><code class="language-sql">-- Azok, amelyek EGYSZERRE rendelkeznek A-val ÉS B-vel:
+SELECT nev FROM termek
+WHERE id IN (
+    SELECT termek_id FROM kapcsolat
+    WHERE tulaj_id = (SELECT id FROM tulaj WHERE nev = 'A')
+)
+AND id IN (
+    SELECT termek_id FROM kapcsolat
+    WHERE tulaj_id = (SELECT id FROM tulaj WHERE nev = 'B')
+);</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-indigo-800/60">IN + IN alternatíva HAVING-gel</div>
+                    <pre><code class="language-sql">-- Ugyanaz HAVING COUNT-tal (elegánsabb):
+SELECT termek.nev
+FROM termek, kapcsolat, tulaj
+WHERE termek.id = kapcsolat.termek_id
+  AND tulaj.id = kapcsolat.tulaj_id
+  AND tulaj.nev IN ('A', 'B')         -- keresett értékek
+GROUP BY termek.nev
+HAVING COUNT(tulaj.id) = 2;           -- mindkettő megvan</code></pre>
+                </div>
+            </div>
+            <div class="figyelj">⚠️ Miért nem elég <code class="font-mono text-xs bg-gray-700 px-1 rounded">WHERE tulaj.nev != 'X'</code>? Mert ha egy terméknek van X és nem-X tulajdonsága is, a nem-X sor miatt a termék megjelenik. A <strong>NOT IN</strong> az egész terméket kizárja, ha bármelyik tulajdonsága X.</div>
+        </section>
+
+        <!-- ===== 11. SKALÁRIS ALLEKÉRDEZÉS ===== -->
+        <section id="sec-skalar" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-rose-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-rose-700">11</span> Skaláris allekérdezés WHERE/HAVING-ben
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha egyetlen értékkel kell összehasonlítani, amit egy másik lekérdezés ad vissza (pl. "akkora mint a maximum").</div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-rose-800/60">Maximum értéket elérők (holtverseny kezelve)</div>
+                    <pre><code class="language-sql">-- Mindazok, akiknek a legtöbb valami van:
+SELECT nev, COUNT(*) AS db
+FROM tabla1, tabla2
+WHERE tabla1.id = tabla2.kulso_id
+GROUP BY nev
+HAVING COUNT(*) = (
+    SELECT MAX(darab) FROM (
+        SELECT COUNT(*) AS darab
+        FROM tabla1, tabla2
+        WHERE tabla1.id = tabla2.kulso_id
+        GROUP BY tabla1.nev
+    ) AS al    -- a FROM allekérdezésnek kötelező alias!
+);</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-rose-800/60">Egyszerűbb skaláris allekérdezés</div>
+                    <pre><code class="language-sql">-- Azok, akiknek az átlaguk feletti a pontjuk:
+SELECT nev, pont
+FROM diak
+WHERE pont > (SELECT AVG(pont) FROM diak);
+
+-- Azok, akiknek a max pontjuk van:
+SELECT nev FROM diak
+WHERE pont = (SELECT MAX(pont) FROM diak);
+
+-- Legdrágábbhoz képest 80%-nál drágábbak:
+SELECT nev, ar FROM termek
+WHERE ar > (SELECT MAX(ar) FROM termek) * 0.8;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 12. FROM ALLEKÉRDEZÉS ===== -->
+        <section id="sec-from" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-blue-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-blue-700">12</span> FROM allekérdezés — virtuális tábla
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha egy összetett eredményt tovább kell szűrni/feldolgozni, de egyetlen lekérdezésben nem megoldható.</div>
+            <div class="keret mb-4">
+                <div class="fejlec bg-blue-800/60">Virtuális tábla FROM-ban</div>
+                <pre><code class="language-sql">-- Összesítés után tovább szűrünk:
+SELECT *
+FROM (
+    SELECT nev, SUM(ar) AS osszeg
+    FROM rendeles
+    GROUP BY nev
+) AS osszesites             -- kötelező alias!
+WHERE osszeg > 100000;
+
+-- Több virtuális tábla összekötve:
+SELECT ind.vonalid, ind.nev AS kezdo, veg.nev AS vegallomas
+FROM (
+    SELECT nev, vonalid FROM allomas, hely
+    WHERE allomas.id = allomasid AND tav = 0
+) AS ind,
+(
+    SELECT nev, vonalid, tav FROM allomas, hely
+    WHERE allomas.id = allomasid
+) AS veg,
+(
+    SELECT vonalid, MAX(tav) AS maxtav FROM hely GROUP BY vonalid
+) AS tulso
+WHERE ind.vonalid = veg.vonalid
+  AND veg.vonalid = tulso.vonalid
+  AND veg.tav = tulso.maxtav;</code></pre>
+            </div>
+            <div class="info">💡 A FROM-ban lévő allekérdezésnek <strong>mindig kell alias</strong> (<code class="font-mono text-xs bg-gray-700 px-1 rounded">AS nev</code>). Nélküle szintaxis hiba!</div>
+        </section>
+
+        <!-- ===== 13. ÖNILLESZTÉS ===== -->
+        <section id="sec-onill" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-purple-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-purple-700">13</span> Önillesztés — ugyanaz a tábla kétszer
+            </h2>
+            <div class="mikor"><strong>Mikor?</strong> Ha ugyanabban a táblában kell két különböző sort összehasonlítani (pl. "aki X-szel együtt szerepelt").</div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-purple-800/60">Önillesztés minta</div>
+                    <pre><code class="language-sql">-- Akik 'XY'-jal együtt szerepeltek ugyanabban a filmben:
+SELECT s1.szinesz, film.cim
+FROM film, szinkron s1, szinkron s2
+           -- ^^^^^^^^^^^^^^^^^^^^^ kétszer ugyanaz a tábla!
+WHERE film.id = s1.film_id
+  AND s1.film_id = s2.film_id  -- ugyanaz a film
+  AND s2.szinesz = 'XY'        -- az egyik személy
+  AND s1.szinesz <> 'XY'       -- de ne maga legyen
+ORDER BY film.cim, s1.szinesz;</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-purple-800/60">Mikor kell önillesztés?</div>
+                    <pre><code class="language-sql">-- Hierarchikus kapcsolat ugyanabban a táblában:
+-- pl. ki a vezető (vezeto_id saját id-ra mutat)
+SELECT dolgozo.nev, fonok.nev AS vezeto
+FROM alkalmazott dolgozo, alkalmazott fonok
+WHERE dolgozo.vezeto_id = fonok.id;
+
+-- Hasonló ár/érték összehasonlítás:
+SELECT t1.nev, t2.nev
+FROM termek t1, termek t2
+WHERE t1.ar = t2.ar
+  AND t1.id < t2.id;  -- mindkét sorrend elkerülése</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 14. LIKE / LENGTH ===== -->
+        <section id="sec-like" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-lime-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-lime-700">14</span> LIKE — mintaillesztés, LENGTH
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-lime-800/60">LIKE minták (MySQL: % és _)</div>
+                    <pre><code class="language-sql">LIKE '%alma%'    -- tartalmazza az "alma" szót
+LIKE 'B%'        -- B-vel kezdődik
+LIKE '%s'        -- s-re végződik
+LIKE 'B%s'       -- B-vel kezdődik, s-re végződik
+LIKE '___'       -- pontosan 3 karakteres (_ = 1 karakter)
+LIKE 'A__%'      -- A-val kezdődik, legalább 3 hosszú
+
+-- Nem tartalmazza (NOT LIKE):
+WHERE nev NOT LIKE '%törölt%'
+
+-- MySQL: wildcard = %  (NOT Access = *)</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-lime-800/60">LENGTH() — karakterszám</div>
+                    <pre><code class="language-sql">-- Pontosan 3 karakteres kód:
+SELECT nev FROM termek WHERE LENGTH(kod) = 3;
+
+-- Legalább 10 karakteres neve:
+SELECT nev FROM allomas WHERE LENGTH(nev) >= 10;
+
+-- LENGTH + LIKE kombinálva:
+SELECT ut FROM europa
+WHERE LENGTH(eurout) = 3 AND eurout LIKE 'E%5';
+
+-- CHAR_LENGTH vs LENGTH:
+-- LENGTH = bájtok száma (UTF8: ékezetes = 2 bájt!)
+-- CHAR_LENGTH = karakterek száma (ékezetesnél helyes!)</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 15. DÁTUMFÜGGVÉNYEK ===== -->
+        <section id="sec-datum" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-orange-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-orange-600">15</span> Dátumfüggvények
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-orange-800/60">Dátumból rész kinyerése</div>
+                    <pre><code class="language-sql">YEAR(datum)        -- évszám → pl. 2023
+MONTH(datum)       -- hónap → 1-12
+DAY(datum)         -- nap → 1-31
+HOUR(idopont)      -- óra
+MINUTE(idopont)    -- perc
+
+-- Használat:
+SELECT cim FROM film WHERE YEAR(bemutato) >= 2000;
+SELECT cim FROM film
+WHERE YEAR(bemutato) BETWEEN 1939 AND 1945;
+
+-- Számítás dátumokkal:
+SELECT cim FROM film
+WHERE YEAR(bemutato) - gyartas_ev > 10;</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-orange-800/60">Dátum egyéb függvények</div>
+                    <pre><code class="language-sql">DATEDIFF(d1, d2)  -- napok száma d1 és d2 között
+CURDATE()         -- mai dátum
+NOW()             -- aktuális dátum+idő
+
+-- Életkor kiszámolása:
+SELECT nev, YEAR(CURDATE()) - YEAR(szuldatum) AS kor
+FROM szemely;
+
+-- Legutóbbi X napon belüli rekordok:
+SELECT * FROM rendeles
+WHERE datum >= DATE_SUB(CURDATE(), INTERVAL 30 DAY);</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 16. NULL KEZELÉS ===== -->
+        <section id="sec-null" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-red-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-red-700">16</span> NULL kezelés
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-red-800/60">IS NULL / IS NOT NULL</div>
+                    <pre><code class="language-sql">-- Hiányzó értékre szűrés:
+SELECT nev, varos FROM szemely WHERE varos IS NULL;
+
+-- Meg van adva az érték:
+SELECT nev FROM allomas WHERE orszag IS NOT NULL;
+
+-- SOHA ne használj = NULL-t!
+WHERE mezo = NULL     -- MINDIG HAMIS! (nem működik)
+WHERE mezo IS NULL    -- HELYES</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-red-800/60">IFNULL — NULL helyettesítése</div>
+                    <pre><code class="language-sql">-- Ha NULL, akkor 0-t jelenít meg:
+SELECT nev, IFNULL(ar, 0) AS ar FROM termek;
+
+-- Ha NULL, szöveget ad vissza:
+SELECT nev, IFNULL(varos, 'ismeretlen') AS varos
+FROM szemely;
+
+-- COALESCE: az első nem-NULL értéket adja vissza:
+SELECT COALESCE(email, telefon, 'nincs elérhetőség')
+FROM kontakt;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 17. SZÖVEGFÜGGVÉNYEK ===== -->
+        <section id="sec-str" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-teal-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-teal-700">17</span> Szövegfüggvények
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-teal-800/60">Alap szövegfüggvények</div>
+                    <pre><code class="language-sql">UPPER(mezo)           -- nagybetűre konvertál
+LOWER(mezo)           -- kisbetűre konvertál
+TRIM(mezo)            -- szóközök levágása
+LTRIM / RTRIM         -- bal/jobb oldali szóköz
+LENGTH(mezo)          -- karakterszám (bájtban!)
+CHAR_LENGTH(mezo)     -- karakterszám (ékezetesnél jobb)
+CONCAT(a, ' ', b)     -- összefűzés
+SUBSTRING(mezo, 1, 3) -- részstring (start, hossz)
+REPLACE(mezo,'a','b') -- csere
+INSTR(mezo, 'keres')  -- pozíció (0 ha nincs)</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-teal-800/60">Szövegre példák</div>
+                    <pre><code class="language-sql">-- Teljes névből csak a vezetéknév (szóközig):
+SELECT SUBSTRING(nev, 1, INSTR(nev, ' ')-1) AS vezeteknev
+FROM szemely;
+
+-- Nagy kezdőbetű ellenőrzés:
+SELECT nev FROM varos
+WHERE SUBSTRING(nev, 1, 1) = UPPER(SUBSTRING(nev, 1, 1));
+
+-- Összefűzés:
+SELECT CONCAT(vezeteknev, ' ', keresztnev) AS teljes_nev
+FROM szemely;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 18. VÉGREHAJTÁSI SORREND ===== -->
+        <section id="sec-sorrend" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-sky-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-sky-700">18</span> Végrehajtási sorrend — hogyan dolgozza fel az SQL
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="keret">
+                    <div class="fejlec bg-sky-800/60">A feldolgozás sorrendje (belső logika)</div>
+                    <pre><code class="language-sql">-- Az SQL NEM a leírás sorrendjében dolgozza fel!
+-- Feldolgozási sorrend:
+-- 1. FROM  (táblák kiválasztása)
+-- 2. JOIN  (összekapcsolás)
+-- 3. WHERE (sorok szűrése)
+-- 4. GROUP BY (csoportosítás)
+-- 5. HAVING (csoportok szűrése)
+-- 6. SELECT (mezők kiválasztása, alias névadás)
+-- 7. DISTINCT (duplikátumok eltávolítása)
+-- 8. ORDER BY (rendezés)
+-- 9. LIMIT (sorok korlátozása)</code></pre>
+                </div>
+                <div class="keret">
+                    <div class="fejlec bg-sky-800/60">Ebből következő szabályok</div>
+                    <pre><code class="language-sql">-- ❌ WHERE-ben NEM lehet aggregált függvény:
+WHERE COUNT(*) > 5      -- HIBA!
+-- ✓ HAVING-ben kell:
+HAVING COUNT(*) > 5     -- HELYES
+
+-- ❌ WHERE-ben NEM lehet SELECT-ben definiált alias:
+SELECT ar * 2 AS dupla
+WHERE dupla > 100        -- HIBA! (még nem létezik)
+-- ✓ Eredeti kifejezéssel:
+WHERE ar * 2 > 100       -- HELYES
+
+-- ✓ ORDER BY-ban viszont LEHET alias:
+SELECT ar * 2 AS dupla ...
+ORDER BY dupla DESC      -- HELYES</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 19. TÍPUSMINTÁK ===== -->
+        <section id="sec-mintak" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-violet-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-violet-700">19</span> Tipikus feladatminták — kész sablonok
+            </h2>
+
+            <div class="space-y-4">
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">🏆 Legtöbb X-szel rendelkező elem (holtverseny kezelve)</div>
+                    <pre><code class="language-sql">-- "Melyik terméknek van a legtöbb összetevője?"
+SELECT tabla1.nev, COUNT(*) AS db
+FROM tabla1, kapcsolat, tabla2
+WHERE tabla1.id = kapcsolat.id1 AND tabla2.id = kapcsolat.id2
+GROUP BY tabla1.nev
+HAVING COUNT(*) = (
+    SELECT MAX(darab) FROM (
+        SELECT COUNT(*) AS darab
+        FROM tabla1, kapcsolat, tabla2
+        WHERE tabla1.id = kapcsolat.id1 AND tabla2.id = kapcsolat.id2
+        GROUP BY tabla1.id
+    ) AS al
+);</code></pre>
+                </div>
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">🔍 Olyan elemek, amelyek EGYSZERRE rendelkeznek A-val és B-vel</div>
+                    <pre><code class="language-sql">-- "Paradicsomos ÉS chilis keverékek" — HAVING COUNT = 2
+SELECT tabla1.nev
+FROM tabla1, kapcsolat, tabla2
+WHERE tabla1.id = kapcsolat.id1 AND tabla2.id = kapcsolat.id2
+  AND tabla2.nev IN ('A', 'B')
+GROUP BY tabla1.nev
+HAVING COUNT(tabla2.id) = 2;
+
+-- Alternatíva IN + IN-nel:
+SELECT nev FROM tabla1
+WHERE id IN (SELECT id1 FROM kapcsolat, tabla2
+             WHERE tabla2.id = kapcsolat.id2 AND tabla2.nev = 'A')
+AND   id IN (SELECT id1 FROM kapcsolat, tabla2
+             WHERE tabla2.id = kapcsolat.id2 AND tabla2.nev = 'B');</code></pre>
+                </div>
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">🚫 Olyan elemek, amelyek NEM tartalmaznak valamit</div>
+                    <pre><code class="language-sql">-- "Amelyek NEM tartalmaznak borsot"
+SELECT nev FROM tabla1
+WHERE id NOT IN (
+    SELECT id1 FROM kapcsolat, tabla2
+    WHERE tabla2.id = kapcsolat.id2
+      AND tabla2.nev LIKE '%bors%'
+);</code></pre>
+                </div>
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">📊 Csoportonkénti statisztika szűréssel</div>
+                    <pre><code class="language-sql">-- "Melyik kategóriában volt legalább 5 eladás, átlagban 10.000 Ft felett?"
+SELECT kategoria, COUNT(*) AS db, AVG(ar) AS atlag
+FROM termek
+JOIN eladas ON termek.id = eladas.termek_id
+WHERE eladas.datum >= '2023-01-01'       -- csak 2023-as eladások
+GROUP BY kategoria
+HAVING COUNT(*) >= 5                     -- legalább 5 eladás
+   AND AVG(ar) > 10000                   -- átlag feletti
+ORDER BY atlag DESC;</code></pre>
+                </div>
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">👥 Önillesztés — "akik együtt szerepeltek"</div>
+                    <pre><code class="language-sql">-- "Akik XY-jal EGYÜTT szerepeltek (de nem XY maga)"
+SELECT s1.szemely, esemeny.nev
+FROM esemeny, szereples s1, szereples s2
+WHERE esemeny.id = s1.esemeny_id
+  AND s1.esemeny_id = s2.esemeny_id
+  AND s2.szemely = 'XY'
+  AND s1.szemely <> 'XY'
+ORDER BY esemeny.nev, s1.szemely;</code></pre>
+                </div>
+
+                <div class="keret">
+                    <div class="fejlec bg-violet-800/60">📈 Rangsorolás — top N, 2. helyezett</div>
+                    <pre><code class="language-sql">-- Legtöbb eladással rendelkező termék (1. hely):
+SELECT nev, COUNT(*) AS db
+FROM termek, eladas WHERE termek.id = eladas.termek_id
+GROUP BY nev ORDER BY db DESC LIMIT 1;
+
+-- 2. legtöbbet eladott (1 kihagyás):
+SELECT nev, COUNT(*) AS db
+FROM termek, eladas WHERE termek.id = eladas.termek_id
+GROUP BY nev ORDER BY db DESC LIMIT 1, 1;
+--                                   ^ kihagyás, ^ db</code></pre>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ===== 20. GYORS REFERENCIA ===== -->
+        <section id="sec-gyors" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-emerald-500">
+            <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                <span class="badge bg-emerald-700">20</span> Gyors referencia — mikor mit használj
+            </h2>
+            <div class="overflow-x-auto mb-6">
+                <table class="w-full text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-emerald-900/40">
+                            <th class="border border-gray-700 px-3 py-2 text-left text-emerald-300">A feladatban ez áll...</th>
+                            <th class="border border-gray-700 px-3 py-2 text-left text-emerald-300">Megoldás</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Szűrsd, ahol ... / listázd azokat, akik...</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">WHERE feltétel</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Számítsd ki / adj hozzá mezőt</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">SELECT mezo1 * mezo2 AS alias</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Csak egyedi értékek / hány különböző</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">SELECT DISTINCT</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Csoportonként hány / összeg / átlag</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">GROUP BY + COUNT/SUM/AVG/MAX/MIN</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Amelyikben több mint X van</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">HAVING COUNT(*) > X</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">A legtöbb / legjobb 1 elem</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">ORDER BY ... DESC LIMIT 1</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">A legtöbb (holtversennyel mind)</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">HAVING COUNT = (SELECT MAX FROM (SELECT COUNT...) AS al)</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Szerepel-e egy másik lista alapján</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">WHERE id IN (SELECT ...)</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">NEM szerepel egy másik lista alapján</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">WHERE id NOT IN (SELECT ...)</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Egyszerre A-val ÉS B-vel rendelkezik</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">WHERE id IN (...A...) AND id IN (...B...) vagy HAVING COUNT = 2</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Ugyanaz a tábla kétszer (önillesztés)</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">FROM tabla t1, tabla t2</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Összetett eredmény tovább szűrve</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">FROM (SELECT ...) AS alias</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Szöveg tartalmaz / kezdődik / végződik</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">LIKE '%szo%' / 'szo%' / '%szo'</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Dátumból évet kell kinyerni</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">YEAR(datum_mezo)</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Hiányzó (ismeretlen) értékre szűrés</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">IS NULL / IS NOT NULL</td></tr>
+                        <tr class="hover:bg-gray-800/40"><td class="border border-gray-700 px-3 py-2 text-gray-300">Szöveg karakterszáma</td><td class="border border-gray-700 px-3 py-2 font-mono text-xs text-cyan-300">CHAR_LENGTH(mezo) = N</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="bg-red-900/30 border border-red-700/50 rounded-xl p-4">
+                    <p class="text-red-300 font-bold text-sm mb-2">❌ Leggyakoribb hibák</p>
+                    <ul class="text-xs text-gray-400 space-y-1">
+                        <li>• <code class="text-red-300">= NULL</code> soha nem használható → <code class="text-red-300">IS NULL</code></li>
+                        <li>• WHERE-ben <strong>nem lehet</strong> COUNT, SUM stb. → HAVING kell</li>
+                        <li>• GROUP BY-ban fel kell sorolni minden nem-aggregált mezőt</li>
+                        <li>• FROM allekérdezésnek <strong>kötelező</strong> alias → <code class="text-red-300">AS nev</code></li>
+                        <li>• LIMIT 1 holtverseny esetén csak egyet ad vissza!</li>
+                        <li>• n tábla JOIN = legalább n-1 kapcsolati feltétel kell</li>
+                    </ul>
+                </div>
+                <div class="bg-green-900/30 border border-green-700/50 rounded-xl p-4">
+                    <p class="text-green-300 font-bold text-sm mb-2">✅ Bevált trükkök</p>
+                    <ul class="text-xs text-gray-400 space-y-1">
+                        <li>• ORDER BY 2 DESC = a 2. oszlop szerint csökkenő sorrendben</li>
+                        <li>• HAVING-ben az alias ELFOGADHATó</li>
+                        <li>• COUNT(*) vs COUNT(mezo): * mindent számol, mezo kihagyja a NULL-t</li>
+                        <li>• Azonos nevű mezőknél kötelező <code class="text-green-300">tabla.mezo</code> prefix</li>
+                        <li>• Alias (rövidit): <code class="text-green-300">FROM tabla AS t</code> vagy <code class="text-green-300">FROM tabla t</code></li>
+                        <li>• MySQL-ben LIKE-ban % a wildcard (Access: *)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        </div><!-- end space-y-10 -->
+
+        <footer class="text-center text-gray-600 text-xs py-10 mt-10 border-t border-gray-800">
+            SQL Emelt Informatika Puska • MySQL • SELECT · WHERE · JOIN · GROUP BY · HAVING · IN · allekérdezés · önillesztés
+        </footer>
+    </main>
+
+    <!-- Vissza a főoldalra gomb -->
+    <a href="index.html" id="back-to-home-btn" title="Vissza a főoldalra">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    </a>
+
+    <!-- AI Chatbot Button -->
+    <div id="ai-chat-btn" onclick="toggleChat()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    </div>
+
+    <!-- AI Chatbot HTML (Jobb oldali sáv) -->
+    <aside id="ai-chat-window" class="hidden flex-col w-80 shrink-0 glass border-l border-gray-800 sticky top-0 h-screen z-10">
+        <div id="ai-chat-header">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
+                AI Asszisztens
+            </div>
+            <button onclick="toggleChat()" class="text-gray-400 hover:text-white">&times;</button>
+        </div>
+        <div id="ai-chat-messages">
+            <div class="ai-msg">Szia! Én az intelligens jegyzet-asszisztensed vagyok. Keress bármire a puskában, vagy kérdezz bátran, ha elakadtál egy feladatban, és segítek kikeresni a megoldást!</div>
+        </div>
+        <div id="ai-chat-input-container">
+            <input type="text" id="ai-chat-input" placeholder="Kérdezz bármit..." onkeypress="handleEnter(event)">
+            <button id="ai-chat-send" onclick="sendMessage()">Küldés</button>
+        </div>
+    </aside>
+
+</div>
+
+<!-- AI Chatbot Script -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    // === IDE ÍRD A SAJÁT GEMINI API KULCSODAT ===
+    // A kulcs a szerveren van (Netlify env változóban) - itt nem kell! 
+    
+    let isChatOpen = false;
+    const chatWindow = document.getElementById('ai-chat-window');
+    const messagesDiv = document.getElementById('ai-chat-messages');
+    const inputField = document.getElementById('ai-chat-input');
+    
+    // System prompt, hogy az AI tudja mi a feladata
+    let conversationHistory = [
+        {
+            role: "user",
+            parts: [{ text: "Te egy segítőkész programozó AI asszisztens vagy. A felhasználó egy emelt szintű informatikai érettségi vizsgára készül SQL (MySQL) feladatokból. Segíts neki röviden, pontos kódokkal és magyarul." }]
+        },
+        {
+            role: "model",
+            parts: [{ text: "Értettem! Készen állok, hogy segítsek az SQL vizsgafeladatokban. Miben lehetek a segítségedre?" }]
+        }
+    ];
+
+    function toggleChat() {
+        isChatOpen = !isChatOpen;
+        const chatBtn = document.getElementById('ai-chat-btn');
+        if(isChatOpen) {
+            chatWindow.classList.remove('hidden');
+            chatWindow.classList.add('flex');
+            if (chatBtn) chatBtn.style.display = 'none';
+            inputField.focus();
+        } else {
+            chatWindow.classList.add('hidden');
+            chatWindow.classList.remove('flex');
+            if (chatBtn) chatBtn.style.display = 'flex';
+        }
+    }
+
+    function handleEnter(e) {
+        if(e.key === 'Enter') sendMessage();
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[tag]));
+    }
+
+    function formatMessage(text) {
+        if (typeof marked !== 'undefined') {
+            return marked.parse(text);
+        }
+        let formatted = escapeHTML(text).replace(/\n/g, '<br>');
+        formatted = formatted.replace(/`([^`]+)`/g, '<code class="bg-gray-800 text-yellow-300 px-1 rounded">$1</code>');
+        return formatted;
+    }
+
+    function addMessage(text, isUser) {
+        const div = document.createElement('div');
+        div.className = isUser ? 'user-msg' : 'ai-msg';
+        div.innerHTML = formatMessage(text);
+        messagesDiv.appendChild(div);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function showTyping() {
+        const div = document.createElement('div');
+        div.className = 'ai-msg typing-msg';
+        div.innerHTML = '<span class="typing-indicator"></span><span class="typing-indicator"></span><span class="typing-indicator"></span>';
+        messagesDiv.appendChild(div);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        return div;
+    }
+
+    async function sendMessage() {
+        const text = inputField.value.trim();
+        if(!text) return;
+        
+        if(GEMINI_API_KEY === "PROXY_USED_NO_KEY_NEEDED" || GEMINI_API_KEY.trim() === "") {
+            addMessage(text, true);
+            inputField.value = '';
+            const hibaUzenet = "Kérlek, nyisd meg a HTML fájlt egy szerkesztőben (pl. VS Code), és írd be a saját Gemini API kulcsodat a kód legalján található `GEMINI_API_KEY` változóba!\n\nIngyenes kulcsot itt kérhetsz:\nhttps://aistudio.google.com/app/apikey";
+            addMessage(hibaUzenet, false);
+            return;
+        }
+
+        addMessage(text, true);
+        inputField.value = '';
+        inputField.disabled = true;
+        
+        conversationHistory.push({ role: "user", parts: [{ text }] });
+        
+        const typingIndicator = showTyping();
+
+        try {
+            const response = await fetch(`/.netlify/functions/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: conversationHistory
+                })
+            });
+
+            const data = await response.json();
+            typingIndicator.remove();
+
+            if(data.error) {
+                addMessage("Hiba történt: " + data.error.message, false);
+                conversationHistory.pop(); // Revert
+            } else if(data.candidates && data.candidates[0].content) {
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                addMessage(aiResponse, false);
+                conversationHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+            }
+        } catch (err) {
+            typingIndicator.remove();
+            addMessage("Hálózati hiba történt az API hívás során.", false);
+            conversationHistory.pop();
+        }
+        
+        inputField.disabled = false;
+        inputField.focus();
+    }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html>
