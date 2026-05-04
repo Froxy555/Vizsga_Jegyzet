@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hu" class="dark scroll-smooth">
 
 <head>
@@ -1198,7 +1198,7 @@ Telek::create($request->validate([...]));</code></pre>
             <!-- ===== 15. KÖNYVTÁR PROJEKT PÉLDA ===== -->
             <section id="sec-konyvtar" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-fuchsia-500 mt-10">
                 <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
-                    <span class="badge bg-fuchsia-700">15</span> Teljes vizsgafeladat lépésről lépésre (Könyvtár)
+                    <span class="badge bg-fuchsia-700">15</span> Teljes vizsgafeladat megoldás (Könyvtár)
                 </h2>
 
                 <div class="space-y-6">
@@ -1206,52 +1206,67 @@ Telek::create($request->validate([...]));</code></pre>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
                             <h3 class="text-fuchsia-300 font-bold mb-2">1. Projekt és Modell létrehozása</h3>
-                            <p class="text-gray-400 text-sm mb-2">Modell, migráció, factory, seeder és controller
-                                generálása (egyszerre mind):</p>
-                            <pre><code class="language-bash">php artisan make:model Konyv -mfsc</code></pre>
+                            <pre><code class="language-bash">composer create-project laravel/laravel konyvtar
+cd konyvtar
+php artisan make:model Konyv -mfsc</code></pre>
                         </div>
                         <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
                             <h3 class="text-fuchsia-300 font-bold mb-2">2. Adatbázis beállítás (.env)</h3>
-                            <p class="text-gray-400 text-sm mb-2">Az SQLite helyett használd a megadott MySQL
-                                adatbázist:</p>
-                            <pre><code class="language-env">DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=konyvtar
-DB_USERNAME=root
-DB_PASSWORD=</code></pre>
+                            <p class="text-gray-400 text-sm mb-2">A Laravel 11/12 alapból SQLite-ot használ! Nincs szükség XAMPP MySQL-re, ha a feladat nem kéri kifejezetten!</p>
+                            <pre><code class="language-env">DB_CONNECTION=sqlite
+# A DB_HOST, DB_PORT, stb. sorok kitörölhetők.
+# A database/database.sqlite automatikusan létrejön.</code></pre>
                         </div>
                     </div>
 
-                    <!-- Lépés 3-4 -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
-                            <h3 class="text-fuchsia-300 font-bold mb-2">3. Migráció (database/migrations)</h3>
-                            <p class="text-gray-400 text-sm mb-2">Adjuk meg a mezőket a migration fájl up() metódusában:
-                            </p>
-                            <pre><code class="language-php">Schema::create('konyvek', function (Blueprint $table) {
-    $table-&gt;id();
-    $table-&gt;string('isbn', 13);
-    $table-&gt;string('cim');
-    $table-&gt;string('szerzo');
-    $table-&gt;year('kiadasi_ev');
-    $table-&gt;string('mufaj', 100);
-    $table-&gt;integer('peldanyszam');
-    // Ha nem kéri a feladat az időt, vedd ki a timestamps()-et
+                    <!-- Lépés 3 -->
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-fuchsia-300 font-bold mb-2">3. Migráció &amp; Modell beállítása</h3>
+                        <p class="text-gray-400 text-sm mb-2"><code>database/migrations/...create_konyvs_table.php</code>:</p>
+                        <pre><code class="language-php">Schema::create('konyvs', function (Blueprint $table) {
+    $table->id();
+    $table->string('cim');
+    $table->string('szerzo');
+    $table->integer('ev');
+    $table->integer('oldalszam');
+    $table->boolean('elerheto')->default(true);
+    $table->timestamps();
 });</code></pre>
-                        </div>
-                        <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
-                            <h3 class="text-fuchsia-300 font-bold mb-2">4. Migrálás és Modell beállítása</h3>
-                            <p class="text-gray-400 text-sm mb-2">Migrálás: <code
-                                    class="text-indigo-300">php artisan migrate</code></p>
-                            <p class="text-gray-400 text-sm mb-2 mt-2">Mivel magyar nevet használunk, a Modellben meg
-                                kell adni a táblanevet és kikapcsolni a timestamps-et:</p>
-                            <pre><code class="language-php">class Konyv extends Model {
-    protected $table = 'konyvek';
-    public $timestamps = false;
-    protected $fillable = ['isbn', 'cim', 'szerzo', 'kiadasi_ev', 'mufaj', 'peldanyszam'];
+                        <p class="text-gray-400 text-sm mb-2 mt-4"><code>app/Models/Konyv.php</code>:</p>
+                        <pre><code class="language-php">class Konyv extends Model {
+    use HasFactory;
+    public $timestamps = false; // Ha nincs időbélyeg (itt mondjuk volt a migrációban)
+    protected $fillable = ['cim', 'szerzo', 'ev', 'oldalszam', 'elerheto'];
 }</code></pre>
-                        </div>
+                    </div>
+
+                    <!-- Lépés 4 -->
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-fuchsia-300 font-bold mb-2">4. Seeder (CSV Beolvasás)</h3>
+                        <p class="text-gray-400 text-sm mb-2"><code>database/seeders/KonyvSeeder.php</code> (NE FELEJTSD a `use App\Models\Konyv;`-t):</p>
+                        <pre><code class="language-php">public function run(): void {
+    $file = database_path('seeders/konyvek.csv');
+    $handle = fopen($file, 'r');
+    $headers = fgetcsv($handle, 0, ';');
+    $headers = array_map(fn($h) => trim($h, '"'), $headers);
+    
+    while (($row = fgetcsv($handle, 0, ';')) !== false) {
+        $data = array_combine($headers, $row);
+        Konyv::create([
+            'cim'       => $data['cim'],
+            'szerzo'    => $data['szerzo'],
+            'ev'        => (int) $data['ev'],
+            'oldalszam' => (int) $data['oldalszam'],
+            'elerheto'  => (bool) $data['elerheto'],
+        ]);
+    }
+    fclose($handle);
+}</code></pre>
+                        <p class="text-gray-400 text-sm mb-2 mt-4"><code>database/seeders/DatabaseSeeder.php</code>:</p>
+                        <pre><code class="language-php">public function run(): void {
+    $this->call([ KonyvSeeder::class ]);
+}</code></pre>
+                        <p class="text-gray-400 text-sm mb-2 mt-2"><strong>Futtatás:</strong> <code>php artisan migrate:fresh --seed</code></p>
                     </div>
 
                     <!-- Lépés 5 -->
@@ -1259,70 +1274,70 @@ DB_PASSWORD=</code></pre>
                         <h3 class="text-fuchsia-300 font-bold mb-2">5. Útvonalak (routes/web.php)</h3>
                         <pre><code class="language-php">use App\Http\Controllers\KonyvController;
 
-Route::get('/konyvek', [KonyvController::class, 'getJson']);
-Route::get('/lista', [KonyvController::class, 'lista']);
+Route::get('/konyvek', [KonyvController::class, 'index']);
+Route::get('/adatok', [KonyvController::class, 'getJson']);
 Route::get('/create', [KonyvController::class, 'create']);
 Route::post('/store', [KonyvController::class, 'store']);
 Route::get('/edit/{id}', [KonyvController::class, 'edit']);
 Route::post('/update/{id}', [KonyvController::class, 'update']);
-// Ha a törléshez nem kell authentikáció:
-Route::get('/torles/{id}', [KonyvController::class, 'torles'])-&gt;withoutMiddleware('auth');</code></pre>
+// A Törlés route védelme a feladat szerint:
+Route::get('/torles/{id}', [KonyvController::class, 'delete'])->middleware('auth');</code></pre>
                     </div>
 
                     <!-- Lépés 6 -->
                     <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
-                        <h3 class="text-fuchsia-300 font-bold mb-2">6. Controller
-                            (app/Http/Controllers/KonyvController.php)</h3>
+                        <h3 class="text-fuchsia-300 font-bold mb-2">6. Controller (app/Http/Controllers/KonyvController.php)</h3>
                         <div class="max-h-80 overflow-y-auto">
-                            <pre><code class="language-php">use App\Models\Konyv; // NE FELEJTSD EL BEIMPORTÁLNI!
+                            <pre><code class="language-php">use App\Models\Konyv;
 
 class KonyvController extends Controller {
-    public function getJson() {
-        return response()-&gt;json(Konyv::all());
+    public function index() {
+        $konyvek = Konyv::orderBy('ev')->get();
+        return view('lista', compact('konyvek'));
     }
 
-    public function lista() {
-        $konyvek = Konyv::orderBy('mufaj')-&gt;orderBy('kiadasi_ev')-&gt;orderBy('cim')-&gt;get();
-        return view('lista', compact('konyvek'));
+    public function getJson() {
+        return response()->json(Konyv::orderBy('ev')->get());
     }
 
     public function create() {
         return view('create');
     }
 
-    public function store() {
+    public function store(Request $request) {
         $konyv = new Konyv();
-        $konyv-&gt;isbn = request('isbn');
-        $konyv-&gt;cim = request('cim');
-        $konyv-&gt;szerzo = request('szerzo');
-        $konyv-&gt;kiadasi_ev = request('kiadasi_ev');
-        $konyv-&gt;mufaj = request('mufaj');
-        $konyv-&gt;peldanyszam = request('peldanyszam');
-        $konyv-&gt;save();
-        return redirect('/lista');
+        $konyv->cim = $request->cim;
+        $konyv->szerzo = $request->szerzo;
+        $konyv->ev = $request->ev;
+        $konyv->oldalszam = $request->oldalszam;
+        $konyv->elerheto = $request->elerheto;
+        $konyv->save();
+        return redirect('/konyvek');
     }
 
     public function edit($id) {
-        $konyv = Konyv::find($id);
+        $konyv = Konyv::findOrFail($id);
         return view('edit', compact('konyv'));
     }
 
-    public function update($id) {
-        $konyv = Konyv::find($id);
-        $konyv-&gt;isbn = request('isbn');
-        $konyv-&gt;cim = request('cim');
-        // ... többi mező beállítása
-        $konyv-&gt;save();
-        return redirect('/lista');
+    public function update(Request $request, $id) {
+        $konyv = Konyv::findOrFail($id);
+        $konyv->cim = $request->cim;
+        $konyv->szerzo = $request->szerzo;
+        $konyv->ev = $request->ev;
+        $konyv->oldalszam = $request->oldalszam;
+        $konyv->elerheto = $request->elerheto;
+        $konyv->save();
+        return redirect('/konyvek');
     }
 
-    public function torles($id) {
+    public function delete($id) {
         $konyv = Konyv::find($id);
         if ($konyv) {
-            $konyv-&gt;delete();
-            return redirect('/lista');
+            $konyv->delete();
+            return redirect('/konyvek');
         }
-        return redirect('/konyvek');
+        return redirect('/adatok');
     }
 }</code></pre>
                         </div>
@@ -1330,53 +1345,46 @@ class KonyvController extends Controller {
 
                     <!-- Lépés 7 -->
                     <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
-                        <h3 class="text-fuchsia-300 font-bold mb-2">7. Validáció Blade nézetben (JS példa ISBN-re az
-                            edit.blade.php-ban)</h3>
-                        <p class="text-gray-400 text-sm mb-2">Pl. frontend ISBN ellenőrzés form beküldéskor
-                            JavaScript-el (10 vagy 13 számjegy):</p>
-                        <pre><code class="language-html">&lt;form action="{{ url('/update/' . $konyv-&gt;id) }}" method="POST" id="editForm"&gt;
+                        <h3 class="text-fuchsia-300 font-bold mb-2">7. Blade Nézetek (lista, create, edit)</h3>
+                        
+                        <p class="text-gray-400 text-sm mb-2 font-semibold">lista.blade.php</p>
+                        <pre><code class="language-html">@foreach($konyvek as $k)
+&lt;tr&gt;
+    &lt;td&gt;{{ $k->cim }}&lt;/td&gt;
+    &lt;td&gt;{{ $k->szerzo }}&lt;/td&gt;
+    &lt;td&gt;{{ $k->ev }}&lt;/td&gt;
+    &lt;td&gt;{{ $k->oldalszam }}&lt;/td&gt;
+    &lt;td&gt;{{ $k->elerheto ? 'Igen' : 'Nem' }}&lt;/td&gt;
+    &lt;td&gt;
+        &lt;a href="/edit/{{ $k->id }}"&gt;Szerkesztés&lt;/a&gt;
+        @auth
+            &lt;a href="/torles/{{ $k->id }}"&gt;Törlés&lt;/a&gt;
+        @endauth
+    &lt;/td&gt;
+&lt;/tr&gt;
+@endforeach</code></pre>
+                        
+                        <p class="text-gray-400 text-sm mb-2 mt-4 font-semibold">create.blade.php (Részlet)</p>
+                        <pre><code class="language-html">&lt;form action="/store" method="POST"&gt;
     @csrf
-    &lt;input type="text" name="isbn" id="isbn" value="{{ $konyv-&gt;isbn }}" maxlength="13"&gt;
-    &lt;div class="hiba-uzenet" id="isbnHiba" style="display:none; color:#e74c3c;"&gt;Az ISBN csak 10 vagy 13 jegyű szám lehet!&lt;/div&gt;
-    
-    &lt;!-- többi mező --&gt;
+    &lt;input type="text" name="cim"&gt;
+    &lt;!-- A logikai érték trükkje: --&gt;
+    &lt;input type="hidden" name="elerheto" value="0"&gt;
+    &lt;input type="checkbox" name="elerheto" value="1" checked&gt;
     &lt;button type="submit"&gt;Mentés&lt;/button&gt;
-&lt;/form&gt;
+&lt;/form&gt;</code></pre>
 
-&lt;script&gt;
-    document.getElementById('editForm').addEventListener('submit', function(e) {
-        const isbn = document.getElementById('isbn').value;
-        const hibaMezо = document.getElementById('isbnHiba');
-        // Regex: pontosan 10 vagy 13 számjegy
-        if (!/^\d{10}$|^\d{13}$/.test(isbn)) {
-            e.preventDefault(); // Ne küldje el a formot, ha rossz az ISBN
-            hibaMezо.style.display = 'block';
-        } else {
-            hibaMezо.style.display = 'none';
-        }
-    });
-&lt;/script&gt;</code></pre>
+                        <p class="text-gray-400 text-sm mb-2 mt-4 font-semibold">edit.blade.php (Részlet)</p>
+                        <pre><code class="language-html">&lt;form action="/update/{{ $konyv->id }}" method="POST"&gt;
+    @csrf
+    &lt;input type="text" name="cim" value="{{ $konyv->cim }}"&gt;
+    &lt;!-- Előre beállított checkbox: --&gt;
+    &lt;input type="hidden" name="elerheto" value="0"&gt;
+    &lt;input type="checkbox" name="elerheto" value="1" {{ $konyv->elerheto ? 'checked' : '' }}&gt;
+    &lt;button type="submit"&gt;Mentés&lt;/button&gt;
+&lt;/form&gt;</code></pre>
                     </div>
 
-                    <div class="bg-red-900/30 border border-red-700/50 rounded-xl p-4 mt-4">
-                        <p class="text-red-300 font-bold text-sm mb-2">⚠️ Tipikus hibák javítása ebből a projektből:</p>
-                        <ul class="text-gray-300 text-sm list-disc pl-5 space-y-2 mt-2">
-                            <li><strong class="text-white">Mentéskor (updated_at) hiba:</strong> Kikapcsolni az
-                                időbélyegeket a modellben: <code
-                                    class="text-yellow-300 font-mono text-xs">public $timestamps = false;</code></li>
-                            <li><strong class="text-white">Többes szám a táblanévben (konyvs):</strong> A Laravel
-                                angolul teszi többesszámba a modelleket (Konyv → konyvs). Mindig add meg manuálisan, ha
-                                magyar nevet használsz: <code
-                                    class="text-yellow-300 font-mono text-xs">protected $table = 'konyvek';</code></li>
-                            <li><strong class="text-white">RouteNotFoundException (login) törléskor:</strong> A
-                                <code>/torles</code> route-on volt <code>auth</code> middleware, de nem voltunk
-                                bejelentkezve. Le kell venni a middleware-t, vagy bejelentkezés kell hozzá.</li>
-                            <li><strong class="text-white">POST útvonal 404 vagy GET hiba:</strong> A szerkesztés form
-                                tagjébe megfelelő URL kell: <code
-                                    class="text-yellow-300 font-mono text-xs">action="/update/{{ $konyv-&gt;id }}"</code>
-                                (vagy url() helperrel), és a method POST kell legyen.</li>
-                        </ul>
-                    </div>
                 </div>
             </section>
 
