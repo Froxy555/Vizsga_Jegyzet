@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hu" class="dark scroll-smooth">
 
 <head>
@@ -267,6 +267,10 @@
                     (mai_menu)</a>
                 <a href="#sec-designer"
                     class="nav-link text-green-400 font-bold">10. GUI Lépésről Lépésre (Designer)</a>
+                <a href="#sec-extra"
+                    class="nav-link text-orange-400 font-bold">11. Extra vizsgatippek</a>
+                <a href="#sec-zenek"
+                    class="nav-link text-pink-400 font-bold">12. ZENEK (Összetett feladat)</a>
             </nav>
         </aside>
 
@@ -394,6 +398,25 @@ foreach (string sor in sorok)
     
     tanulok.Add(uj);
 }</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-green-800/60">StreamReader (Nagy fájlokhoz / Soronként)</div>
+                            <pre><code class="language-csharp">using (StreamReader sr = new StreamReader("adatok.txt", Encoding.UTF8))
+{
+    while (!sr.EndOfStream)
+    {
+        string sor = sr.ReadLine();
+        // Feldolgozás...
+    }
+}</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-green-800/60">File.ReadAllText (Egyben az egész)</div>
+                            <pre><code class="language-csharp">// Ha pl. JSON-t vagy egyetlen nagy blokkot olvasol:
+string tartalom = File.ReadAllText("info.txt", Encoding.UTF8);
+
+// Sorokra bontás utólag:
+string[] sorok = tartalom.Split('\n');</code></pre>
                         </div>
                         <div class="keret">
                             <div class="fejlec bg-green-800/60">Több elválasztó (szóköz és TAB) egyszerre</div>
@@ -574,6 +597,45 @@ foreach(Elem e in lista) {
         ertekek[index] += e.Ertek;
     }
 }</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-yellow-800/60">LINQ - A leggyorsabb megoldások</div>
+                            <pre><code class="language-csharp">using System.Linq; // Elengedhetetlen!
+
+// Szűrés (Where)
+var felnottek = tanulok.Where(t => t.Kor >= 18).ToList();
+
+// Sorrend (OrderBy)
+var rendezett = tanulok.OrderBy(t => t.Nev).ToList(); // Növekvő
+var forditott = tanulok.OrderByDescending(t => t.Kor).ToList(); // Csökkenő
+
+// Első elem vagy hiba nélkül (FirstOrDefault)
+var keresett = tanulok.FirstOrDefault(t => t.Nev == "Béla");
+if (keresett != null) { /* megvan */ }
+
+// Maximum/Minimum érték
+int maxKor = tanulok.Max(t => t.Kor);
+double atlag = tanulok.Average(t => t.Atlag);
+
+// Csoportosítás és számlálás (LINQ-val)
+var stat = tanulok.GroupBy(t => t.Osztaly)
+                  .Select(g => new { Osztaly = g.Key, Db = g.Count() });</code></pre>
+                        </div>
+                        <div class="keret">
+                            <div class="fejlec bg-yellow-800/60">Időkezelés (TimeSpan / DateTime)</div>
+                            <pre><code class="language-csharp">// Időtartam megadása: óra, perc, másodperc
+TimeSpan ido = new TimeSpan(1, 30, 0); // 1 óra 30 perc
+
+// Idő hozzáadása
+ido = ido.Add(new TimeSpan(0, 5, 0)); // +5 perc
+
+// Formázás (00:00:00 formátum)
+string s = ido.ToString(@"hh\:mm\:ss");
+
+// Két időpont különbsége
+DateTime start = DateTime.Now;
+// ... folyamat ...
+TimeSpan eltelIdo = DateTime.Now - start;</code></pre>
                         </div>
                     </div>
                 </section>
@@ -1383,6 +1445,220 @@ class Form1 : Form
                 </section>
 
             </div>
+                <!-- ===== 11. EXTRA VIZSGATIPPEK ===== -->
+                <section id="sec-extra" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-orange-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-orange-700 text-white">11</span> Extra vizsgatippek & Speciális eszközök
+                    </h2>
+                    <p class="text-gray-400 text-sm mb-6">Olyan kódok és trükkök, amik ritkábban jönnek elő, de pontot érhetnek (Mátrixok, Dictionary, Regex, fájlkezelés).</p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="keret">
+                            <div class="fejlec bg-orange-800/60">Mátrixok (2D tömbök)</div>
+                            <pre><code class="language-csharp">// Deklaráció (10x10-es tábla)
+int[,] tabla = new int[10, 10];
+
+// Feltöltés (pl. fájlból vagy ciklussal)
+for (int i = 0; i &lt; 10; i++) {
+    for (int j = 0; j &lt; 10; j++) {
+        tabla[i, j] = rnd.Next(1, 100);
+    }
+}
+
+// Bejárás (sor és oszlop szerint)
+int sorok = tabla.GetLength(0);
+int oszlopok = tabla.GetLength(1);</code></pre>
+                        </div>
+
+                        <div class="keret">
+                            <div class="fejlec bg-orange-800/60">Dictionary (Számlálás / Statisztika)</div>
+                            <pre><code class="language-csharp">// Ha nem akarsz LINQ-t: Dictionary&lt;Kulcs, Érték&gt;
+Dictionary&lt;string, int&gt; stat = new Dictionary&lt;string, int&gt;();
+
+foreach (var nev in nevek) {
+    if (stat.ContainsKey(nev)) {
+        stat[nev]++;
+    } else {
+        stat[nev] = 1;
+    }
+}
+
+// Kiírás:
+foreach (var par in stat) {
+    Console.WriteLine($"{par.Key}: {par.Value} db");
+}</code></pre>
+                        </div>
+
+                        <div class="keret">
+                            <div class="fejlec bg-orange-800/60">Speciális String/Char műveletek</div>
+                            <pre><code class="language-csharp">char c = 'A';
+char.IsDigit(c);   // Szám? (false)
+char.IsLetter(c);  // Betű? (true)
+char.IsUpper(c);   // Nagybetű? (true)
+
+string s = "alma";
+s = s.PadLeft(10, '0'); // "000000alma" (feltöltés)
+
+// Regex (pl. formátum ellenőrzés)
+using System.Text.RegularExpressions;
+bool joFormatu = Regex.IsMatch("2024.01.01", @"^\d{4}\.\d{2}\.\d{2}$");</code></pre>
+                        </div>
+
+                        <div class="keret">
+                            <div class="fejlec bg-orange-800/60">Fájl és Mappa műveletek</div>
+                            <pre><code class="language-csharp">using System.IO;
+
+// Összes fájl listázása egy mappából
+string[] fajlok = Directory.GetFiles("eleresi_ut", "*.txt");
+
+// Mappa létrehozása
+if (!Directory.Exists("eredmenyek")) {
+    Directory.CreateDirectory("eredmenyek");
+}
+
+// Fájl másolása
+File.Copy("eredeti.txt", "masolat.txt", true); // true = felülírja</code></pre>
+                        </div>
+
+                        <div class="keret">
+                            <div class="fejlec bg-orange-800/60">GUI: ComboBox & OpenFileDialog</div>
+                            <pre><code class="language-csharp">// ComboBox feltöltése
+cbVarosok.Items.Add("Budapest");
+cbVarosok.SelectedIndex = 0; // Első elem kiválasztása
+
+// Fájl megnyitása ablakkal
+OpenFileDialog ofd = new OpenFileDialog();
+ofd.Filter = "Szöveges fájlok (*.txt)|*.txt|Minden fájl (*.*)|*.*";
+
+if (ofd.ShowDialog() == DialogResult.OK) {
+    string utvonal = ofd.FileName;
+    // Olvasás indulhat...
+}</code></pre>
+                        </div>
+
+                        <div class="keret">
+                            <div class="fejlec bg-orange-800/60">Hibakezelés (Try-Catch)</div>
+                            <pre><code class="language-csharp">try {
+    int szam = int.Parse(Console.ReadLine());
+} catch (FormatException) {
+    Console.WriteLine("Nem számot adtál meg!");
+} catch (Exception ex) {
+    Console.WriteLine("Valami más hiba: " + ex.Message);
+} finally {
+    // Ez mindenképpen lefut (pl. lezárások)
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 12. ZENEK (ÖSSZETETT FELADAT) ===== -->
+                <section id="sec-zenek" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-pink-500">
+                    <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                        <span class="badge bg-pink-700 text-white">12</span> ZENEK (Összetett feladat megoldása)
+                    </h2>
+                    <p class="text-gray-400 text-sm mb-4">Ez a feladat bemutatja a fájlbeolvasást, az előadónkénti statisztikát, a véletlenszerű műsor-összeállítást és az időkezelést (TimeSpan) hírek beiktatásával.</p>
+                    
+                    <div class="grid grid-cols-1 gap-6 mb-4">
+                        <div class="keret">
+                            <div class="fejlec bg-pink-800/60 flex justify-between items-center">
+                                <span>ZENEK Megoldás (Program.cs)</span>
+                            </div>
+                            <pre style="max-height: 600px; overflow-y: auto;"><code class="language-csharp">using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+
+namespace ZenekAlkalmazas
+{
+    class Zene
+    {
+        public int Perc { get; set; }
+        public int Masodperc { get; set; }
+        public string Eloado { get; set; }
+        public string Cim { get; set; }
+
+        public TimeSpan Idotartam =&gt; new TimeSpan(0, Perc, Masodperc);
+
+        public Zene(string sor)
+        {
+            // adatok.txt: perc:m&#225;sodperc;el&#337;ad&#243;:zene c&#237;me
+            string[] reszek = sor.Split(';');
+            string[] ido = reszek[0].Split(':');
+            string[] adat = reszek[1].Split(':');
+
+            Perc = int.Parse(ido[0]);
+            Masodperc = int.Parse(ido[1]);
+            Eloado = adat[0];
+            Cim = adat[1];
+        }
+    }
+
+    class Program
+    {
+        static List&lt;Zene&gt; zenek = new List&lt;Zene&gt;();
+
+        static void Main(string[] args)
+        {
+            // 1. Beolvas&#225;s
+            try {
+                string[] sorok = File.ReadAllLines("adatok.txt", Encoding.UTF8);
+                foreach (var sor in sorok) {
+                    if (!string.IsNullOrWhiteSpace(sor))
+                        zenek.Add(new Zene(sor));
+                }
+            } catch (Exception ex) {
+                Console.WriteLine("Hiba: " + ex.Message);
+            }
+
+            // 2. El&#337;ad&#243;nk&#233;nti darabsz&#225;m (LINQ GroupBy)
+            Console.WriteLine("Statisztika:");
+            var stat = zenek.GroupBy(z =&gt; z.Eloado)
+                           .Select(g =&gt; new { Nev = g.Key, Db = g.Count() });
+            
+            foreach (var s in stat)
+                Console.WriteLine($"{s.Nev}: {s.Db} db");
+
+            // 3-6. M&#337;sor &#246;ssze&#225;ll&#237;t&#225;sa
+            List&lt;string&gt; musor = new List&lt;string&gt;();
+            Random rnd = new Random();
+            TimeSpan ido = new TimeSpan(0, 0, 0); // 00:00:00-t&#243;l indul
+            int szamlalo = 0;
+
+            while (szamlalo &lt; 250 &amp;&amp; zenek.Count &gt; 0)
+            {
+                Zene kivalasztott = zenek[rnd.Next(zenek.Count)];
+                
+                // K&#246;vetkez&#337; eg&#233;sz &#243;ra (H&#237;rek id&#337;pontja)
+                TimeSpan kovetkezoHirek = new TimeSpan(ido.Hours + 1, 0, 0);
+                
+                // 1 perc intro + zene hossza
+                TimeSpan zeneVege = ido.Add(new TimeSpan(0, 1, 0)).Add(kivalasztott.Idotartam);
+
+                // Ha nem &#233;rne v&#233;get a h&#237;rekig, akkor j&#246;jjenek a h&#237;rek
+                if (zeneVege &gt; kovetkezoHirek)
+                {
+                    musor.Add($"{kovetkezoHirek:hh\\:mm\\:ss} H&#237;rek");
+                    ido = kovetkezoHirek.Add(new TimeSpan(0, 3, 0)); // 3 perces h&#237;rek
+                }
+                else
+                {
+                    ido = ido.Add(new TimeSpan(0, 1, 0)); // 1 perces intro
+                    musor.Add($"{ido:hh\\:mm\\:ss} {kivalasztott.Cim}");
+                    ido = ido.Add(kivalasztott.Idotartam);
+                    szamlalo++;
+                }
+            }
+
+            // 7. Ki&#237;r&#225;s
+            File.WriteAllLines("musor.txt", musor, Encoding.UTF8);
+            Console.WriteLine("musor.txt k&#233;sz!");
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
         </main>
 
         <!-- Vissza a főoldalra gomb -->

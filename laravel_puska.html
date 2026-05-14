@@ -322,8 +322,9 @@
                 <a href="#sec-named" class="nav-link">12. Named Routes</a>
                 <a href="#sec-spoof" class="nav-link">13. Method Spoofing</a>
                 <a href="#sec-modell2" class="nav-link">14. Modell (haladó)</a>
-                <a href="#sec-konyvtar" class="nav-link">15. Könyvtár Projekt (Példa)</a>
+                <a href="#sec-konyvtar" class="nav-link">15. Könyvtár Projekt (Példa 1)</a>
                 <a href="#sec-leadas" class="nav-link">16. Vizsga leadás (Export & ZIP)</a>
+                <a href="#sec-szallas" class="nav-link">17. Szállás Projekt (Példa 2)</a>
             </nav>
         </aside>
 
@@ -1463,6 +1464,99 @@ class KonyvController extends Controller {
                                 <code class="font-mono text-blue-200">composer install</code> paranccsal újra letölti a
                                 vendor mappát, így az nem kell a beadandóba.</p>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== 17. SZÁLLÁS KÖZVETÍTÉS PROJEKT ===== -->
+            <section id="sec-szallas" class="glass rounded-2xl p-6 shadow-2xl border-l-4 border-amber-500 mt-10">
+                <h2 class="text-2xl font-bold text-white flex items-center border-b border-gray-700 pb-3 mb-5">
+                    <span class="badge bg-amber-600">17</span> Vizsgafeladat: Szállás közvetítés (Lépésről lépésre)
+                </h2>
+
+                <div class="space-y-6">
+                    <!-- Lépés 1: Alapok -->
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-amber-300 font-bold mb-2">1. Projekt és Adatbázis setup</h3>
+                        <pre><code class="language-bash"># Projekt létrehozása (pl. backend monogrammal)
+composer create-project laravel/laravel backendAG
+cd backendAG
+
+# Adatbázis létrehozása (MySQL példa XAMPP-pal)
+# C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE igenyek CHARACTER SET utf8mb4 COLLATE utf8mb4_hungarian_ci;"
+
+# .env beállítása
+DB_CONNECTION=mysql
+DB_DATABASE=igenyek
+DB_USERNAME=root
+DB_PASSWORD=</code></pre>
+                    </div>
+
+                    <!-- Lépés 2: Auth és User -->
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-amber-300 font-bold mb-2">2. Hitelesítés és Felhasználók</h3>
+                        <p class="text-gray-400 text-sm mb-2">Laravel Breeze telepítése (Blade stack):</p>
+                        <pre><code class="language-bash">composer require laravel/breeze --dev
+php artisan breeze:install blade
+php artisan migrate</code></pre>
+                        <p class="text-gray-400 text-sm mb-2 mt-4">Felhasználók felvétele (UserSeeder.php):</p>
+                        <pre><code class="language-php">public function run(): void {
+    \App\Models\User::create([
+        'name' => 'tulajdonos',
+        'email' => 'tulajdonos@ceg.hu',
+        'password' => Hash::make('tulajdonos1'),
+    ]);
+}</code></pre>
+                        <p class="text-gray-400 text-sm mb-2 mt-2"><strong>Regisztráció letiltása:</strong> A <code>routes/auth.php</code>-ban kommentezd ki a <code>register</code> route-okat.</p>
+                    </div>
+
+                    <!-- Lépés 3: Modell és Migráció -->
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-amber-300 font-bold mb-2">3. Megkeresesek Modell és Migráció</h3>
+                        <pre><code class="language-bash">php artisan make:model Megkeresesek -m</code></pre>
+                        <p class="text-gray-400 text-sm mb-2 mt-2">Migráció (up metódus):</p>
+                        <pre><code class="language-php">Schema::create('megkeresesek', function (Blueprint $table) {
+    $table->id();
+    $table->string('nev');
+    $table->date('tol');
+    $table->integer('ejszakakszama');
+    $table->integer('felnott');
+    $table->integer('gyerek')->nullable();
+    $table->string('telszam');
+    $table->text('megjegyzes')->nullable();
+    $table->timestamps();
+});</code></pre>
+                    </div>
+
+                    <!-- Lépés 4: API és Kontroller -->
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-amber-300 font-bold mb-2">4. Végpontok és Kontroller logika</h3>
+                        <p class="text-gray-400 text-sm mb-2"><code>routes/web.php</code>:</p>
+                        <pre><code class="language-php">Route::get('/adatok', [MegkeresesekController::class, 'index']);
+Route::get('/create', [MegkeresesekController::class, 'create']);
+Route::post('/store', [MegkeresesekController::class, 'store'])->name('megkeresesek.store');
+Route::get('/torles/{id}', [MegkeresesekController::class, 'destroy'])->middleware('auth');</code></pre>
+                        <p class="text-gray-400 text-sm mb-2 mt-4"><code>MegkeresesekController.php</code> (Törlés részlet):</p>
+                        <pre><code class="language-php">public function destroy($id) {
+    $megkereses = Megkeresesek::find($id);
+    if ($megkereses) {
+        $megkereses->delete();
+        return redirect('/'); // Sikeres törlés
+    }
+    return redirect('/adatok'); // Sikertelen törlés
+}</code></pre>
+                    </div>
+
+                    <!-- Lépés 5: View -->
+                    <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700/50">
+                        <h3 class="text-amber-300 font-bold mb-2">5. Nézet (create.blade.php)</h3>
+                        <pre><code class="language-html">&lt;form action="{{ route('megkeresesek.store') }}" method="POST"&gt;
+    @csrf
+    &lt;input type="text" name="nev" required&gt;
+    &lt;input type="date" name="tol" required&gt;
+    &lt;input type="number" name="ejszakakszama" required&gt;
+    &lt;button type="submit"&gt;Mentés&lt;/button&gt;
+&lt;/form&gt;</code></pre>
                     </div>
                 </div>
             </section>
