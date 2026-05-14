@@ -1206,7 +1206,7 @@ GROUP BY nev ORDER BY db DESC LIMIT 1, 1;
             <div class="ai-msg">Szia! Én az intelligens jegyzet-asszisztensed vagyok. Keress bármire a puskában, vagy kérdezz bátran, ha elakadtál egy feladatban, és segítek kikeresni a megoldást!</div>
         </div>
         <div id="ai-chat-input-container">
-            <input type="text" id="ai-chat-input" placeholder="Kérdezz bármit..." onkeypress="handleEnter(event)">
+            <textarea id="ai-chat-input" placeholder="Kérdezz bármit..." rows="1" class="flex-1 bg-gray-900/50 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 resize-none transition-all h-[46px] max-h-32 overflow-y-auto"></textarea>
             <button id="ai-chat-send" onclick="sendMessage()">Küldés</button>
         </div>
     </aside>
@@ -1259,9 +1259,23 @@ GROUP BY nev ORDER BY db DESC LIMIT 1, 1;
         }
     }
 
-    function handleEnter(e) {
-        if(e.key === 'Enter') sendMessage();
-    }
+    
+        function handleEnter(e) {
+            if(e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+        
+        // Auto-resize for textarea
+        if (inputField) {
+            inputField.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+            inputField.addEventListener('keydown', handleEnter);
+        }
+
 
     function escapeHTML(str) {
         return str.replace(/[&<>'"]/g, tag => ({
@@ -1303,6 +1317,7 @@ GROUP BY nev ORDER BY db DESC LIMIT 1, 1;
 
         addMessage(text, true);
         inputField.value = '';
+            inputField.style.height = '46px';
         inputField.disabled = true;
         
         conversationHistory.push({ role: "user", parts: [{ text }] });
