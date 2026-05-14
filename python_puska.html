@@ -179,6 +179,28 @@
             0%, 80%, 100% { transform: scale(0); }
             40% { transform: scale(1.5); }
         }
+    
+        /* Chat panel resize handle */
+        #ai-chat-resize-handle {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 6px;
+            height: 100%;
+            cursor: col-resize;
+            background: transparent;
+            transition: background 0.2s;
+            z-index: 20;
+        }
+        #ai-chat-resize-handle:hover,
+        #ai-chat-resize-handle.dragging {
+            background: rgba(168, 85, 247, 0.5);
+        }
+        #ai-chat-window {
+            position: relative;
+            min-width: 260px;
+            max-width: 700px;
+        }
     </style>
 
     <script>
@@ -1739,6 +1761,42 @@ for adat in adatok:
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js">
+        // === Chat panel resize ===
+        (function() {
+            const handle = document.getElementById('ai-chat-resize-handle');
+            const panel = document.getElementById('ai-chat-window');
+            if (!handle || !panel) return;
+
+            let isResizing = false;
+            let startX, startW;
+
+            handle.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                startX = e.clientX;
+                startW = panel.offsetWidth;
+                handle.classList.add('dragging');
+                document.body.style.userSelect = 'none';
+                document.body.style.cursor = 'col-resize';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing) return;
+                const dx = startX - e.clientX; // panel is on the right, so dragging left = wider
+                const newW = Math.min(700, Math.max(260, startW + dx));
+                panel.style.width = newW + 'px';
+                panel.classList.remove('w-80');
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (!isResizing) return;
+                isResizing = false;
+                handle.classList.remove('dragging');
+                document.body.style.userSelect = '';
+                document.body.style.cursor = '';
+            });
+        })();
+    </script>
 </body>
 </html>
