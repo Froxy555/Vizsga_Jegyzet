@@ -1475,13 +1475,7 @@ class Form1 : Form
             const text = inputField.value.trim();
             if(!text) return;
             
-            if(GEMINI_API_KEY === "PROXY_USED_NO_KEY_NEEDED" || GEMINI_API_KEY.trim() === "") {
-                addMessage(text, true);
-                inputField.value = '';
-                const hibaUzenet = "Kérlek, nyisd meg a HTML fájlt egy szerkesztőben (pl. VS Code), és írd be a saját Gemini API kulcsodat a kód legalján található `GEMINI_API_KEY` változóba!\n\nIngyenes kulcsot itt kérhetsz:\nhttps://aistudio.google.com/app/apikey";
-                addMessage(hibaUzenet, false);
-                return;
-            }
+            // API kulcs a szerveren (Netlify env), itt nincs szükség rá
 
             addMessage(text, true);
             inputField.value = '';
