@@ -437,6 +437,12 @@
     margin: 48px 0;
   }
 </style>
+
+    <script>
+        if (sessionStorage.getItem("isLoggedIn") !== "true") {
+            window.location.href = "index.html";
+        }
+    </script>
 </head>
 <body>
 <div class="wrapper">

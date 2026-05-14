@@ -180,6 +180,12 @@
             40% { transform: scale(1.5); }
         }
     </style>
+
+    <script>
+        if (sessionStorage.getItem("isLoggedIn") !== "true") {
+            window.location.href = "index.html";
+        }
+    </script>
 </head>
 <body class="text-gray-200 antialiased">
 <div class="flex min-h-screen">
@@ -1583,10 +1589,7 @@ for adat in adatok:
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
     </a>
 
-    <!-- AI Chatbot Button -->
-    <div id="ai-chat-btn" onclick="toggleChat()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-    </div>
+    
 
     <!-- AI Chatbot HTML (Jobb oldali sáv) -->
     <aside id="ai-chat-window" class="hidden flex-col w-80 shrink-0 glass border-l border-gray-800 sticky top-0 h-screen z-10">
@@ -1618,6 +1621,14 @@ for adat in adatok:
     const chatWindow = document.getElementById('ai-chat-window');
     const messagesDiv = document.getElementById('ai-chat-messages');
     const inputField = document.getElementById('ai-chat-input');
+
+    // Alt+C for opening/closing chat
+    document.addEventListener('keydown', function(event) {
+        if (event.altKey && (event.key === 'c' || event.key === 'C')) {
+            event.preventDefault();
+            toggleChat();
+        }
+    });
     
     // System prompt, hogy az AI tudja mi a feladata
     let conversationHistory = [

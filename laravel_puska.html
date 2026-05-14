@@ -267,6 +267,12 @@
             }
         }
     </style>
+
+    <script>
+        if (sessionStorage.getItem("isLoggedIn") !== "true") {
+            window.location.href = "index.html";
+        }
+    </script>
 </head>
 
 <body class="text-gray-200 antialiased">
@@ -1486,6 +1492,14 @@ class KonyvController extends Controller {
         const chatWindow = document.getElementById('ai-chat-window');
         const messagesDiv = document.getElementById('ai-chat-messages');
         const inputField = document.getElementById('ai-chat-input');
+
+    // Alt+C for opening/closing chat
+    document.addEventListener('keydown', function(event) {
+        if (event.altKey && (event.key === 'c' || event.key === 'C')) {
+            event.preventDefault();
+            toggleChat();
+        }
+    });
 
         // System prompt, hogy az AI tudja mi a feladata
         let conversationHistory = [
